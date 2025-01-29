@@ -46,8 +46,7 @@ const Login = () => {
                     </div>
                     <button type="submit" className="btn btn-primary btn-block">Ingresar</button>
                 </form>
-                <p className="text-center"><a href="/forgot-password">¿Olvidaste tu contraseña?</a></p>
-                <p className="text-center"><a href="/register">Crear nueva cuenta</a></p>
+                
             </div>
         </div>
     );
