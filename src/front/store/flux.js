@@ -3,6 +3,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 		store: {
 			message: null,
 			isAuthenticated: false, // Add isAuthenticated state
+			users: [] // Add users state
 		},
 		actions: {
 			login: async (username, password) => {
@@ -16,7 +17,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 					});
 					if (response.ok) {
 						const data = await response.json();
-						setStore({ user: data.user, isAuthenticated: true }); // Update isAuthenticated
+						setStore({ user: data.user, isAuthenticated: true });
+						console.log("Autenticado") // Update isAuthenticated
 						return data;
 					} else {
 						setStore({ isAuthenticated: false }); // Set to false on login failure
@@ -24,6 +26,41 @@ const getState = ({ getStore, getActions, setStore }) => {
 					}
 				} catch (error) {
 					console.log("Error during login", error);
+				}
+			},
+			addUser: async (userData) => {
+				try {
+					const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/users`, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify(userData),
+					});
+					if (response.ok) {
+						const newUser = await response.json();
+						setStore({ users: [...getStore().users, newUser] }); // Update users state
+					}
+				} catch (error) {
+					console.error('Error adding user:', error);
+				}
+			},
+			editUser: async (userId, userData) => {
+				try {
+					const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/users/${userId}`, {
+						method: 'PUT',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify(userData),
+					});
+					if (response.ok) {
+						const updatedUser = await response.json();
+						const users = getStore().users.map(user => user.id === userId ? updatedUser : user);
+						setStore({ users }); // Update users state
+					}
+				} catch (error) {
+					console.error('Error editing user:', error);
 				}
 			},
 		}

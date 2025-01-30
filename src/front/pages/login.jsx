@@ -8,11 +8,11 @@ const Login = () => {
   const { isAuthenticated } = store; // Assuming isAuthenticated is part of the context
   const navigate = useNavigate(); // Initialize useNavigate
 
-  // // Check authentication status after hooks
-   if (isAuthenticated) {
-     navigate("/dashboard",2000); // Use navigate for redirection
-    //return null; // Prevent rendering the login form
-   }
+  // Check authentication status after hooks
+  if (isAuthenticated) {
+    navigate("/dashboard", 2000); // Use navigate for redirection
+    // return null; // Prevent rendering the login form
+  }
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

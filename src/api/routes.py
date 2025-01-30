@@ -1,5 +1,5 @@
-"""
-This module takes care of starting the API Server, Loading the DB and Adding the endpoints
+""" 
+This module takes care of starting the API Server, Loading the DB and Adding the endpoints 
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User, Cliente, Servicio
@@ -23,8 +23,33 @@ def login_user():
     else:
         return jsonify({"message": "Invalid credentials"}), 401
 
+@api.route('/users', methods=['POST'])
+def create_user():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    role =data.get('role')
+    new_user = User(username=username, password=password, role=role)  # Ensure to hash the password in production
+    db.session.add(new_user)
+    db.session.commit()
+    
+    return jsonify({"message": "User created successfully", "user": new_user.serialize()}), 201
 
-@api.route('/api/users')
+@api.route('/users/<int:user_id>', methods=['PUT'])
+def edit_user(user_id):
+    data = request.get_json()
+    user = User.query.get(user_id)
+    
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    
+    user.username = data.get('username', user.username)
+    user.password = data.get('password', user.password)  # Ensure to hash the password in production
+    db.session.commit()
+    
+    return jsonify({"message": "User updated successfully", "user": user.serialize()}), 200
+
+@api.route('/users')
 def get_users():
     users = User.query.all()
     return jsonify([user.serialize() for user in users]), 200

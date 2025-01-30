@@ -11,6 +11,7 @@ import Dashboard from "../pages/dashboard"; // Ensure this path is correct
 import ClientesPublicos from "../pages/clientesPublicos"; // Import the new page
 import ClientesPrivados from "../pages/clientesPrivados"; // Import the new page
 import DataEntryPage from "../pages/DataEntryPage.jsx";
+import UserRegistrationPage from "../pages/UserRegistrationPage.jsx";
 
 const Layout = () => {
     const basename = process.env.REACT_APP_BASENAME_REACT || "";
@@ -27,6 +28,7 @@ const Layout = () => {
                         <Route path="/clientes-publicos" element={<ClientesPublicos />} /> {/* New route */}
                         <Route path="/clientes-privados" element={<ClientesPrivados />} /> {/* New route */}
                         <Route path="data-registro" element={<DataEntryPage/>} />
+                        <Route path="/user-register" element={<UserRegistrationPage />} />
                         <Route path="*" element={<h1>Not found!</h1>} />
                     </Routes>
                     <Footer />
