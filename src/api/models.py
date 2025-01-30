@@ -76,6 +76,13 @@ class Servicio(db.Model):
             'nombre_servidor': self.nombre_servidor,
             'marca_servidor': self.marca_servidor,
             'modelo_servidor': self.modelo_servidor,
+            'nombre_nodo': self.nombre_nodo,
+            'nombre_plataforma': self.nombre_plataforma,
+            'ram': self.ram,
+            'hdd': self.hdd,
+            'cpu': self.cpu,
+            'tipo_servidor': self.tipo_servidor,
+            'ubicacion': self.ubicacion,
             'observaciones': self.observaciones,
             'facturado': self.facturado,
             'comentarios': self.comentarios
@@ -85,7 +92,7 @@ class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, unique=True)
-    password = db.Column(db.String)
+    password = db.Column(db.String)  # do not serialize the password, it's a security breach
     role = db.Column(db.String)
     
     def __repr__(self):
@@ -98,27 +105,3 @@ class User(db.Model):
             'role': self.role,
         }
 
-def create_connection(app):
-    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
-    db.init_app(app)
-
-
-            # do not serialize the password, its a security breac
-
-
-def create_connection(app):
-    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
-    db.init_app(app)
-
-def create_tables():
-    db.create_all()
-    
-    session = db.session
-    if not session.query(User).filter_by(username='admin').first():
-        admin_user = User(username='admin', password='administrator', role='Admin')
-        session.add(admin_user)
-        session.commit()
-    session.close()
-
-if __name__ == '__main__':
-    create_tables()

@@ -9,9 +9,9 @@ from flask_cors import CORS
 api = Blueprint('api', __name__)
 
 # Allow CORS requests to this API
-CORS(api, supports_credentials=True)
+CORS(api)
 
-@api.route('/api/login', methods=['POST'])
+@api.route('/login', methods=['POST'])
 def login_user():
     data = request.get_json()
     username = data.get('username')
@@ -19,6 +19,12 @@ def login_user():
 
     user = User.query.filter_by(username=username, password=password).first()
     if user:
-        return jsonify({"message": "Login successful", "user": user.to_dict()}), 200
+        return jsonify({"message": "Login successful", "user": user.serialize()}), 200
     else:
         return jsonify({"message": "Invalid credentials"}), 401
+
+
+@api.route('/api/users')
+def get_users():
+    users = User.query.all()
+    return jsonify([user.serialize() for user in users]), 200

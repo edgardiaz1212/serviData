@@ -1,4 +1,4 @@
-""" 
+"""
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints 
 """
 import os
@@ -6,11 +6,11 @@ from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_cors import CORS
 from api.utils import APIException, generate_sitemap
-from api.models import db, create_tables
+from api.models import db, User, Cliente, Servicio
 from api.routes import api
 from api.admin import setup_admin
-
 from dotenv import load_dotenv
+
 load_dotenv()
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
@@ -36,6 +36,16 @@ CORS(app)
 
 # add the admin
 setup_admin(app)
+
+def create_tables():
+    db.create_all()
+    
+    session = db.session
+    if not session.query(User).filter_by(username='admin').first():
+        admin_user = User(username='admin', password='administrator', role='Admin')
+        session.add(admin_user)
+        session.commit()
+    session.close()
 
 # Create tables and ensure admin user exists
 with app.app_context():

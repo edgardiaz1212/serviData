@@ -1,9 +1,19 @@
 import React, { useState, useContext } from "react";
 import { Context } from "../store/appContext";
 import { ToastContainer, toast } from "react-toastify";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const Login = () => {
-  const { actions } = useContext(Context);
+  const { actions, store } = useContext(Context);
+  const { isAuthenticated } = store; // Assuming isAuthenticated is part of the context
+  const navigate = useNavigate(); // Initialize useNavigate
+
+  // // Check authentication status after hooks
+   if (isAuthenticated) {
+     navigate("/dashboard",2000); // Use navigate for redirection
+    //return null; // Prevent rendering the login form
+   }
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -12,7 +22,7 @@ const Login = () => {
     const response = await actions.login(username, password);
     if (response) {
       toast.success("Bienvenido!");
-      // Redirect to dashboard or perform other actions
+      navigate("/dashboard"); // Redirect to dashboard or perform other actions
     } else {
       toast.error("Error de Usuario");
     }
