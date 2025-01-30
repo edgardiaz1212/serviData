@@ -49,7 +49,7 @@ const Navbar = () => {
                 </a>
               </li>
               <li className="nav-item">
-                <span className="nav-link text-white">Hola, {user.username}!</span>
+                <span className="nav-link text-white">Hola, {user ? user.username : 'Usuario'}!</span>
               </li>
             </>
           )}
