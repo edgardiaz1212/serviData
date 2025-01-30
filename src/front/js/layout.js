@@ -8,6 +8,9 @@ import Navbar from "./component/navbar"; // Ensure this path is correct
 import Footer from "./component/footer"; // Ensure this path is correct
 import Login from "../pages/login"; // Ensure this path is correct
 import Dashboard from "../pages/dashboard"; // Ensure this path is correct
+import ClientesPublicos from "../pages/clientesPublicos"; // Import the new page
+import ClientesPrivados from "../pages/clientesPrivados"; // Import the new page
+import DataEntryPage from "../pages/DataEntryPage.jsx";
 
 const Layout = () => {
     const basename = process.env.REACT_APP_BASENAME_REACT || "";
@@ -21,6 +24,9 @@ const Layout = () => {
                     <Routes>
                         <Route path="/" element={<Login />} />
                         <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/clientes-publicos" element={<ClientesPublicos />} /> {/* New route */}
+                        <Route path="/clientes-privados" element={<ClientesPrivados />} /> {/* New route */}
+                        <Route path="data-registro" element={<DataEntryPage/>} />
                         <Route path="*" element={<h1>Not found!</h1>} />
                     </Routes>
                     <Footer />
