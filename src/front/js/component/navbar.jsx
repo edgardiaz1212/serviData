@@ -53,6 +53,11 @@ const Navbar = () => {
               <li className="nav-item">
                 <span className="nav-link text-white">Hola, {user ? user.username : 'Usuario'}!</span>
               </li>
+              <li className="nav-item">
+                <a className="nav-link text-white" href="/">
+                  logout
+                </a>
+              </li>
             </>
           )}
         </ul>
