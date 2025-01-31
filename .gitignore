@@ -1,4 +1,11 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# ignore all files starting with .
+.*
+# track this file .gitignore (i.e. do NOT ignore it)
+!.gitignore
+!.github
+php_errorlog
+.log
 
 # dependencies
 /node_modules
@@ -21,3 +28,5 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+!.env.example
