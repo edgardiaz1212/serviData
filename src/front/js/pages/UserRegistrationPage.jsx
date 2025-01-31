@@ -10,13 +10,18 @@ const UserRegistrationPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/login", 1000);
-    } else {
+    let isMounted = true; // Flag to track if the component is mounted
+    if (!isAuthenticated && isMounted) {
+      navigate("/login", { replace: true }); // Use replace to avoid adding to history
+    } else if (isMounted) {
       actions.fetchUserData(); // Fetch user data when the component mounts
-      
     }
-  }, [isAuthenticated, navigate, actions]);
+    
+    return () => {
+      isMounted = false; // Cleanup function to set the flag to false on unmount
+    };
+  }, []);
+
 
   const [newUser, setNewUser] = useState({
     username: "",
@@ -155,7 +160,7 @@ const UserRegistrationPage = () => {
               <div className="form-group mx-2">
                 <input
                   type="text"
-                  className="form-control"
+                  className="form-control m-2"
                   value={user.username}
                   readOnly={true}
                 />
@@ -178,7 +183,7 @@ const UserRegistrationPage = () => {
             </form>
           ))}
           <UserEditModal
-            user={editingUser}
+            user={user.username}
             show={showModal}
             handleClose={handleClose}
             handleSave={handleSave}

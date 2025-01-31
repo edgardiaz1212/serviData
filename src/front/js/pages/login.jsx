@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react"; // Import useEffect
 import { Context } from "../store/appContext";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
@@ -10,15 +10,16 @@ const Login = () => {
   const navigate = useNavigate(); // Initialize useNavigate
 
   // Check authentication status after hooks
-  if (isAuthenticated) {
-    navigate("/dashboard", 2000)
-    toast.success("Bienvenido!"); // Use navigate for redirection
-    // return null; // Prevent rendering the login form
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard", { replace: true });
+      toast.success("Bienvenido!"); // Use navigate for redirection
+    }
+  }, [isAuthenticated, navigate]);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-console.log(store.user)
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const response = await actions.login(username, password);
@@ -45,8 +46,7 @@ console.log(store.user)
         theme="dark"
       />
       <div className="card p-4" style={{ width: "300px" }}>
-      <h1 className="text-center font-bold text-gray-900">ServiData</h1>
-      
+        <h1 className="text-center font-bold text-gray-900">ServiData</h1>
         <form onSubmit={handleSubmit} className="mt-4">
           <div className="form-group">
             <label htmlFor="username">Nombre de usuario:</label>
