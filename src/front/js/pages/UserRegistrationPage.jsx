@@ -4,7 +4,6 @@ import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import ModalEditUser from "../component/ModalEditUser.jsx";
 
-
 const UserRegistrationPage = () => {
   const { actions, store } = useContext(Context);
   const { users, isAuthenticated, user } = store;
@@ -36,7 +35,6 @@ const UserRegistrationPage = () => {
     role: "user",
   });
   
- 
   useEffect(() => {
     if (user) {
       setCurrentUser({ username: user.username, password: "", role: user.role });
@@ -65,12 +63,16 @@ const UserRegistrationPage = () => {
     setShowModal(false);
   };
 
-  const handleSave = (updatedUser) => {
-    // Lógica para guardar el usuario actualizado
+  const handleSave = async (updatedUser) => {
+    
+    await actions.editUser(updatedUser.id, updatedUser);
+    toast.success("Usuario editado con éxito!");
     setShowModal(false);
   };
-  const handleDelete = (userId) => {
-    // Lógica para eliminar el usuario
+  
+  const handleDelete = async (userId) => {
+    await actions.deleteUser(userId);
+    toast.success("Usuario eliminado con éxito!");
     setShowModal(false);
   };
 
