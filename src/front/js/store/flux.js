@@ -1,16 +1,19 @@
 const getState = ({ getStore, getActions, setStore }) => {
   // Check authentication state from session storage on load
   const isAuthenticated = sessionStorage.getItem("isAuthenticated") === "true";
+  const storedUser = JSON.parse(sessionStorage.getItem("user")); // Retrieve user data from session storage
 
   return {
     store: {
       message: null,
       isAuthenticated: isAuthenticated, // Initialize with session storage value
-      user: null, // Initialize user state
+      user: storedUser || null, // Initialize user state with stored user data
       users: [] // Add users state
     },
+
     actions: {
-      login: async (username, password) => {
+      login: async (username, password) => { 
+        const store = getStore()
         try {
           const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/login`, {
             method: 'POST',
@@ -23,7 +26,10 @@ const getState = ({ getStore, getActions, setStore }) => {
             const data = await response.json();
             setStore({ user: data.user, isAuthenticated: true });
             sessionStorage.setItem("isAuthenticated", "true"); // Store authentication state in session storage
-            console.log("Autenticado"); // Update isAuthenticated
+            sessionStorage.setItem("user", JSON.stringify(data.user)); // Store user data in session storage
+            //localStorage.setItem("user", data.user)
+            console.log("Autenticado", data.user); // Update isAuthenticated
+            console.log("Autenticado data", data);
             return data;
           } else {
             setStore({ isAuthenticated: false }); // Set to false on login failure
@@ -33,41 +39,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during login", error);
         }
       },
-      addUser: async (userData) => {
-        try {
-          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/users`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(userData),
-          });
-          if (response.ok) {
-            const newUser = await response.json();
-            setStore({ users: [...getStore().users, newUser] }); // Update users state
-          }
-        } catch (error) {
-          console.error('Error adding user:', error);
-        }
-      },
-      editUser: async (userId, userData) => {
-        try {
-          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/users/${userId}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(userData),
-          });
-          if (response.ok) {
-            const updatedUser = await response.json();
-            const users = getStore().users.map(user => user.id === userId ? updatedUser : user);
-            setStore({ users }); // Update users state
-          }
-        } catch (error) {
-          console.error('Error editing user:', error);
-        }
-      },
+      // Other actions...
     }
   };
 };

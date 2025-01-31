@@ -7,7 +7,7 @@ const UserRegistrationPage = () => {
     const { actions, store } = useContext(Context);
     const { users, isAuthenticated, userRole } = store; // Assuming userRole is part of the context
     const navigate = useNavigate();
-
+    console.log("del store ",store.user)
     useEffect(() => {
         if (!isAuthenticated) {
             navigate('/login',1000);

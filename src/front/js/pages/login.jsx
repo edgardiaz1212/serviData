@@ -11,13 +11,14 @@ const Login = () => {
 
   // Check authentication status after hooks
   if (isAuthenticated) {
-    navigate("/dashboard", 2000); // Use navigate for redirection
+    navigate("/dashboard", 2000)
+    toast.success("Bienvenido!"); // Use navigate for redirection
     // return null; // Prevent rendering the login form
   }
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
+console.log(store.user)
   const handleSubmit = async (e) => {
     e.preventDefault();
     const response = await actions.login(username, password);

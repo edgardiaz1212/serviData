@@ -1,7 +1,16 @@
-import React from "react";
+import React, { useContext } from "react";
+
+import { Context } from "../store/appContext";
 
 const ClientesPublicos = () => {
-    return (
+    const { store } = useContext(Context);
+    console.log("del store ", store.user);
+    
+    return (<>
+        <div>
+            <h1>Bienvenido {store.user ? store.user.username : 'a Clientes Públicos'}</h1> {/* Display username */}
+</div>
+    
         <div>
             <h1>Clientes Públicos</h1>
             <table>
@@ -77,6 +86,7 @@ const ClientesPublicos = () => {
                 </tbody>
             </table>
         </div>
+        </>
     );
 };
 

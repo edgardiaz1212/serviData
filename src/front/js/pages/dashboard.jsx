@@ -1,11 +1,20 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { Chart, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
+import ServiceTypeChart from '../component/ServiceTypeChart'; // Import the ServiceTypeChart component
+import { Context } from "../store/appContext";
 
 // Register the required components
 Chart.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
+
+
+
 const Dashboard = () => {
+  const {  store } = useContext(Context);
+
+  console.log("del store ",store.user)
+
     const data = {
         labels: ['Usuario 1', 'Usuario 2'],
         datasets: [
@@ -58,7 +67,7 @@ const Dashboard = () => {
             </table>
             <div>
                 <h2>Distribución de Servicios</h2>
-                <Pie data={data} />
+                <ServiceTypeChart data={{ labels: ['Servicio 1', 'Servicio 2'], values: [60, 40] }} /> {/* Render the ServiceTypeChart component */}
             </div>
             <div>
                 <h2>Distribución por Servicios</h2>

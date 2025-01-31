@@ -1,6 +1,9 @@
-import React from "react";
-
+import React, {useContext} from "react";
+import { Context } from "../store/appContext";
 const ClientesPrivados = () => {
+      const {  store } = useContext(Context);
+    
+      console.log("del store ",store.user)
     return (
         <div>
             <h1>Clientes Privados</h1>
