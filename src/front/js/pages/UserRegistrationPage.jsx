@@ -2,12 +2,15 @@ import React, { useState, useEffect, useContext } from "react";
 import { Context } from "../store/appContext";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import UserEditModal from "../component/UserEditModal"; // Import the modal
+import ModalEditUser from "../component/ModalEditUser.jsx";
+
 
 const UserRegistrationPage = () => {
   const { actions, store } = useContext(Context);
   const { users, isAuthenticated, user } = store;
   const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
 
   useEffect(() => {
     let isMounted = true; // Flag to track if the component is mounted
@@ -22,7 +25,6 @@ const UserRegistrationPage = () => {
     };
   }, []);
 
-
   const [newUser, setNewUser] = useState({
     username: "",
     password: "",
@@ -33,9 +35,8 @@ const UserRegistrationPage = () => {
     password: "",
     role: "user",
   });
-  const [editingUser, setEditingUser] = useState(null);
-  const [showModal, setShowModal] = useState(false); // State for modal visibility
-
+  
+ 
   useEffect(() => {
     if (user) {
       setCurrentUser({ username: user.username, password: "", role: user.role });
@@ -49,25 +50,28 @@ const UserRegistrationPage = () => {
     setNewUser({ username: "", password: "", role: "user" });
   }
   
-  const handleSubmit = async (e) => {
+  const handleEditCurrentUser = async (e) => {
     e.preventDefault();
     await actions.editUser(user.id, currentUser);
     toast.success("Usuario editado con éxito!");
     setEditingUser(null);
   };
-
   const handleEdit = (user) => {
-    setCurrentUser({ username: user.username, password: "", role: user.role });
     setEditingUser(user);
-    setShowModal(true); // Open the modal
+    setShowModal(true);
   };
 
-  const handleClose = () => setShowModal(false); // Close the modal
+  const handleClose = () => {
+    setShowModal(false);
+  };
 
-  const handleSave = async (updatedUser) => {
-    await actions.editUser(updatedUser.id, updatedUser);
-    toast.success("Usuario editado con éxito!");
-    setShowModal(false); // Close the modal after saving
+  const handleSave = (updatedUser) => {
+    // Lógica para guardar el usuario actualizado
+    setShowModal(false);
+  };
+  const handleDelete = (userId) => {
+    // Lógica para eliminar el usuario
+    setShowModal(false);
   };
 
   return (
@@ -75,7 +79,7 @@ const UserRegistrationPage = () => {
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
      
       <h1>Edita tus Datos</h1>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleEditCurrentUser}>
         <div>
           <label htmlFor="formUser" className="col-sm-2 col-form-label">
             Nombre de usuario:
@@ -154,40 +158,48 @@ const UserRegistrationPage = () => {
         </button>
       </form>
           
-          <h2>Lista de Usuarios Registrados</h2>
-          {users.map((user) => (
-            <form key={user.id} className="form-inline">
-              <div className="form-group mx-2">
-                <input
-                  type="text"
-                  className="form-control m-2"
-                  value={user.username}
-                  readOnly={true}
-                />
-              </div>
-              <div className="form-group mx-2">
-                <input
-                  type="text"
-                  className="form-control"
-                  value={user.role}
-                  readOnly={true}
-                />
-              </div>
-              <button
-                type="button"
-                className="btn btn-warning"
-                onClick={() => handleEdit(user)}
-              >
-                Editar
-              </button>
-            </form>
-          ))}
-          <UserEditModal
-            user={user.username}
-            show={showModal}
-            handleClose={handleClose}
-            handleSave={handleSave}
+      <div className="container">
+  <h2>Lista de Usuarios Registrados</h2>
+  <div className="list-group list-group-horizontal">
+    {users.map((user) => (
+      <div key={user.id} className="list-group-item">
+        <div className="form-group mx-2">
+          <input
+            type="text"
+            className="form-control m-2"
+            value={user.username}
+            readOnly={true}
           />
+        </div>
+        <div className="form-group mx-2">
+          <input
+            type="text"
+            className="form-control"
+            value={user.role}
+            readOnly={true}
+          />
+        </div>
+        <button
+              type="button"
+              className="btn btn-warning"
+              onClick={() => handleEdit(user)}
+            >
+              Editar
+            </button>
+        
+      </div>
+    ))}
+  </div>
+  {editingUser && (
+        <ModalEditUser
+          user={editingUser}
+          show={showModal}
+          handleClose={handleClose}
+          handleSave={handleSave}
+          handleDelete={handleDelete}
+        />
+      )}
+</div>
         </>
       )}
     </div>
