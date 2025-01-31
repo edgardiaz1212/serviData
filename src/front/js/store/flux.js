@@ -82,6 +82,27 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during user editing", error);
         }
       },
+      fetchUserData: async () => {
+        const store = getStore();
+        try {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/users`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setStore({ users: data }); // Update the store with the fetched users data
+                console.log("Users data fetched", data);
+                return data;
+            } else {
+                console.error('Failed to fetch users data');
+            }
+        } catch (error) {
+            console.log("Error during fetching users data", error);
+        }
+    },
     }
   }
 }

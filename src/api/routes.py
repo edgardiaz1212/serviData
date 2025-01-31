@@ -52,4 +52,8 @@ def edit_user(user_id):
 @api.route('/users')
 def get_users():
     users = User.query.all()
-    return jsonify([user.serialize() for user in users]), 200
+    if not users:
+        return jsonify({"message": "No users found"}), 404
+    else:    
+        return jsonify([user.serialize() for user in users]), 200
+
