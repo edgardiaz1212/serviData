@@ -45,28 +45,13 @@ const getState = ({ getStore, getActions, setStore }) => {
       LogOut: async () => {
         const store = getStore
 
-        try
-        {
-          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/logout`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(store.user),
-          });
-          if (response.ok) {
-            const data = await response.json();
             setStore({ user: null, isAuthenticated: false });
-            sessionStorage.setItem("isAuthenticated", "false"); // Remove authentication state from session storage
+            sessionStorage.removeItem("isAuthenticated"); // Remove authentication state from session storage
             sessionStorage.removeItem("user"); // Remove user data from session storage
-            console.log("User logged out", data.user);
-            return data;
-          } else {
-            console.error("Failed to log out user");
-        }
-      } catch (error) {
-        console.log("Error during user logout", error);
-      }
+            console.log("User logged out");
+            
+         
+       
     },
 
 

@@ -22,10 +22,10 @@ def login_user():
     else:
         return jsonify({"message": "Invalid credentials"}), 401
 
-@api.route('/logout', methods=['POST'])
-def logout_user():
-    session.clear()  # Clear the session data
-    return jsonify({"message": "Logout successful"}), 200
+# @api.route('/logout', methods=['POST'])
+# def logout_user():
+#     session.clear()  # Clear the session data
+#     return jsonify({"message": "Logout successful"}), 200
 
 @api.route('/users', methods=['POST'])
 def create_user():

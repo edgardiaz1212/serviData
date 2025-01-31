@@ -1,11 +1,17 @@
 import React, { useContext } from "react";
 import { Context } from "../store/appContext";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const context = useContext(Context);
-  const { store } = context || {}; // Safeguard against null context
+  const { store, actions } = context || {}; // Safeguard against null context
   const { isAuthenticated, user } = store || {}; // Safeguard against undefined store
+  const navigate = useNavigate();
 
+  const handleLogout = async () => {
+    await actions.LogOut();
+    navigate("/login"); // Redirigir al usuario a la página de inicio de sesión después de cerrar sesión
+  };
 
   return (
     <nav
@@ -53,7 +59,7 @@ const Navbar = () => {
               <li className="nav-item">
                 <span className="nav-link text-white">Hola, {user ? user.username : 'Usuario'}!</span>
               </li>
-              <li className="nav-item">
+              <li className="nav-item" onClick={ handleLogout}>
                 <a className="nav-link text-white" href="/">
                   logout
                 </a>
