@@ -3,15 +3,15 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ScrollToTop from "./component/scrollToTop";
 //import { BackendURL } from "./component/backendURL"; // Ensure correct export
 
-import injectContext from "../store/appContext.js";
+import injectContext from "./store/appContext.js";
 import Navbar from "./component/navbar"; // Ensure this path is correct
 import Footer from "./component/footer"; // Ensure this path is correct
-import Login from "../pages/login"; // Ensure this path is correct
-import Dashboard from "../pages/dashboard"; // Ensure this path is correct
-import ClientesPublicos from "../pages/clientesPublicos"; // Import the new page
-import ClientesPrivados from "../pages/clientesPrivados"; // Import the new page
-import DataEntryPage from "../pages/DataEntryPage.jsx";
-import UserRegistrationPage from "../pages/UserRegistrationPage.jsx";
+import Login from "./pages/login.jsx"; // Ensure this path is correct
+import Dashboard from "./pages/dashboard.jsx"; // Ensure this path is correct
+import ClientesPublicos from "./pages/clientesPublicos.jsx"; // Import the new page
+import ClientesPrivados from "./pages/clientesPrivados.jsx"; // Import the new page
+import DataEntryPage from "./pages/DataEntryPage.jsx";
+import UserRegistrationPage from "./pages/UserRegistrationPage.jsx";
 
 const Layout = () => {
     const basename = process.env.REACT_APP_BASENAME_REACTs || "";

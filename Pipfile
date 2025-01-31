@@ -1,0 +1,24 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "*"
+flask-sqlalchemy = "*"
+flask-cors = "*"
+flask-migrate = "*"
+python-dotenv = "*"
+psycopg2 = "*"
+flask-admin = "*"
+cra-template = "==1.2.0"
+react = "==19.0.0"
+react-dom = "==19.0.0"
+react-router-dom = "==7.1.3"
+react-scripts = "==5.0.1"
+web-vitals = "==4.2.4"
+
+[dev-packages]
+
+[requires]
+python_version = "3.11"

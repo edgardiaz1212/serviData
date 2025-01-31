@@ -1,9 +1,11 @@
 import React, { useContext } from "react";
-import { Context } from "../../store/appContext";
+import { Context } from "../store/appContext";
 
 const Navbar = () => {
-  const { store } = useContext(Context);
-  const { isAuthenticated, user } = store; // Assuming user information is stored in context
+  const context = useContext(Context);
+  const { store } = context || {}; // Safeguard against null context
+  const { isAuthenticated, user } = store || {}; // Safeguard against undefined store
+
 
   return (
     <nav

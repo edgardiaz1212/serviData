@@ -44,7 +44,8 @@ const Login = () => {
         theme="dark"
       />
       <div className="card p-4" style={{ width: "300px" }}>
-        <h2 className="text-center">Bienvenido a ServiData</h2>
+      <h1 className="text-center font-bold text-gray-900">ServiData</h1>
+      
         <form onSubmit={handleSubmit} className="mt-4">
           <div className="form-group">
             <label htmlFor="username">Nombre de usuario:</label>
