@@ -14,7 +14,7 @@ import DataEntryPage from "../pages/DataEntryPage.jsx";
 import UserRegistrationPage from "../pages/UserRegistrationPage.jsx";
 
 const Layout = () => {
-    const basename = process.env.REACT_APP_BASENAME_REACT || "";
+    const basename = process.env.REACT_APP_BASENAME_REACTs || "";
     //const backendURL = process.env.REACT_APP_BACKEND_URL || ""; // Updated
 
     return (

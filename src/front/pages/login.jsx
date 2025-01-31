@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { Context } from "../store/appContext";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { LogIn } from 'lucide-react'; // Import LogIn from lucide-react
 
 const Login = () => {
   const { actions, store } = useContext(Context);
@@ -68,7 +69,7 @@ const Login = () => {
             />
           </div>
           <button type="submit" className="btn btn-primary btn-block">
-            Ingresar
+            <LogIn className="mr-2" /> Ingresar
           </button>
         </form>
       </div>
