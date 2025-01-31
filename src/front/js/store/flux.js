@@ -27,9 +27,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             setStore({ user: data.user, isAuthenticated: true });
             sessionStorage.setItem("isAuthenticated", "true"); // Store authentication state in session storage
             sessionStorage.setItem("user", JSON.stringify(data.user)); // Store user data in session storage
-            //localStorage.setItem("user", data.user)
             console.log("Autenticado", data.user); // Update isAuthenticated
-            console.log("Autenticado data", data);
             return data;
           } else {
             setStore({ isAuthenticated: false }); // Set to false on login failure
@@ -39,9 +37,53 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during login", error);
         }
       },
-      // Other actions...
+      addUser: async (user) => {
+        const store = getStore()
+        try {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/users`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(user),
+          });
+          if (response.ok) {
+            const data = await response.json();
+            setStore({ users: [...store.users, data.user] });
+            console.log("User added", data.user);
+            return data;
+          } else {
+            console.error('Failed to add user');
+          }
+        } catch (error) {
+          console.log("Error during user addition", error);
+        }
+      },
+      editUser: async (userId, updatedUser) => {
+        const store = getStore();
+        try {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/users/${userId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedUser),
+          });
+          if (response.ok) {
+            const data = await response.json();
+            const updatedUsers = store.users.map(user => user.id === userId ? data.user : user);
+            setStore({ users: updatedUsers });
+            console.log("User edited", data.user);
+            return data;
+          } else {
+            console.error('Failed to edit user');
+          }
+        } catch (error) {
+          console.log("Error during user editing", error);
+        }
+      },
     }
-  };
-};
+  }
+}
 
 export default getState;
