@@ -64,13 +64,16 @@ const UserRegistrationPage = () => {
   };
 
   const handleSave = async (updatedUser) => {
-    
     await actions.editUser(updatedUser.id, updatedUser);
     toast.success("Usuario editado con éxito!");
     setShowModal(false);
   };
   
   const handleDelete = async (userId) => {
+    if (userId === user.id) {
+      toast.error("No puedes eliminar tu propio usuario.");
+      return;
+    }
     await actions.deleteUser(userId);
     toast.success("Usuario eliminado con éxito!");
     setShowModal(false);

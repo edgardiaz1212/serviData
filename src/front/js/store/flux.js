@@ -1,3 +1,5 @@
+import { LogOut } from "lucide-react";
+
 const getState = ({ getStore, getActions, setStore }) => {
   // Check authentication state from session storage on load
   const isAuthenticated = sessionStorage.getItem("isAuthenticated") === "true";
@@ -40,6 +42,35 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during login", error);
         }
       },
+      LogOut: async () => {
+        const store = getStore
+
+        try
+        {
+          
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/logout`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(store.user),
+          });
+          if (response.ok) {
+            const data = await response.json();
+            setStore({ user: null, isAuthenticated: false });
+            sessionStorage.removeItem("isAuthenticated"); // Remove authentication state from session storage
+            sessionStorage.removeItem("user"); // Remove user data from session storage
+            console.log("User logged out", data.user);
+            return data;
+          } else {
+            console.error("Failed to log out user");
+        }
+      } catch (error) {
+        console.log("Error during user logout", error);
+      }
+    },
+
+
       addUser: async (user) => {
         const store = getStore();
         try {
