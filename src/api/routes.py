@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, url_for, Blueprint, session
 from api.models import db, User, Cliente, Servicio
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
+import pandas as pd
 
 api = Blueprint('api', __name__)
 
@@ -191,3 +192,55 @@ def get_services(cliente_id):
         return jsonify([service.serialize() for service in services])
     else:
         return jsonify({"message": "Invalid credentials"}), 401
+    
+@api.route('/upload-excel', methods=['POST'])
+def upload_excel():
+    data = request.get_json()
+    df = pd.DataFrame(data)
+
+    for index, row in df.iterrows():
+        cliente = Cliente.query.filter_by(rif=row['rif']).first()
+        if not cliente:
+            cliente = Cliente(
+                tipo=row.get('tipo', ''),
+                rif=row.get('rif', ''),
+                razon_social=row.get('razon_social', '')
+            )
+            db.session.add(cliente)
+            db.session.commit()
+
+        servicio = Servicio(
+            dominio=row.get('dominio', ''),
+            estado=row.get('estado', ''),
+            tipo_servicio=row.get('tipo_servicio', ''),
+            hostname=row.get('hostname', ''),
+            cores=row.get('cores', 0),
+            contrato=row.get('contrato', ''),
+            plan_aprovisionado=row.get('plan_aprovisionado', ''),
+            plan_facturado=row.get('plan_facturado', ''),
+            detalle_plan=row.get('detalle_plan', ''),
+            sockets=row.get('sockets', 0),
+            powerstate=row.get('powerstate', ''),
+            ip_privada=row.get('ip_privada', ''),
+            vlan=row.get('vlan', ''),
+            ipam=row.get('ipam', ''),
+            datastore=row.get('datastore', ''),
+            nombre_servidor=row.get('nombre_servidor', ''),
+            marca_servidor=row.get('marca_servidor', ''),
+            modelo_servidor=row.get('modelo_servidor', ''),
+            nombre_nodo=row.get('nombre_nodo', ''),
+            nombre_plataforma=row.get('nombre_plataforma', ''),
+            ram=row.get('ram', 0),
+            hdd=row.get('hdd', 0),
+            cpu=row.get('cpu', 0),
+            tipo_servidor=row.get('tipo_servidor', ''),
+            ubicacion=row.get('ubicacion', ''),
+            observaciones=row.get('observaciones', ''),
+            facturado=row.get('facturado', ''),
+            comentarios=row.get('comentarios', ''),
+            cliente_id=cliente.id
+        )
+        db.session.add(servicio)
+
+    db.session.commit()
+    return jsonify({"message": "Data uploaded successfully"}), 201
