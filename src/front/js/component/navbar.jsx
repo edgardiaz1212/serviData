@@ -37,15 +37,11 @@ const Navbar = () => {
           {isAuthenticated && (
             <>
               <li className="nav-item">
-                <a className="nav-link text-white" href="/clientes-publicos">
-                  Publicos
+                <a className="nav-link text-white" href="/clientes">
+                  Cientes
                 </a>
               </li>
-              <li className="nav-item">
-                <a className="nav-link text-white" href="/clientes-privados">
-                  Privados
-                </a>
-              </li>
+              
               <li className="nav-item">
                 <a className="nav-link text-white" href="/data-registro">
                   Registro
