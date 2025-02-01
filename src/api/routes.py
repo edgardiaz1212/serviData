@@ -1,6 +1,3 @@
-""" 
-This module takes care of starting the API Server, Loading the DB and Adding the endpoints 
-"""
 from flask import Flask, request, jsonify, url_for, Blueprint, session
 from api.models import db, User, Cliente, Servicio
 from api.utils import generate_sitemap, APIException
@@ -21,23 +18,6 @@ def login_user():
         return jsonify({"message": "Login successful", "user": user.serialize()}), 200
     else:
         return jsonify({"message": "Invalid credentials"}), 401
-
-# @api.route('/logout', methods=['POST'])
-# def logout_user():
-#     session.clear()  # Clear the session data
-#     return jsonify({"message": "Logout successful"}), 200
-
-@api.route('/users', methods=['POST'])
-def create_user():
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
-    role = data.get('role')
-    new_user = User(username=username, password=password, role=role)
-    db.session.add(new_user)
-    db.session.commit()
-    
-    return jsonify({"message": "User created successfully", "user": new_user.serialize()}), 201
 
 @api.route('/users/<int:user_id>', methods=['PUT'])
 def edit_user(user_id):
@@ -73,14 +53,32 @@ def delete_user(user_id):
 
     return jsonify({"message": "User deleted successfully"}), 200
 
+
+@api.route('/users', methods=['POST'])
+def create_user():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    role = data.get('role')
+    new_user = User(username=username, password=password, role=role)
+    db.session.add(new_user)
+    db.session.commit()
+    
+    return jsonify({"message": "User created successfully", "user": new_user.serialize()}), 201
+
 @api.route('/client-consult/', methods=['GET'])
 def client_consult():
-    cliente= Cliente.query.all()
-    if not cliente:
-        return jsonify({"message": "No users found"}), 404
-    else:    
-        return jsonify([cliente.serialize() for cliente in cliente]), 200
+    name = request.args.get('name')  # Get the name parameter from the query string
+    if name:
+        cliente = Cliente.query.filter(Cliente.razon_social.ilike(f'%{name}%')).all()  # Search by name
+    else:
+        cliente = Cliente.query.all()
     
+    if not cliente:
+        return jsonify({"message": "No clients found"}), 404
+    else:    
+        return jsonify([c.serialize() for c in cliente]), 200
+
 @api.route('/client-consult/<int:cliente_id>', methods=['GET'])
 def client_consult_id(cliente_id):
     cliente= Cliente.query.get(cliente_id)
@@ -181,4 +179,3 @@ def get_services(cliente_id):
         return jsonify([service.serialize() for service in services])
     else:
         return jsonify({"message": "Invalid credentials"}), 401
-    

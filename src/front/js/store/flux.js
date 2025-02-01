@@ -1,5 +1,3 @@
-import { LogOut } from "lucide-react";
-
 const getState = ({ getStore, getActions, setStore }) => {
   // Check authentication state from session storage on load
   const isAuthenticated = sessionStorage.getItem("isAuthenticated") === "true";
@@ -151,6 +149,20 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during user deletion", error);
         }
       },
+      fetchClientData: async (name) => {
+        try {
+          const response = await fetch(`/client-consult/?name=${name}`);
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error("Error fetching client data:", error);
+          return [];
+        }
+      },
+
       
     },
   };
