@@ -87,6 +87,18 @@ def client_consult_id(cliente_id):
     else:    
         return jsonify([cliente.serialize() for cliente in cliente]), 200
 
+@api.route('/client-suggestions/', methods=['GET'])
+def client_suggestions():
+    query = request.args.get('query', '')
+    if not query:
+        return jsonify({"message": "Query parameter is required"}), 400
+
+    clientes = Cliente.query.filter(Cliente.razon_social.ilike(f"%{query}%")).all()
+    if not clientes:
+        return jsonify({"message": "No clients found"}), 404
+    else:
+        return jsonify([cliente.serialize() for cliente in clientes]), 200
+
 @api.route('/add_client/', methods=['POST'])
 def client_post():
     if request.method == 'POST':

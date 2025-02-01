@@ -163,6 +163,20 @@ const getState = ({ getStore, getActions, setStore }) => {
           return [];
         }
       },
+      fetchClientSuggestions: async (query) => {
+        try {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/client-suggestions/?query=${query}`);
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error("Error fetching client suggestions:", error);
+          return [];
+        }
+      },
+
       addClientData : async (data) => {
         try {
           const response = await fetch(
