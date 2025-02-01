@@ -12,10 +12,7 @@ const ManualDataEntryPage = () => {
   const [name, setName] = useState("");
   const [suggestions, setSuggestions] = useState([]);
 
-  // const handleFetchClientData = async () => {
-  //   const response = await actions.fetchClientData(name);
-  //   setClientData(response);
-  // };
+ 
 
   const handleInputChange = async (e) => {
     const name = e.target.value;
@@ -38,7 +35,6 @@ const ManualDataEntryPage = () => {
         } else {
           setClientData(null);
           setButtonText("Crear");
-         
         }
       } catch (error) {
         console.error("Error fetching client data:", error);
@@ -46,7 +42,6 @@ const ManualDataEntryPage = () => {
     } else {
       setClientData(null);
       setButtonText("Crear");
-     
     }
   };
 
@@ -57,11 +52,6 @@ const ManualDataEntryPage = () => {
     setButtonText("Agregar");
     setShowComponents(true);
   };
-  ;
-
-  // const handleButtonClick = () => {
-  //   setShowComponents(!showComponents);
-  // };
 
   const handleShowComponents = () => {
     setShowComponents(true);
@@ -82,46 +72,12 @@ const ManualDataEntryPage = () => {
     }
   };
 
-  // const handleChange = (field, value) => {
-  //   setClientData((prevData) => ({
-  //     ...prevData,
-  //     [field]: value,
-  //   }));
-  // };
 
   return (
     <>
       <div className="container">
         <h1>Registro Manual</h1>
-        {/* <div className="input-group mb-3">
-          <button
-            className="btn btn-outline-secondary"
-            type="button"
-            id="button-addon1"
-            onClick={handleShowComponents}
-          >
-            {buttonText}
-          </button>
-          {suggestions.length > 0 && (
-        <ul>
-          {suggestions.map((suggestion, index) => (
-            <li key={index} onClick={() => handleSuggestionClick(suggestion)}>
-              {suggestion.razon_social}
-            </li>
-          ))}
-        </ul>
-      )}
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Nombre del cliente"
-            value={name}
-            onChange={handleInputChange}
-            aria-label="Example text with button addon"
-            aria-describedby="button-addon1"
-          />
-        </div> */}
-
+ 
 <div className="input-group mb-3">
         <input
           type="text"
