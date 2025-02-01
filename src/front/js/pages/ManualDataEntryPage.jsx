@@ -58,17 +58,18 @@ const ManualDataEntryPage = () => {
   const handleShowComponents = () => {
     setShowComponents(true);
   };
-
-  const handleServiceSubmit = async (serviceData) => {
-    try {
-      const response = await actions.addServiceData(serviceData);
-      if (response) {
-        console.log("Service data saved successfully:", response);
-      }
-    } catch (error) {
-      console.error("Error saving service data:", error);
-    }
-  };
+console.log(clientData)
+  // const handleServiceSubmit = async (serviceData) => {
+  //   try {
+  //     const response = await actions.addServiceData(serviceData);
+  //     if (response) {
+  //       console.log("Service data saved successfully:", response);
+        
+  //     }
+  //   } catch (error) {
+  //     console.error("Error saving service data:", error);
+  //   }
+  // };
 
   return (
     <>
@@ -105,7 +106,7 @@ const ManualDataEntryPage = () => {
         {showComponents && clientData && <ResumeTableClientServices clientData={{ ...clientData, servicios: servicesData }} />}
         {showComponents && (
           <>
-            <InputClienteServicio clientData={clientData} onSubmit={handleServiceSubmit} />
+            <InputClienteServicio clientData={clientData}  />
           </>
         )}
       </div>
