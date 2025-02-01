@@ -1,42 +1,30 @@
-import React from 'react';
+import React, { useEffect, useContext } from 'react';
+import { Context } from '../store/appContext';
 
 function TotalCLient({ clientType }) {
-  // Sample data for demonstration purposes
-  const clients = {
-    Privada: [
-      { id: 1, name: 'Cliente Privado 1', service: 'Servicio A' },
-      { id: 2, name: 'Cliente Privado 2', service: 'Servicio B' },
-    ],
-    Publica: [
-      { id: 3, name: 'Cliente Publico 1', service: 'Servicio C' },
-      { id: 4, name: 'Cliente Publico 2', service: 'Servicio D' },
-    ],
-  };
+  const { actions, store } = useContext(Context);
 
-  const clientData = clients[clientType] || [];
+  useEffect(() => {
+    actions.getClientbyTipo(clientType);
+  }, [clientType]);
 
+
+  console.log(store.clientData)
   return (
-    <div>
-      <h2>Clientes {clientType}</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Servicio</th>
-          </tr>
-        </thead>
-        <tbody>
-          {clientData.map(client => (
-            <tr key={client.id}>
-              <td>{client.id}</td>
-              <td>{client.name}</td>
-              <td>{client.service}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <>
+      <div>
+        <h1>Clientes del Tipo: {clientType}</h1>
+        <ul>
+          {store.clientData && store.clientData.length > 0 ? (
+            store.clientData.map((client, index) => (
+              <li key={index}>{client.razon_social}</li>
+            ))
+          ) : (
+            <li>No clients found.</li>
+          )}
+        </ul>
+      </div>
+    </>
   );
 }
 

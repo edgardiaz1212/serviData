@@ -10,6 +10,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       user: storedUser || null, // Initialize user state with stored user data
       users: [], // Add users state
       currentClient: [], // Add currentClient state
+      clientData: [], // Add clientData state
     },
 
     actions: {
@@ -150,33 +151,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during user deletion", error);
         }
       },
-      fetchClientData: async (name) => {
-        try {
-          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/client-consult/?name=${name}`);
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          const data = await response.json();
-          return data;
-        } catch (error) {
-          console.error("Error fetching client data:", error);
-          return [];
-        }
-      },
-      fetchClientSuggestions: async (query) => {
-        try {
-          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/client-suggestions/?query=${query}`);
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          const data = await response.json();
-          return data;
-        } catch (error) {
-          console.error("Error fetching client suggestions:", error);
-          return [];
-        }
-      },
-
       addClientData : async (data) => {
         try {
           const response = await fetch(
@@ -221,6 +195,32 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during adding service data", error);
         }
       },
+      fetchClientData: async (name) => {
+        try {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/client-consult/?name=${name}`);
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error("Error fetching client data:", error);
+          return [];
+        }
+      },
+      fetchClientSuggestions: async (query) => {
+        try {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/client-suggestions/?query=${query}`);
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error("Error fetching client suggestions:", error);
+          return [];
+        }
+      },
       getServicebyClient : async (clientId) => {
         try {
           const response = await fetch(
@@ -242,6 +242,31 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during getting service data", error);
         }
       },
+      getClientbyTipo: async (tipo) => {
+        const store = getStore
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/clients_tipo?tipo=${tipo}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setStore({ clientData: data });
+            return data;
+          } else {
+
+            console.error("Failed to get client data");
+          }
+        } catch (error) {
+          console.log("Error during getting client data", error);
+        }
+
+          }, 
       uploadExcelData: async (data) => {
         try {
           const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/upload-excel`, {

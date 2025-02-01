@@ -115,6 +115,19 @@ def client_post():
     else:
         return jsonify({"message": "Invalid credentials"}), 401
 
+@api.route('/clients_tipo', methods=['GET'])
+def get_clients_by_type():
+    tipo = request.args.get('tipo')
+    if tipo:
+        clients = Cliente.query.filter_by(tipo=tipo).all()
+    else:
+        clients = Cliente.query.all()
+    
+    if not clients:
+        return jsonify({"message": "No clients found"}), 404
+    else:
+        return jsonify([client.serialize() for client in clients]), 200
+
 @api.route('/add_service/', methods=['POST'])
 def service_post():
     if request.method == 'POST':
