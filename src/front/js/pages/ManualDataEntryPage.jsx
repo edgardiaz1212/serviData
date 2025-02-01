@@ -1,14 +1,14 @@
-import React, { useState, useEffect , useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Context } from "../store/appContext";
 import ResumeTableClientServices from "../component/ResumeTableClientServices.jsx";
 import InputClienteServicio from "../component/InputClienteServicio.jsx";
-import { fetchClientData } from "../store/flux"; // Import the fetch function
 
 const ManualDataEntryPage = () => {
   const { actions, store } = useContext(Context);
   const [clientName, setClientName] = useState("");
   const [clientData, setClientData] = useState(null);
   const [buttonText, setButtonText] = useState("Crear");
+  const [showComponents, setShowComponents] = useState(false);
 
   const handleInputChange = async (e) => {
     const name = e.target.value;
@@ -16,9 +16,9 @@ const ManualDataEntryPage = () => {
 
     if (name) {
       try {
-        const response = await actions.fetchClientData(name); // Use the fetch function
+        const response = await actions.fetchClientData(name);
         if (response.length > 0) {
-          setClientData(response[0]); // Assuming the first result is the desired client
+          setClientData(response[0]);
           setButtonText("Agregar");
         } else {
           setClientData(null);
@@ -33,7 +33,31 @@ const ManualDataEntryPage = () => {
     }
   };
 
+  const handleButtonClick = () => {
+    setShowComponents(!showComponents);
+  };
 
+  const handleSaveData = async () => {
+    if (clientData) {
+      try {
+        const response = await actions.addClientData(clientData);
+        if (response) {
+          console.log("Client data saved successfully:", response);
+        }
+      } catch (error) {
+        console.error("Error saving client data:", error);
+      }
+    } else {
+      console.warn("No client data to save.");
+    }
+  };
+
+  const handleChange = (field, value) => {
+    setClientData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+  };
 
   return (
     <>
@@ -44,6 +68,7 @@ const ManualDataEntryPage = () => {
             className="btn btn-outline-secondary"
             type="button"
             id="button-addon1"
+            onClick={handleButtonClick}
           >
             {buttonText}
           </button>
@@ -58,8 +83,19 @@ const ManualDataEntryPage = () => {
           />
         </div>
 
-        {clientData && <ResumeTableClientServices clientData={clientData} />}
-        <InputClienteServicio clientData={clientData} />
+        {showComponents && clientData && <ResumeTableClientServices clientData={clientData} />}
+        {showComponents && (
+          <>
+            <InputClienteServicio clientData={clientData} handleChange={handleChange} />
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={handleSaveData}
+            >
+              Guardar
+            </button>
+          </>
+        )}
       </div>
     </>
   );

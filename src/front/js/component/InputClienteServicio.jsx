@@ -1,15 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 function InputClienteServicio({ clientData }) {
+  const [rif, setRif] = useState(clientData ? clientData.rif : '');
+  const [razonSocial, setRazonSocial] = useState(clientData ? clientData.razon_social : '');
+  const [tipo, setTipo] = useState(clientData ? clientData.tipo : '');
+
+  useEffect(() => {
+    if (clientData) {
+      setRif(clientData.rif);
+      setRazonSocial(clientData.razon_social);
+      setTipo(clientData.tipo);
+    }
+  }, [clientData]);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'rif') setRif(value);
+    if (name === 'razonSocial') setRazonSocial(value);
+    if (name === 'tipo') setTipo(value);
+  };
+
   return (
     <>
       <h3>Datos del Cliente</h3>
-      <input type="text" value={clientData ? clientData.rif : ''} readOnly={!!clientData} placeholder="RIF" />
-      <input type="text" value={clientData ? clientData.razon_social : ''} readOnly={!!clientData} placeholder="Razón Social" />
-      <select defaultValue={clientData ? clientData.tipo : ''} disabled={!!clientData}>
+      <input type="text" name="rif" value={rif} onChange={handleChange} placeholder="RIF" disabled={!!clientData}/>
+      <input type="text" name="razonSocial" value={razonSocial} onChange={handleChange} placeholder="Razón Social" disabled={!!clientData}/>
+      <select name="tipo" value={tipo} onChange={handleChange} disabled={!!clientData}>
         <option value="">Seleccione Tipo</option>
-        <option value="publica">Pública</option>
-        <option value="privada">Privada</option>
+        <option value="Publica">Pública</option>
+        <option value="Privada">Privada</option>
       </select>
 
       <h3>Datos de identificación del servicio</h3>

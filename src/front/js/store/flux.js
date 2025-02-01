@@ -9,6 +9,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       isAuthenticated: isAuthenticated, // Initialize with session storage value
       user: storedUser || null, // Initialize user state with stored user data
       users: [], // Add users state
+      currentClient: [], // Add currentClient state
     },
 
     actions: {
@@ -151,7 +152,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
       fetchClientData: async (name) => {
         try {
-          const response = await fetch(`/client-consult/?name=${name}`);
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/client-consult/?name=${name}`);
           if (!response.ok) {
             throw new Error('Network response was not ok');
           }
@@ -160,6 +161,50 @@ const getState = ({ getStore, getActions, setStore }) => {
         } catch (error) {
           console.error("Error fetching client data:", error);
           return [];
+        }
+      },
+      addClientData : async (data) => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/add_client`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          } else {
+            console.error("Failed to add client data");
+          }
+        } catch (error) {
+          console.log("Error during adding client data", error);
+        }
+      },
+      addServiceData : async (data) => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/add_service`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          } else {
+            console.error("Failed to add service data");
+          }
+        } catch (error) {
+          console.log("Error during adding service data", error);
         }
       },
 
