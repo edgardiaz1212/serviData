@@ -221,6 +221,28 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during adding service data", error);
         }
       },
+      getServicebyClient : async (clientId) => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/servicios/${clientId}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          } else {
+            console.error("Failed to get service data");
+          }
+        } catch (error) {
+          console.log("Error during getting service data", error);
+        }
+
+      },
 
       
     },

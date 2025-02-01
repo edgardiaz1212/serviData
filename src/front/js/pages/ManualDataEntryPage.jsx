@@ -7,6 +7,7 @@ const ManualDataEntryPage = () => {
   const { actions, store } = useContext(Context);
   
   const [clientData, setClientData] = useState(null);
+  const [servicesData, setServicesData] = useState([]); // New state for services
   const [buttonText, setButtonText] = useState("Crear");
   const [showComponents, setShowComponents] = useState(false);
   const [name, setName] = useState("");
@@ -26,9 +27,14 @@ const ManualDataEntryPage = () => {
     if (name) {
       try {
         const response = await actions.fetchClientData(name);
+        console.log("Fetched client data:", response); // Added console log
         if (response.length > 0) {
           setClientData(response[0]);
           setButtonText("Agregar");
+
+          // Fetch services for the selected client
+          const servicesResponse = await actions.getServicebyClient(response[0].id); // Assuming client ID is available
+          setServicesData(servicesResponse); // Set the services data
         } else {
           setClientData(null);
           setButtonText("Crear");
@@ -97,7 +103,7 @@ const ManualDataEntryPage = () => {
             ))}
           </ul>
         )}
-        {showComponents && clientData && <ResumeTableClientServices clientData={clientData} />}
+        {showComponents && clientData && <ResumeTableClientServices clientData={{ ...clientData, servicios: servicesData }} />}
         {showComponents && (
           <>
             <InputClienteServicio clientData={clientData} onSubmit={handleServiceSubmit} />

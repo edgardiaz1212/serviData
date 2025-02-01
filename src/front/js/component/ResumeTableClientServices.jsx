@@ -1,6 +1,9 @@
 import React from 'react';
 
 function ResumeTableClientServices({ clientData }) {
+  
+  
+  console.log("table",clientData)
   return (
     <div className="table-responsive">
       <h3>Cliente: {clientData ? clientData.razon_social : 'No client selected'}</h3>
