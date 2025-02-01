@@ -44,16 +44,12 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
       LogOut: async () => {
         const store = getStore
-
             setStore({ user: null, isAuthenticated: false });
             sessionStorage.removeItem("isAuthenticated"); // Remove authentication state from session storage
             sessionStorage.removeItem("user"); // Remove user data from session storage
             console.log("User logged out");
             
-         
-       
     },
-
 
       addUser: async (user) => {
         const store = getStore();
@@ -155,6 +151,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during user deletion", error);
         }
       },
+      
     },
   };
 };

@@ -12,6 +12,7 @@ import ClientesPublicos from "./pages/clientesPublicos.jsx"; // Import the new p
 import ClientesPrivados from "./pages/clientesPrivados.jsx"; // Import the new page
 import DataEntryPage from "./pages/DataEntryPage.jsx";
 import UserRegistrationPage from "./pages/UserRegistrationPage.jsx";
+import ManualDataEntryPage from "./pages/ManualDataEntryPage.jsx";
 
 const Layout = () => {
     const basename = process.env.REACT_APP_BASENAME_REACTs || "";
@@ -29,6 +30,7 @@ const Layout = () => {
                         <Route path="/clientes-privados" element={<ClientesPrivados />} /> {/* New route */}
                         <Route path="data-registro" element={<DataEntryPage/>} />
                         <Route path="/user-register" element={<UserRegistrationPage />} />
+                        <Route path="/manual-data-entry" element={<ManualDataEntryPage />} /> "
                         <Route path="*" element={<h1>Not found!</h1>} />
                     </Routes>
                     <Footer />
