@@ -27,7 +27,6 @@ const ManualDataEntryPage = () => {
     if (name) {
       try {
         const response = await actions.fetchClientData(name);
-        console.log("Fetched client data:", response); // Added console log
         if (response.length > 0) {
           setClientData(response[0]);
           setButtonText("Agregar");
