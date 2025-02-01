@@ -12,8 +12,6 @@ const ManualDataEntryPage = () => {
   const [name, setName] = useState("");
   const [suggestions, setSuggestions] = useState([]);
 
- 
-
   const handleInputChange = async (e) => {
     const name = e.target.value;
     setName(name);
@@ -31,7 +29,6 @@ const ManualDataEntryPage = () => {
         if (response.length > 0) {
           setClientData(response[0]);
           setButtonText("Agregar");
-          
         } else {
           setClientData(null);
           setButtonText("Crear");
@@ -57,66 +54,53 @@ const ManualDataEntryPage = () => {
     setShowComponents(true);
   };
 
-  const handleSaveData = async () => {
-    if (clientData) {
-      try {
-        const response = await actions.addClientData(clientData);
-        if (response) {
-          console.log("Client data saved successfully:", response);
-        }
-      } catch (error) {
-        console.error("Error saving client data:", error);
+  const handleServiceSubmit = async (serviceData) => {
+    try {
+      const response = await actions.addServiceData(serviceData);
+      if (response) {
+        console.log("Service data saved successfully:", response);
       }
-    } else {
-      console.warn("No client data to save.");
+    } catch (error) {
+      console.error("Error saving service data:", error);
     }
   };
-
 
   return (
     <>
       <div className="container">
         <h1>Registro Manual</h1>
- 
-<div className="input-group mb-3">
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Nombre del cliente"
-          value={name}
-          onChange={handleInputChange}
-          aria-label="Example text with button addon"
-          aria-describedby="button-addon1"
-        />
-        <button
-          className="btn btn-outline-secondary"
-          type="button"
-          id="button-addon1"
-          onClick={handleShowComponents}
-        >
-          {buttonText}
-        </button>
-      </div>
-      {suggestions.length > 0 && (
-        <ul>
-          {suggestions.map((suggestion, index) => (
-            <li key={index} onClick={() => handleSuggestionClick(suggestion)}>
-              {suggestion.razon_social}
-            </li>
-          ))}
-        </ul>
-      )}
+        <div className="input-group mb-3">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Nombre del cliente"
+            value={name}
+            onChange={handleInputChange}
+            aria-label="Example text with button addon"
+            aria-describedby="button-addon1"
+          />
+          <button
+            className="btn btn-outline-secondary"
+            type="button"
+            id="button-addon1"
+            onClick={handleShowComponents}
+          >
+            {buttonText}
+          </button>
+        </div>
+        {suggestions.length > 0 && (
+          <ul>
+            {suggestions.map((suggestion, index) => (
+              <li key={index} onClick={() => handleSuggestionClick(suggestion)}>
+                {suggestion.razon_social}
+              </li>
+            ))}
+          </ul>
+        )}
         {showComponents && clientData && <ResumeTableClientServices clientData={clientData} />}
         {showComponents && (
           <>
-            <InputClienteServicio clientData={clientData} handleChange={handleInputChange} />
-            <button
-              className="btn btn-primary"
-              type="button"
-              onClick={handleSaveData}
-            >
-              Guardar
-            </button>
+            <InputClienteServicio clientData={clientData} onSubmit={handleServiceSubmit} />
           </>
         )}
       </div>
