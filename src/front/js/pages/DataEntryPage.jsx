@@ -31,8 +31,8 @@ function DataEntryPage() {
           <p>Arrastra tu archivo Excel aquí o haz clic para seleccionar</p>
           <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload}/>
         </div>
-        <Link to="/manual-data-entry">
-          <button className="btn btn-success mt-3">Añadir datos manualmente</button>
+        <Link to="/consulta-clientes-registrados">
+          <button className="btn btn-success mt-3">Agregar Manualmente</button>
         </Link>
       </div>
     </>

@@ -12,6 +12,7 @@ import DataEntryPage from "./pages/DataEntryPage.jsx";
 import UserRegistrationPage from "./pages/UserRegistrationPage.jsx";
 import ManualDataEntryPage from "./pages/ManualDataEntryPage.jsx";
 import Clientes from "./pages/Clientes.jsx";
+import ConsultaClientesRegistrados from "./pages/ConsultaClientesRegistrados.jsx";
 
 const Layout = () => {
     const basename = process.env.REACT_APP_BASENAME_REACTs || "";
@@ -29,6 +30,7 @@ const Layout = () => {
                         
                         <Route path="data-registro" element={<DataEntryPage/>} />
                         <Route path="/user-register" element={<UserRegistrationPage />} />
+                        <Route path="consulta-clientes-registrados" element={<ConsultaClientesRegistrados/>} />
                         <Route path="/manual-data-entry" element={<ManualDataEntryPage />} /> "
                         <Route path="*" element={<h1>Not found!</h1>} />
                     </Routes>

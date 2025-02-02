@@ -111,7 +111,7 @@ def client_post():
         db.session.add(new_cliente)
         db.session.commit()
         
-        return jsonify({"message": "User created successfully", "user": new_cliente.serialize()}), 201
+        return jsonify({"message": "CLient created successfully", "Cliente": new_cliente.serialize()}), 201
     else:
         return jsonify({"message": "Invalid credentials"}), 401
 
@@ -136,12 +136,12 @@ def service_post():
         estado = data.get('estado')
         tipo_servicio = data.get('tipo_servicio')
         hostname = data.get('hostname')
-        cores = data.get('cores')
+        cores = int(data.get('cores', 0)) if data.get('cores') else 0
         contrato = data.get('contrato')
         plan_aprovisionado = data.get('plan_aprovisionado')
         plan_facturado = data.get('plan_facturado')
         detalle_plan = data.get('detalle_plan')
-        sockets = data.get('sockets')
+        sockets = int(data.get('sockets', 0)) if data.get('sockets') else 0
         powerstate = data.get('powerstate')
         ip_privada = data.get('ip_privada')
         vlan = data.get('vlan')
@@ -152,9 +152,9 @@ def service_post():
         modelo_servidor = data.get('modelo_servidor')
         nombre_nodo = data.get('nombre_nodo')
         nombre_plataforma = data.get('nombre_plataforma')
-        ram = data.get('ram')
-        hdd = data.get('hdd')
-        cpu = data.get('cpu')
+        ram = int(data.get('ram', 0)) if data.get('ram') else 0
+        hdd = int(data.get('hdd', 0)) if data.get('hdd') else 0
+        cpu = int(data.get('cpu', 0)) if data.get('cpu') else 0
         tipo_servidor = data.get('tipo_servidor')
         ubicacion = data.get('ubicacion')
         facturado = data.get('facturado')
@@ -205,6 +205,68 @@ def get_services(cliente_id):
         return jsonify([service.serialize() for service in services])
     else:
         return jsonify({"message": "Invalid credentials"}), 401
+
+@api.route('/client-and-services', methods=['POST'])
+def add_client_services():
+    data = request.get_json()
+    if not data:
+        return jsonify({"message": "No input data provided"}), 400
+
+    # Validación de datos obligatorios
+    if not all(key in data for key in ['tipo', 'rif', 'razon_social']):
+        return jsonify({"message": "Missing required client data"}), 400
+    if not all(key in data for key in ['dominio', 'estado', 'tipo_servicio']):
+        return jsonify({"message": "Missing required service data"}), 400
+
+    # Crear nuevo cliente
+    new_cliente = Cliente(tipo=data.get('tipo'), rif=data.get('rif'), razon_social=data.get('razon_social'))
+
+    # Crear nuevo servicio
+    new_servicio = Servicio(
+        dominio=data.get('dominio'),
+        estado=data.get('estado'),
+        tipo_servicio=data.get('tipo_servicio'),
+        hostname=data.get('hostname'),
+        cores=int(data.get('cores', 0)) if data.get('cores') else 0,
+        contrato=data.get('contrato'),
+        plan_aprovisionado=data.get('plan_aprovisionado'),
+        plan_facturado=data.get('plan_facturado'),
+        detalle_plan=data.get('detalle_plan'),
+        sockets=int(data.get('sockets', 0)) if data.get('sockets') else 0,
+        powerstate=data.get('powerstate'),
+        ip_privada=data.get('ip_privada'),
+        vlan=data.get('vlan'),
+        ipam=data.get('ipam'),
+        datastore=data.get('datastore'),
+        nombre_servidor=data.get('nombre_servidor'),
+        marca_servidor=data.get('marca_servidor'),
+        modelo_servidor=data.get('modelo_servidor'),
+        nombre_nodo=data.get('nombre_nodo'),
+        nombre_plataforma=data.get('nombre_plataforma'),
+        ram=int(data.get('ram', 0)) if data.get('ram') else 0,
+        hdd=int(data.get('hdd', 0)) if data.get('hdd') else 0,
+        cpu=int(data.get('cpu', 0)) if data.get('cpu') else 0,
+        tipo_servidor=data.get('tipo_servidor'),
+        ubicacion=data.get('ubicacion'),
+        observaciones=data.get('observaciones'),
+        facturado=data.get('facturado'),
+        comentarios=data.get('comentarios')
+    )
+
+    try:
+        db.session.add(new_cliente)
+        db.session.flush()  # Asigna un ID al nuevo cliente
+        new_servicio.cliente_id = new_cliente.id
+        db.session.add(new_servicio)
+        db.session.commit()
+        return jsonify({
+            "message": "Client and services added successfully",
+            "client": new_cliente.serialize(),
+            "services": new_servicio.serialize()
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": f"Error adding client and services: {str(e)}"}), 500
     
 @api.route('/upload-excel', methods=['POST'])
 def upload_excel():
@@ -227,12 +289,12 @@ def upload_excel():
             estado=row.get('estado', ''),
             tipo_servicio=row.get('tipo_servicio', ''),
             hostname=row.get('hostname', ''),
-            cores=row.get('cores', 0),
+            cores=int(row.get('cores', 0)) if row.get('cores') else 0,
             contrato=row.get('contrato', ''),
             plan_aprovisionado=row.get('plan_aprovisionado', ''),
             plan_facturado=row.get('plan_facturado', ''),
             detalle_plan=row.get('detalle_plan', ''),
-            sockets=row.get('sockets', 0),
+            sockets=int(row.get('sockets', 0)) if row.get('sockets') else 0,
             powerstate=row.get('powerstate', ''),
             ip_privada=row.get('ip_privada', ''),
             vlan=row.get('vlan', ''),
@@ -243,9 +305,9 @@ def upload_excel():
             modelo_servidor=row.get('modelo_servidor', ''),
             nombre_nodo=row.get('nombre_nodo', ''),
             nombre_plataforma=row.get('nombre_plataforma', ''),
-            ram=row.get('ram', 0),
-            hdd=row.get('hdd', 0),
-            cpu=row.get('cpu', 0),
+            ram=int(row.get('ram', 0)) if row.get('ram') else 0,
+            hdd=int(row.get('hdd', 0)) if row.get('hdd') else 0,
+            cpu=int(row.get('cpu', 0)) if row.get('cpu') else 0,
             tipo_servidor=row.get('tipo_servidor', ''),
             ubicacion=row.get('ubicacion', ''),
             observaciones=row.get('observaciones', ''),

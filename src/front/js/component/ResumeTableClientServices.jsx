@@ -1,10 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState, useContext } from 'react';
+import { Context } from '../store/appContext'; // Import Context to access actions
 
 function ResumeTableClientServices({ clientData }) {
-  
+  const { actions } = useContext(Context); // Access actions from context
+  const [servicesData, setServicesData] = useState([]);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      if (clientData && clientData.id) {
+        const servicesResponse = await actions.getServicebyClient(clientData.id);
+        setServicesData(servicesResponse);
+      }
+    };
+
+    fetchServices();
+  }, [clientData]);
 
   return (
-    <div className="table-responsive">
+    <div className=" container table-responsive">
       <h3>Otros Servicios del Cliente: {clientData ? clientData.razon_social : 'No client selected'}</h3>
       <table className="table table-striped">
         <thead>
@@ -18,16 +31,22 @@ function ResumeTableClientServices({ clientData }) {
           </tr>
         </thead>
         <tbody>
-          {clientData && clientData.servicios && clientData.servicios.map((service, index) => (
-            <tr key={index}>
-              <td>{service.dominio}</td>
-              <td>{service.estado}</td>
-              <td>{service.tipo_servicio}</td>
-              <td>{service.plan_facturado}</td>
-              <td>{service.detalle_plan}</td>
-              <td>{service.contrato}</td>
+          {servicesData.length > 0 ? (
+            servicesData.map((service, index) => (
+              <tr key={index}>
+                <td>{service.dominio}</td>
+                <td>{service.estado}</td>
+                <td>{service.tipo_servicio}</td>
+                <td>{service.plan_facturado}</td>
+                <td>{service.detalle_plan}</td>
+                <td>{service.contrato}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="6">No services found for this client.</td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>

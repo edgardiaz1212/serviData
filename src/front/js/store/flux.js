@@ -195,6 +195,25 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during adding service data", error);
         }
       },
+      addClientAndServiceData: async (clientData, serviceData) => {
+        try {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/client-and-services`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ client: clientData, service: serviceData }),
+          });
+          if (!response.ok) {
+            throw new Error("Failed to add client and service data");
+          }
+          const result = await response.json();
+          console.log("Client and service data added successfully:", result);
+        } catch (error) {
+          console.error("Error adding client and service data:", error);
+        }
+      },
+
       fetchClientData: async (name) => {
         try {
           const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/client-consult/?name=${name}`);
