@@ -7,7 +7,7 @@ import injectContext from "./store/appContext.js";
 import Navbar from "./component/navbar"; // Ensure this path is correct
 import Footer from "./component/footer"; // Ensure this path is correct
 import Login from "./pages/login.jsx"; // Ensure this path is correct
-import Dashboard from "./pages/dashboard.jsx"; // Ensure this path is correct
+import Dashboard from "./pages/Dashboard.jsx"; // Ensure this path is correct
 import DataEntryPage from "./pages/DataEntryPage.jsx";
 import UserRegistrationPage from "./pages/UserRegistrationPage.jsx";
 import ManualDataEntryPage from "./pages/ManualDataEntryPage.jsx";

@@ -378,3 +378,16 @@ def upload_excel():
 
     db.session.commit()
     return jsonify({"message": "Data uploaded successfully"}), 201
+
+@api.route('/service-counts-by-type', methods=['GET'])
+def get_service_counts_by_type():
+    service_counts = db.session.query(
+        Servicio.tipo_servicio, db.func.count(Servicio.id).label('count')
+    ).group_by(Servicio.tipo_servicio).all()
+    return jsonify([{'tipo_servicio': sc.tipo_servicio, 'count': sc.count} for sc in service_counts]), 200
+
+@api.route('/client-counts-by-type', methods=['GET'])
+def get_client_counts_by_type():
+    public_count = Cliente.query.filter_by(tipo='publico').count()
+    private_count = Cliente.query.filter_by(tipo='privado').count()
+    return jsonify({'public': public_count, 'private': private_count}), 200

@@ -365,6 +365,32 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.error("Error uploading data:", error);
         }
       },
+      getServiceCountsByType: async () => {
+        try {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/service-counts-by-type`);
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          } else {
+            console.error("Failed to get service counts by type");
+          }
+        } catch (error) {
+          console.log("Error during getting service counts by type", error);
+        }
+      },
+      getClientCountsByType: async () => {
+        try {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/client-counts-by-type`);
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          } else {
+            console.error("Failed to get client counts by type");
+          }
+        } catch (error) {
+          console.log("Error during getting client counts by type", error);
+        }
+      },
       
     },
   };
