@@ -2,6 +2,8 @@ import React, { useState, useContext } from 'react';
 import { Context } from '../store/appContext';
 import ResumeTableClientServices from '../component/ResumeTableClientServices.jsx'; // Assuming this component exists for displaying services
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function ConsultaClientesRegistrados() {
   const { actions } = useContext(Context);
@@ -36,11 +38,13 @@ function ConsultaClientesRegistrados() {
         setServicesData(servicesResponse);
         setShowButton(true); // Show the button after a successful consultation
       } else {
-        alert("Cliente no encontrado. Puedes añadir un nuevo cliente.");
-        navigate("/manual-data-entry"); // Redirect to Manual Data Entry if client not found
+        toast.info("Cliente no encontrado. Puedes añadir un nuevo cliente.");
+        setTimeout(() => {
+          navigate("/manual-data-entry"); // Redirect to Manual Data Entry if client not found
+        }, 1500); // Redirect to Manual Data Entry if client not found
       }
     } else {
-      alert("Por favor, ingrese un nombre de cliente.");
+      toast.error("Por favor, ingrese un nombre de cliente.");
     }
   };
 
@@ -54,8 +58,10 @@ function ConsultaClientesRegistrados() {
 
   return (
     <>
+    <ToastContainer />
     <div className="container">
     <h3>Paso 1</h3>
+    <h5>Validacion Cliente</h5>
       <div className="input-group mb-3">
         <input
           type="text"
