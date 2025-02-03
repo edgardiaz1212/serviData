@@ -1,6 +1,8 @@
 import React, { useState, useContext } from "react";
 import { Context } from "../store/appContext";
-import DatosServicio from '../component/DatosServicio.jsx'; // Importar el componente DatosServicio
+import DatosServicio from './DatosServicio'; // Importar el componente DatosServicio
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function InputClienteServicio({ onSubmit }) {
   const { actions } = useContext(Context);
@@ -53,52 +55,93 @@ function InputClienteServicio({ onSubmit }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      await actions.addClientAndServiceData({  ...clientData, ...serviceData });
-      console.log('Client and Service data submitted:', { clientData, serviceData });
-      if (onSubmit) onSubmit();
-    } catch (error) {
-      console.error('Error submitting client and service data:', error);
+    if (e.target.checkValidity() === false) {
+      e.stopPropagation();
+      toast.error('Por favor, complete todos los campos obligatorios.');
+    } else {
+      try {
+        await actions.addClientAndServiceData({ ...clientData, ...serviceData });
+        toast.success('Datos del cliente y del servicio enviados correctamente');
+        console.log('Client and Service data submitted:', { clientData, serviceData });
+        if (onSubmit) onSubmit();
+      } catch (error) {
+        toast.error('Error al enviar los datos del cliente y del servicio');
+        console.error('Error submitting client and service data:', error);
+      }
     }
+    e.target.classList.add('was-validated');
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h3>Datos del Cliente</h3>
-      <input
-        type="text"
-        name="rif"
-        value={clientData.rif}
-        onChange={handleClientChange}
-        placeholder="RIF"
-      />
-      <input
-        type="text"
-        name="razon_social"
-        value={clientData.razon_social}
-        onChange={handleClientChange}
-        placeholder="Razón Social"
-      />
-     <select
-        name="tipo"
-        value={clientData.tipo}
-        onChange={handleClientChange}
-      >
-        <option value="" disabled>Seleccione Tipo</option>
-        <option value="Pública">Pública</option>
-        <option value="Privada">Privada</option>
-      </select>
+    <>
+      <form className="row g-3 needs-validation" onSubmit={handleSubmit} noValidate>
+        <h3>Datos del Cliente</h3>
+        <div className="col-md-4">
+          <label htmlFor="validationRif" className="form-label">RIF</label>
+          <div className="input-group has-validation">
+            <input
+              className="form-control"
+              type="text"
+              name="rif"
+              value={clientData.rif}
+              onChange={handleClientChange}
+              placeholder="RIF"
+              id="validationRif"
+              aria-describedby="inputGroupPrepend"
+              required
+            />
+            <div className="invalid-feedback">
+              Añada RIF.
+            </div>
+          </div>
+        </div>
+        <div className="col-md-4">
+          <label htmlFor="validationRazonSocial" className="form-label">Razón Social</label>
+          <input
+            className="form-control"
+            type="text"
+            name="razon_social"
+            value={clientData.razon_social}
+            onChange={handleClientChange}
+            placeholder="Razón Social"
+            id="validationRazonSocial"
+            required
+          />
+          <div className="invalid-feedback">
+            Añada Razón Social.
+          </div>
+        </div>
+        <div className="col-md-4">
+          <label htmlFor="validationTipo" className="form-label">Tipo</label>
+          <select
+            className="form-control"
+            name="tipo"
+            value={clientData.tipo}
+            onChange={handleClientChange}
+            id="validationTipo"
+            required
+          >
+            <option value="" disabled>Seleccione Tipo</option>
+            <option value="Pública">Pública</option>
+            <option value="Privada">Privada</option>
+          </select>
+          <div className="invalid-feedback">
+            Seleccione Tipo.
+          </div>
+        </div>
 
-      <DatosServicio
-        clientData={clientData}
-        serviceData={serviceData}
-        handleChange={handleServiceChange}
-      />
+        <DatosServicio
+          clientData={clientData}
+          serviceData={serviceData}
+          handleChange={handleServiceChange}
+        />
 
-      <button className="btn btn-success mt-2" type="submit">
-        Guardar
-      </button>
-    </form>
+        <button className="btn btn-success mt-2" type="submit">
+          Guardar
+        </button>
+      </form>
+      <ToastContainer />
+    </>
   );
 }
 
