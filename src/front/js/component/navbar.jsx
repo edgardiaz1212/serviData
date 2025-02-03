@@ -33,6 +33,11 @@ const Navbar = () => {
           <ul className="navbar-nav">
             {isAuthenticated && (
               <>
+              <li className="nav-item">
+                  <a className="nav-link text-white" href="/dashboard">
+                    Resumen
+                  </a>
+                </li>
                 <li className="nav-item">
                   <a className="nav-link text-white" href="/clientes">
                     Clientes

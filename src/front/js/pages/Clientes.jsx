@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import TotalCLient from '../component/TotalCLient.jsx';
+import { Search } from 'lucide-react'
 
 function Clientes() {
   const [clientType, setClientType] = useState('Privada');
@@ -20,8 +21,9 @@ function Clientes() {
           <label className="btn btn-outline-primary" htmlFor="btnradio2">Publica</label>
         
           <div className="input-group">
-    <div className="input-group-text" id="btnGroupAddon">@</div>
-    <input type="text" className="form-control" placeholder="Input group example" aria-label="Input group example" aria-describedby="btnGroupAddon"/>
+    <div className="input-group-text" id="btnGroupAddon"><Search /></div>
+    
+    <input type="text" className="form-control" placeholder="Busqueda" aria-label="Input group example" aria-describedby="btnGroupAddon"/>
   </div>
         </div>
         <TotalCLient clientType={clientType} />

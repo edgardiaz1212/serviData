@@ -18,14 +18,13 @@ function TotalCLient({ clientType }) {
           {store.clientData && store.clientData.length > 0 ? (
             store.clientData.map((client, index) => (
             <>
-            {/* <li className="list-group-item" key={index}>{client.razon_social}</li>
-              <li className="list-group-item" key={index}>{client.rif}</li> */}
+            
               <div className="list-group-item list-group-item-action">
               <div className="d-flex w-100 justify-content-between">
       <h5 className="mb-1" key={index}>{client.razon_social}</h5>
             </div>
             <p className="mb-1">RIF: {client.rif}</p>
-            <small>{client.tipo}</small>
+            {/* <small>{client.tipo}</small> */}
 
     </div>
             </>  
