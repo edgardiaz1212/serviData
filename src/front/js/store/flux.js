@@ -302,7 +302,26 @@ const getState = ({ getStore, getActions, setStore }) => {
               console.log("Error during getting client data", error);
             }
       },
-        
+      updateServiceData: async (serviceId, serviceData) => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/servicios/${serviceId}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(serviceData),
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          }
+        } catch (error) {
+          console.log("Error during updating service data", error);
+        }
+      },
       getClientbyTipo: async (tipo) => {
         const store = getStore
         try {

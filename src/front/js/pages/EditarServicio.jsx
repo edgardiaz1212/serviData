@@ -14,6 +14,7 @@ function EditarServicio() {
   useEffect(() => {
     const fetchServiceData = async () => {
       const service = await actions.getServiceById(serviceId);
+      console.log('service:', service);
       setServiceData(service);
     };
     fetchServiceData();

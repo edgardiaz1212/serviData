@@ -224,7 +224,46 @@ def get_service(service_id):
             return jsonify({"message": "Service not found"}), 404
     else:
         return jsonify({"message": "Invalid credentials"}), 401
+@api.route('/servicios/<int:service_id>', methods=['PUT'])
+def update_service(service_id):
+    data = request.get_json()
+    service = Servicio.query.get(service_id)
 
+    if not service:
+        return jsonify({"message": "Service not found"}), 404
+
+    service.dominio = data.get('dominio', service.dominio)
+    service.estado = data.get('estado', service.estado)
+    service.tipo_servicio = data.get('tipo_servicio', service.tipo_servicio)
+    service.hostname = data.get('hostname', service.hostname)
+    service.cores = int(data.get('cores', service.cores))
+    service.contrato = data.get('contrato', service.contrato)
+    service.plan_aprovisionado = data.get('plan_aprovisionado', service.plan_aprovisionado)
+    service.plan_facturado = data.get('plan_facturado', service.plan_facturado)
+    service.detalle_plan = data.get('detalle_plan', service.detalle_plan)
+    service.sockets = int(data.get('sockets', service.sockets))
+    service.powerstate = data.get('powerstate', service.powerstate)
+    service.ip_privada = data.get('ip_privada', service.ip_privada)
+    service.vlan = data.get('vlan', service.vlan)
+    service.ipam = data.get('ipam', service.ipam)
+    service.datastore = data.get('datastore', service.datastore)
+    service.nombre_servidor = data.get('nombre_servidor', service.nombre_servidor)
+    service.marca_servidor = data.get('marca_servidor', service.marca_servidor)
+    service.modelo_servidor = data.get('modelo_servidor', service.modelo_servidor)
+    service.nombre_nodo = data.get('nombre_nodo', service.nombre_nodo)
+    service.nombre_plataforma = data.get('nombre_plataforma', service.nombre_plataforma)
+    service.ram = int(data.get('ram', service.ram))
+    service.hdd = int(data.get('hdd', service.hdd))
+    service.cpu = int(data.get('cpu', service.cpu))
+    service.tipo_servidor = data.get('tipo_servidor', service.tipo_servidor)
+    service.ubicacion = data.get('ubicacion', service.ubicacion)
+    service.observaciones = data.get('observaciones', service.observaciones)
+    service.facturado = data.get('facturado', service.facturado)
+    service.comentarios = data.get('comentarios', service.comentarios)
+
+    db.session.commit()
+
+    return jsonify({"message": "Service updated successfully", "service": service.serialize()}), 200
 
 @api.route('/client-and-services', methods=['POST'])
 def add_client_services():
