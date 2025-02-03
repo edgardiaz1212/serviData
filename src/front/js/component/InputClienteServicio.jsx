@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { Context } from "../store/appContext";
-import DatosServicio from '../ component/DatosServicio'; // Importar el componente DatosServicio
+import DatosServicio from '../component/DatosServicio.jsx'; // Importar el componente DatosServicio
 
 function InputClienteServicio({ onSubmit }) {
   const { actions } = useContext(Context);

@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Context } from '../store/appContext'; // Import Context to access actions
-import DatosServicio from '../ component/DatosServicio'; // Import DatosServicio component
+import DatosServicio from '../component/DatosServicio.jsx'; // Import DatosServicio component
 
 function InputService({ clientData }) {
   const { actions } = useContext(Context); // Access actions from context

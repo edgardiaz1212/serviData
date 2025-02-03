@@ -54,6 +54,7 @@ function ConsultaClientesRegistrados() {
 
   return (
     <>
+    <div className="container">
     <h3>Paso 1</h3>
       <div className="input-group mb-3">
         <input
@@ -102,6 +103,7 @@ function ConsultaClientesRegistrados() {
       {clientData && servicesData.length > 0 && ( // Only render if there are services
         <ResumeTableClientServices clientData={clientData} servicesData={servicesData} />
       )}
+      </div>
     </>
   );
 }

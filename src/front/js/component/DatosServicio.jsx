@@ -1,5 +1,5 @@
 import React from 'react';
-import { servicios } from './ListaServicios'; // Importar la lista de servicios
+import { servicios } from './TipoServicios.jsx'; // Importar la lista de servicios
 
 function DatosServicio({ clientData, serviceData, handleChange }) {
   return (
