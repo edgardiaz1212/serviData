@@ -38,7 +38,7 @@ const Navbar = () => {
             <>
               <li className="nav-item">
                 <a className="nav-link text-white" href="/clientes">
-                  Cientes
+                  Clientes
                 </a>
               </li>
               

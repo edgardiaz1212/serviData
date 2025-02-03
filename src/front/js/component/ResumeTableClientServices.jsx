@@ -44,7 +44,7 @@ function ResumeTableClientServices({ clientData }) {
             ))
           ) : (
             <tr>
-              <td colSpan="6">No services found for this client.</td>
+              <td colSpan="6">No se encontraron servicios de este cliente.</td>
             </tr>
           )}
         </tbody>
