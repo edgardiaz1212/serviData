@@ -1,4 +1,5 @@
 import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { Context } from "../store/appContext";
 import DatosServicio from './DatosServicio'; // Importar el componente DatosServicio
 import { ToastContainer, toast } from 'react-toastify';
@@ -6,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 function InputClienteServicio({ onSubmit }) {
   const { actions } = useContext(Context);
+  const navigate = useNavigate();
 
   const [clientData, setClientData] = useState({
     rif: "",
@@ -64,6 +66,9 @@ function InputClienteServicio({ onSubmit }) {
         toast.success('Datos del cliente y del servicio enviados correctamente');
         console.log('Client and Service data submitted:', { clientData, serviceData });
         if (onSubmit) onSubmit();
+        setTimeout(() => {
+          navigate("/register-data"); // Redirect to Manual Data Entry if client not found
+        }, 1500)
       } catch (error) {
         toast.error('Error al enviar los datos del cliente y del servicio');
         console.error('Error submitting client and service data:', error);

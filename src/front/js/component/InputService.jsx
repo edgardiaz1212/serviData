@@ -33,7 +33,7 @@ function InputService({ clientData }) {
     powerstate: '',
     comentarios: '',
   });
-
+console.log('clientData:', clientData);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setServiceData((prevState) => ({ ...prevState, [name]: value }));
