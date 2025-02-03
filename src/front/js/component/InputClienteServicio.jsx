@@ -54,7 +54,7 @@ function InputClienteServicio({ onSubmit }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await actions.addClientAndServiceData({ clientData, serviceData });
+      await actions.addClientAndServiceData({  ...clientData, ...serviceData });
       console.log('Client and Service data submitted:', { clientData, serviceData });
       if (onSubmit) onSubmit();
     } catch (error) {

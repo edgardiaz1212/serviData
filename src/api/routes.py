@@ -266,7 +266,7 @@ def add_client_services():
         }), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({"message": f"Error adding client and services: {str(e)}"}), 500
+        return jsonify({"message": f"ERROR adding client and services: {str(e)}"}), 500
     
 @api.route('/upload-excel', methods=['POST'])
 def upload_excel():

@@ -202,7 +202,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ client: clientData, service: serviceData }),
+            body: JSON.stringify({ ...clientData, ...serviceData }),
           });
           if (!response.ok) {
             throw new Error("Failed to add client and service data");
@@ -210,7 +210,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           const result = await response.json();
           console.log("Client and service data added successfully:", result);
         } catch (error) {
-          console.error("Error adding client and service data:", error);
+          console.error("Error adding client and service DATA:", error);
         }
       },
 
