@@ -51,6 +51,7 @@ console.log('clientData:', clientData);
 
   return (
     <form onSubmit={handleSubmit}>
+      <h3>Cliente : {clientData.razon_social}</h3>
       <DatosServicio
         clientData={clientData}
         serviceData={serviceData}

@@ -58,57 +58,57 @@ function ConsultaClientesRegistrados() {
 
   return (
     <>
-    <ToastContainer />
-    <div className="container">
-    <h3>Paso 1</h3>
-    <h5>Validacion Cliente</h5>
-      <div className="input-group mb-3">
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Nombre del cliente"
-          value={name}
-          onChange={handleInputChange}
-          aria-label="Nombre del cliente"
-        />
-        <button
-          className="btn btn-secondary"
-          type="button"
-          onClick={handleConsultationClick}
-        >
-          Consultar
-        </button>
-      </div>
-      {suggestions.length > 0 && (
-        <ul className="list-group">
-          {suggestions.map((suggestion, index) => (
-            <li
-              key={index}
-              className="list-group-item list-group-item-action"
-              onClick={() => {
-                setName(suggestion.razon_social);
-                setClientData(suggestion);
-                setSuggestions([]);
-                setShowButton(true); // Show the button when a suggestion is selected
-              }}
-            >
-              {suggestion.razon_social}
-            </li>
-          ))}
-        </ul>
-      )}
-      {showButton && (
-        <button
-          className="btn btn-secondary"
-          type="button"
-          onClick={handleAddClientClick}
-        >
-          Añadir Datos
-        </button>
-      )}
-      {clientData && servicesData.length > 0 && ( // Only render if there are services
-        <ResumeTableClientServices clientData={clientData} servicesData={servicesData} />
-      )}
+      <ToastContainer />
+      <div className="container">
+        <h3>Paso 1</h3>
+        <h5>Validacion Cliente</h5>
+        <div className="input-group mb-3">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Nombre del cliente"
+            value={name}
+            onChange={handleInputChange}
+            aria-label="Nombre del cliente"
+          />
+          <button
+            className="btn btn-secondary"
+            type="button"
+            onClick={handleConsultationClick}
+          >
+            Consultar
+          </button>
+        </div>
+        {suggestions.length > 0 && (
+          <ul className="list-group">
+            {suggestions.map((suggestion, index) => (
+              <li
+                key={index}
+                className="list-group-item list-group-item-action"
+                onClick={() => {
+                  setName(suggestion.razon_social);
+                  setClientData(suggestion);
+                  setSuggestions([]);
+                  setShowButton(true); // Show the button when a suggestion is selected
+                }}
+              >
+                {suggestion.razon_social}
+              </li>
+            ))}
+          </ul>
+        )}
+        {showButton && (
+          <button
+            className="btn btn-secondary"
+            type="button"
+            onClick={handleAddClientClick}
+          >
+            Añadir Datos
+          </button>
+        )}
+        {clientData && servicesData.length > 0 && ( // Only render if there are services
+          <ResumeTableClientServices clientData={clientData} servicesData={servicesData} />
+        )}
       </div>
     </>
   );

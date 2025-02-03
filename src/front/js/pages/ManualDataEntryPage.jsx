@@ -1,9 +1,12 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useContext } from "react";
+import { useLocation } from "react-router-dom";
 import { Context } from "../store/appContext";
 import InputClienteServicio from "../component/InputClienteServicio.jsx";
 import InputService from "../component/InputService.jsx";
 
-const ManualDataEntryPageFinal = ({ clientData }) => {
+const ManualDataEntryPageFinal = () => {
+  const { state } = useLocation();
+  const { clientData } = state || {}; // Get clientData from navigation state
   const { actions, store } = useContext(Context);
 
   return (
