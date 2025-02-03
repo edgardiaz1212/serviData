@@ -54,7 +54,7 @@ function InputClienteServicio({ onSubmit }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await actions.addClientServiceData({ clientData, serviceData });
+      await actions.addClientAndServiceData({ clientData, serviceData });
       console.log('Client and Service data submitted:', { clientData, serviceData });
       if (onSubmit) onSubmit();
     } catch (error) {
@@ -79,13 +79,15 @@ function InputClienteServicio({ onSubmit }) {
         onChange={handleClientChange}
         placeholder="Razón Social"
       />
-      <input
-        type="text"
+     <select
         name="tipo"
         value={clientData.tipo}
         onChange={handleClientChange}
-        placeholder="Tipo"
-      />
+      >
+        <option value="" disabled>Seleccione Tipo</option>
+        <option value="Pública">Pública</option>
+        <option value="Privada">Privada</option>
+      </select>
 
       <DatosServicio
         clientData={clientData}
