@@ -14,7 +14,7 @@ function TotalClient({ clientType, searchQuery }) {
 
   return (
     <div>
-      <h1>Clientes del Tipo: {clientType}</h1>
+      
       <ul className="list-group">
         {filteredClients.length > 0 ? (
           filteredClients.map((client, index) => (
