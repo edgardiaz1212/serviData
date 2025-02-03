@@ -18,6 +18,11 @@ function Clientes() {
 
           <input type="radio" className="btn-check" name="btnradio" id="btnradio2" autoComplete="off" checked={clientType === 'Publica'} onChange={handleClientTypeChange} />
           <label className="btn btn-outline-primary" htmlFor="btnradio2">Publica</label>
+        
+          <div className="input-group">
+    <div className="input-group-text" id="btnGroupAddon">@</div>
+    <input type="text" className="form-control" placeholder="Input group example" aria-label="Input group example" aria-describedby="btnGroupAddon"/>
+  </div>
         </div>
         <TotalCLient clientType={clientType} />
       </div>
