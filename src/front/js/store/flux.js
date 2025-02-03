@@ -261,11 +261,28 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during getting service data", error);
         }
       },
+      getServiceById: async (serviceId) => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/servicios/${serviceId}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+      }
+    } catch (error) {
+      console.log("Error during getting service data", error);
+    }
+  },
+      
       getClientById: async (clientId) => {
         try {
-
-
-
           const response = await fetch(
             `${process.env.REACT_APP_BACKEND_URL}/clientes/${clientId}`,
             {
@@ -284,17 +301,6 @@ const getState = ({ getStore, getActions, setStore }) => {
             } catch (error) {
               console.log("Error during getting client data", error);
             }
-
-
-
-        //   const response = await fetch(
-        //     `${process.env.REACT_APP_BACKEND_URL}/clientes/${clientId}`);
-        //   const data = await response.json();
-        //   return data;
-        // } catch (error) {
-        //   console.error("Error fetching client by ID:", error);
-        //   return null;
-        // }
       },
         
       getClientbyTipo: async (tipo) => {

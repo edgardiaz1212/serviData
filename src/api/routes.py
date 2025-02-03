@@ -214,6 +214,18 @@ def get_services(cliente_id):
     else:
         return jsonify({"message": "Invalid credentials"}), 401
 
+@api.route('servicios/<int:service_id>', methods=['GET'])
+def get_service(service_id):
+    if request.method == 'GET':
+        service = Servicio.query.get(service_id)
+        if service:
+            return jsonify(service.serialize())
+        else:
+            return jsonify({"message": "Service not found"}), 404
+    else:
+        return jsonify({"message": "Invalid credentials"}), 401
+
+
 @api.route('/client-and-services', methods=['POST'])
 def add_client_services():
     data = request.get_json()
