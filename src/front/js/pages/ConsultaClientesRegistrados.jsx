@@ -97,7 +97,10 @@ function ConsultaClientesRegistrados() {
             ))}
           </ul>
         )}
-        {showButton && (
+       
+        {clientData && servicesData.length > 0 && ( // Only render if there are services
+          <>
+           {showButton && (
           <button
             className="btn btn-secondary"
             type="button"
@@ -106,8 +109,7 @@ function ConsultaClientesRegistrados() {
             Añadir Datos
           </button>
         )}
-        {clientData && servicesData.length > 0 && ( // Only render if there are services
-          <ResumeTableClientServices clientData={clientData} servicesData={servicesData} />
+          <ResumeTableClientServices clientData={clientData} servicesData={servicesData} /></>
         )}
       </div>
     </>

@@ -67,7 +67,7 @@ function InputClienteServicio({ onSubmit }) {
         console.log('Client and Service data submitted:', { clientData, serviceData });
         if (onSubmit) onSubmit();
         setTimeout(() => {
-          navigate("/register-data"); // Redirect to Manual Data Entry if client not found
+          navigate("/data-registro"); // Redirect to Manual Data Entry if client not found
         }, 1500)
       } catch (error) {
         toast.error('Error al enviar los datos del cliente y del servicio');
