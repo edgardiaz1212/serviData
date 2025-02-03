@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { useContext } from "react";
+import React, { useState, useContext } from "react";
 import { Context } from "../store/appContext";
+import DatosServicio from '../ component/DatosServicio'; // Importar el componente DatosServicio
 
 function InputClienteServicio({ onSubmit }) {
   const { actions } = useContext(Context);
@@ -20,8 +20,12 @@ function InputClienteServicio({ onSubmit }) {
     plan_aprovisionado: "",
     plan_facturado: "",
     detalle_plan: "",
+    facturado: "",
+    cores: "",
     sockets: "",
-    powerstate: "",
+    ram: "",
+    hdd: "",
+    cpu: "",
     ip_privada: "",
     vlan: "",
     ipam: "",
@@ -31,29 +35,28 @@ function InputClienteServicio({ onSubmit }) {
     modelo_servidor: "",
     nombre_nodo: "",
     nombre_plataforma: "",
-    ram: "",
-    hdd: "",
-    cpu: "",
     tipo_servidor: "",
     ubicacion: "",
-    facturado: "",
+    powerstate: "",
     comentarios: "",
   });
 
-  const handleChange = (e) => {
+  const handleClientChange = (e) => {
     const { name, value } = e.target;
-    if (name in clientData) {
-      setClientData((prevState) => ({ ...prevState, [name]: value }));
-    } else {
-      setServiceData((prevState) => ({ ...prevState, [name]: value }));
-    }
+    setClientData((prevState) => ({ ...prevState, [name]: value }));
+  };
+
+  const handleServiceChange = (e) => {
+    const { name, value } = e.target;
+    setServiceData((prevState) => ({ ...prevState, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await actions.addClientAndServiceData({ ...clientData, ...serviceData }); // Send data to backend
-      console.log('Client and service data submitted:', { ...clientData, ...serviceData });
+      await actions.addClientServiceData({ clientData, serviceData });
+      console.log('Client and Service data submitted:', { clientData, serviceData });
+      if (onSubmit) onSubmit();
     } catch (error) {
       console.error('Error submitting client and service data:', error);
     }
@@ -66,49 +69,30 @@ function InputClienteServicio({ onSubmit }) {
         type="text"
         name="rif"
         value={clientData.rif}
-        onChange={handleChange}
+        onChange={handleClientChange}
         placeholder="RIF"
       />
       <input
         type="text"
         name="razon_social"
         value={clientData.razon_social}
-        onChange={handleChange}
+        onChange={handleClientChange}
         placeholder="Razón Social"
       />
-      <select
+      <input
+        type="text"
         name="tipo"
         value={clientData.tipo}
-        onChange={handleChange}
-      >
-        <option value="">Seleccione Tipo</option>
-        <option value="Publica">Pública</option>
-        <option value="Privada">Privada</option>
-      </select>
+        onChange={handleClientChange}
+        placeholder="Tipo"
+      />
 
-      <h3>Datos de identificación del servicio</h3>
-      <input
-        type="text"
-        name="dominio"
-        value={serviceData.dominio}
-        onChange={handleChange}
-        placeholder="Dominio"
+      <DatosServicio
+        clientData={clientData}
+        serviceData={serviceData}
+        handleChange={handleServiceChange}
       />
-      <input
-        type="text"
-        name="tipo_servicio"
-        value={serviceData.tipo_servicio}
-        onChange={handleChange}
-        placeholder="Tipo de Servicio"
-      />
-      <input
-        type="text"
-        name="hostname"
-        value={serviceData.hostname}
-        onChange={handleChange}
-        placeholder="Hostname"
-      />
-      {/* Additional input fields for other service data */}
+
       <button className="btn btn-success mt-2" type="submit">
         Guardar
       </button>
