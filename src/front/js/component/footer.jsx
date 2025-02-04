@@ -3,7 +3,7 @@ import React from 'react';
 const Footer = () => {
     return (
         <footer>
-            <p>© 2024 ServiData • </p>
+            <p>© 2025 ServiData •  </p>
            
         </footer>
     );

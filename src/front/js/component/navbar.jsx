@@ -10,7 +10,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     await actions.LogOut();
-    navigate("/login"); // Redirect user to the login page after logging out
+    navigate("/"); // Redirect user to the login page after logging out
   };
 
   return (

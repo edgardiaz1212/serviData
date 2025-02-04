@@ -122,9 +122,11 @@ const getState = ({ getStore, getActions, setStore }) => {
           );
           if (response.ok) {
             const data = await response.json();
-            setStore({ users: data }); // Update the store with the fetched users data
-            console.log("Users data fetched", data);
-            return data;
+            const loggedInUser = store.user;
+            const filteredUsers = data.filter(user => user.id !== loggedInUser.id);
+            setStore({ users: filteredUsers });
+            console.log("Users data fetched", filteredUsers);
+            return filteredUsers;
           } else {
             console.error("Failed to fetch users data");
           }

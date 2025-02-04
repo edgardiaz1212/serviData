@@ -22,7 +22,7 @@ const Layout = () => {
     //const backendURL = process.env.REACT_APP_BACKEND_URL || ""; // Updated
 
     return (
-        <div className="" style={{ backgroundColor: "#f5f2f2" }}>
+        <div className="" style={{ backgroundColor: "#fffdfd" }}>
             <BrowserRouter basename={basename}>
                 <ScrollToTop>
                     <Navbar />
