@@ -419,5 +419,16 @@ def get_top_services():
 
 @api.route('/client-counts-by-type', methods=['GET'])
 def get_client_counts_by_type():
-    client_counts = db.session.query(Cliente.tipo, db.func.count(Cliente.id)).group_by(Cliente.tipo).all()
-    client_counts_dict = {tipo: count for tipo, count in client_counts}
+    try:
+        # Realiza la consulta para obtener el conteo de clientes por tipo
+        client_counts = db.session.query(Cliente.tipo, db.func.count(Cliente.id)).group_by(Cliente.tipo).all()
+        
+        # Convierte el resultado en un diccionario
+        client_counts_dict = {tipo: count for tipo, count in client_counts}
+        
+        # Devuelve la respuesta en formato JSON
+        return jsonify(client_counts_dict)
+    
+    except Exception as e:
+        # Manejo de errores: devuelve un mensaje de error en caso de que algo falle
+        return jsonify({"error": str(e)}), 500
