@@ -405,6 +405,16 @@ def get_service_counts_by_type():
     
     return jsonify(service_counts_dict), 200
 
+@api.route('/top-services', methods=['GET'])
+def get_top_services():
+    top_services = db.session.query(
+        Servicio.tipo_servicio, db.func.count(Servicio.id).label('count')
+    ).group_by(Servicio.tipo_servicio).order_by(db.desc('count')).limit(10).all()
+    
+    top_services_list = [{'tipo_servicio': tipo_servicio, 'count': count} for tipo_servicio, count in top_services]
+    
+    return jsonify(top_services_list), 200
+
 @api.route('/client-counts-by-type', methods=['GET'])
 def get_client_counts_by_type():
     client_counts = db.session.query(Cliente.tipo, db.func.count(Cliente.id)).group_by(Cliente.tipo).all()

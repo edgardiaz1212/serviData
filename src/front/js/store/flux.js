@@ -15,6 +15,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       totalClients: 0, // Add totalClients state
       clientCountsByType: {},
       servicesCountsByType: {},
+      topServices: [],
     },
 
     actions: {
@@ -295,6 +296,19 @@ const getState = ({ getStore, getActions, setStore }) => {
       }
     } catch (error) {
       console.log("Error during getting service data", error);
+    }
+  },
+  getTopServices: async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/top-services`);
+      if (response.ok) {
+        const data = await response.json();
+        setStore({ topServices: data });
+      } else {
+        console.error("Failed to get top services");
+      }
+    } catch (error) {
+      console.log("Error during getting top services", error);
     }
   },
   getTotalServices: async () => {
