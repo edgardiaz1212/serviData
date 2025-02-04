@@ -2,7 +2,8 @@ import React, { useState, useContext, useEffect } from "react"; // Import useEff
 import { Context } from "../store/appContext";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
-import { LogIn } from 'lucide-react'; // Import LogIn from lucide-react
+import { LogIn } from "lucide-react"; // Import LogIn from lucide-react
+import "../../styles/login.css"
 
 const Login = () => {
   const { actions, store } = useContext(Context);
@@ -32,50 +33,52 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container d-flex justify-content-center align-items-center vh-100">
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar
-        newestOnTop={false}
-        closeOnClick={false}
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-      />
-      <div className="card p-4" style={{ width: "300px" }}>
-        <h1 className="text-center font-bold text-gray-900">ServiData</h1>
-        <form onSubmit={handleSubmit} className="mt-4">
-          <div className="form-group">
-            <label htmlFor="username">Nombre de usuario:</label>
-            <input
-              type="text"
-              className="form-control"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="password">Contraseña:</label>
-            <input
-              type="password"
-              className="form-control"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit" className="btn btn-primary btn-block">
-            <LogIn className="mr-2" /> Ingresar
-          </button>
-        </form>
+    <>
+      <div className="login-container d-flex justify-content-center align-items-center vh-100 ">
+        <ToastContainer
+          position="top-center"
+          autoClose={3000}
+          hideProgressBar
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+        />
+        <div className="card logincard p-4 " style={{ width: "350px" }}>
+          <h1 className="text-center font-bold text-gray-900">ServiData</h1>
+          <form onSubmit={handleSubmit} className="mt-4">
+            <div className="form-group">
+              <label htmlFor="username">Nombre de usuario:</label>
+              <input
+                type="text"
+                className="form-control"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="password">Contraseña:</label>
+              <input
+                type="password"
+                className="form-control"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <button type="submit" className="btn btn-primary btn-block">
+              <LogIn className="mr-2" /> Ingresar
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

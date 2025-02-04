@@ -39,9 +39,13 @@ function DetalleCliente() {
         <h5>Datos del Cliente</h5>
         {clientData && (
           <>
+          <div className='card'>
+            <div className="card-text">
             {renderServiceDetail('RIF', clientData.rif)}
             {renderServiceDetail('Razón Social', clientData.razon_social)}
             {renderServiceDetail('Tipo', clientData.tipo)}
+            </div></div>
+            <button>Editar datos Cliente</button>
           </>
         )}
       </div>
@@ -93,7 +97,7 @@ function DetalleCliente() {
           )}
         </ul>
       </div>
-      <button className="btn btn-secondary mt-3" onClick={() => navigate(-1)}>Cancelar</button>
+      <button className="btn btn-secondary mt-3" onClick={() => navigate(-1)}>Regresar</button>
     </div>
   );
 }
