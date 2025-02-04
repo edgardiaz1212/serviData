@@ -25,7 +25,7 @@ function DataEntryPage() {
 
   return (
     <>
-      <div className="container text-center">
+      <div className="container text-center vh-100">
         <h1>Registro de Datos</h1>
         <div className="drag-drop-area border border-ligth p-5">
           <p>Arrastra tu archivo Excel aquí o haz clic para seleccionar</p>

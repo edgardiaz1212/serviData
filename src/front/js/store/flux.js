@@ -48,13 +48,12 @@ const getState = ({ getStore, getActions, setStore }) => {
         }
       },
       LogOut: async () => {
-        const store = getStore
-            setStore({ user: null, isAuthenticated: false });
-            sessionStorage.removeItem("isAuthenticated"); // Remove authentication state from session storage
-            sessionStorage.removeItem("user"); // Remove user data from session storage
-            console.log("User logged out");
-            
-    },
+        const store = getStore;
+        setStore({ user: null, isAuthenticated: false });
+        sessionStorage.removeItem("isAuthenticated"); // Remove authentication state from session storage
+        sessionStorage.removeItem("user"); // Remove user data from session storage
+        console.log("User logged out");
+      },
 
       addUser: async (user) => {
         const store = getStore();
@@ -156,7 +155,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during user deletion", error);
         }
       },
-      addClientData : async (data) => {
+      addClientData: async (data) => {
         try {
           const response = await fetch(
             `${process.env.REACT_APP_BACKEND_URL}/add_client`,
@@ -178,7 +177,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during adding client data", error);
         }
       },
-      addServiceData : async (data) => {
+      addServiceData: async (data) => {
         try {
           const response = await fetch(
             `${process.env.REACT_APP_BACKEND_URL}/add_service`,
@@ -202,13 +201,16 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
       addClientAndServiceData: async (clientData, serviceData) => {
         try {
-          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/client-and-services`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ ...clientData, ...serviceData }),
-          });
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/client-and-services`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ ...clientData, ...serviceData }),
+            }
+          );
           if (!response.ok) {
             throw new Error("Failed to add client and service data");
           }
@@ -221,9 +223,11 @@ const getState = ({ getStore, getActions, setStore }) => {
 
       fetchClientData: async (name) => {
         try {
-          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/client-consult/?name=${name}`);
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/client-consult/?name=${name}`
+          );
           if (!response.ok) {
-            throw new Error('Network response was not ok');
+            throw new Error("Network response was not ok");
           }
           const data = await response.json();
           return data;
@@ -234,9 +238,11 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
       fetchClientSuggestions: async (query) => {
         try {
-          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/client-suggestions/?query=${query}`);
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/client-suggestions/?query=${query}`
+          );
           if (!response.ok) {
-            throw new Error('Network response was not ok');
+            throw new Error("Network response was not ok");
           }
           const data = await response.json();
           return data;
@@ -247,7 +253,9 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
       getClientCountsByType: async () => {
         try {
-          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/client-counts-by-type`);
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/client-counts-by-type`
+          );
           if (response.ok) {
             const data = await response.json();
             setStore({ clientCountsByType: data });
@@ -258,7 +266,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during getting client counts by type", error);
         }
       },
-      getServicebyClient : async (clientId) => {
+      getServicebyClient: async (clientId) => {
         try {
           const response = await fetch(
             `${process.env.REACT_APP_BACKEND_URL}/servicios/${clientId}`,
@@ -293,46 +301,52 @@ const getState = ({ getStore, getActions, setStore }) => {
           if (response.ok) {
             const data = await response.json();
             return data;
-      }
-    } catch (error) {
-      console.log("Error during getting service data", error);
-    }
-  },
-  getTopServices: async () => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/top-services`);
-      if (response.ok) {
-        const data = await response.json();
-        setStore({ topServices: data });
-      } else {
-        console.error("Failed to get top services");
-      }
-    } catch (error) {
-      console.log("Error during getting top services", error);
-    }
-  },
-  getTotalServices: async () => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/servicios/total`);
-      if (response.ok) {
-        const data = await response.json();
-        setStore({ totalServices: data.total });
-      }
-    } catch (error) {
-      console.log("Error fetching total services", error);
-    }
-  },
-  getTotalClients: async () => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/clientes/total`);
-      if (response.ok) {
-        const data = await response.json();
-        setStore({ totalClients: data.total });
-      }
-    } catch (error) {
-      console.log("Error fetching total clients", error);
-    }
-  },
+          }
+        } catch (error) {
+          console.log("Error during getting service data", error);
+        }
+      },
+      getTopServices: async () => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/top-services`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setStore({ topServices: data });
+          } else {
+            console.error("Failed to get top services");
+          }
+        } catch (error) {
+          console.log("Error during getting top services", error);
+        }
+      },
+      getTotalServices: async () => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/servicios/total`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setStore({ totalServices: data.total });
+          }
+        } catch (error) {
+          console.log("Error fetching total services", error);
+        }
+      },
+      getTotalClients: async () => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/clientes/total`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setStore({ totalClients: data.total });
+          }
+        } catch (error) {
+          console.log("Error fetching total clients", error);
+        }
+      },
 
       getClientById: async (clientId) => {
         try {
@@ -350,10 +364,10 @@ const getState = ({ getStore, getActions, setStore }) => {
             return data;
           } else {
             console.error("Failed to get client data");
-            }
-            } catch (error) {
-              console.log("Error during getting client data", error);
-            }
+          }
+        } catch (error) {
+          console.log("Error during getting client data", error);
+        }
       },
       updateServiceData: async (serviceId, serviceData) => {
         try {
@@ -376,7 +390,7 @@ const getState = ({ getStore, getActions, setStore }) => {
         }
       },
       getClientbyTipo: async (tipo) => {
-        const store = getStore
+        const store = getStore;
         try {
           const response = await fetch(
             `${process.env.REACT_APP_BACKEND_URL}/clients_tipo?tipo=${tipo}`,
@@ -392,25 +406,26 @@ const getState = ({ getStore, getActions, setStore }) => {
             setStore({ clientData: data });
             return data;
           } else {
-
             console.error("Failed to get client data");
           }
         } catch (error) {
           console.log("Error during getting client data", error);
         }
-
-          }, 
+      },
       uploadExcelData: async (data) => {
         try {
-          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/upload-excel`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-          });
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/upload-excel`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            }
+          );
           if (!response.ok) {
-            throw new Error('Network response was not ok');
+            throw new Error("Network response was not ok");
           }
           const result = await response.json();
           console.log("Data uploaded successfully:", result);
@@ -420,7 +435,9 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
       getServiceCountsByType: async () => {
         try {
-          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/service-counts-by-type`);
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/service-counts-by-type`
+          );
           if (response.ok) {
             const data = await response.json();
             setStore({ serviceCountsByType: data });
@@ -431,7 +448,19 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during getting service counts by type", error);
         }
       },
-      
+      getClientServiceCounts: async () => {
+        try {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/service-counts-by-type`);
+          if (response.ok) {
+            const data = await response.json();
+            setStore({ clientServiceCounts: data });
+          } else {
+            console.error("Failed to get client service counts");
+          }
+        } catch (error) {
+          console.log("Error during getting client service counts", error);
+        }
+      },
     },
   };
 };

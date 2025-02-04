@@ -80,7 +80,7 @@ const UserRegistrationPage = () => {
   };
 
   return (
-    <div className="container">
+    <div className="container vh-100'">
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
      
       <h1>Edita tus Datos</h1>

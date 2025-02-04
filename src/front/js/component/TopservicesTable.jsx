@@ -6,11 +6,11 @@ const TopServicesTable = () => {
 
   useEffect(() => {
     actions.getTopServices();
-  }, [actions]);
+  }, []);
 
   return (
-    <div className="table-responsive">
-      <table className="table table-striped">
+    <div className="table-responsive ">
+      <table className="table  table-striped table-bordered">
         <thead>
           <tr>
             <th scope="col">Tipo de Servicio</th>

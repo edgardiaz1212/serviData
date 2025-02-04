@@ -10,7 +10,7 @@ const ManualDataEntryPageFinal = () => {
   const { actions, store } = useContext(Context);
 
   return (
-    <div className="container">
+    <div className="container vh-100'">
       <h3>Paso 2</h3>
       {clientData ? (
         <InputService clientData={clientData} /> // Render InputService if client data exists

@@ -391,6 +391,7 @@ def upload_excel():
     db.session.commit()
     return jsonify({"message": "Data uploaded successfully"}), 201
 
+
 @api.route('/service-counts-by-type', methods=['GET'])
 def get_service_counts_by_type():
     service_counts = db.session.query(

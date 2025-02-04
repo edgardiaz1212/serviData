@@ -30,7 +30,7 @@ function DetalleCliente() {
   };
 
   return (
-    <div className="container">
+    <div className="container vh-100'">
       <h3>Detalles del Cliente {clientData ? clientData.razon_social : ''}</h3>
       <div>
         <h5>Datos del Cliente</h5>

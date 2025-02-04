@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Context } from "../store/appContext";
+import logo from "../../img/CDHLogo.jpg"
 
 const Navbar = () => {
   const { store, actions } = useContext(Context);
@@ -9,7 +10,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     await actions.LogOut();
-    navigate("/login"); // Redirigir al usuario a la página de inicio de sesión después de cerrar sesión
+    navigate("/login"); // Redirect user to the login page after logging out
   };
 
   return (
@@ -17,6 +18,7 @@ const Navbar = () => {
       <div className="container-fluid">
         <a className="navbar-brand text-white" href="/">
           ServiData
+          <img  className="logo-icon " src={logo} alt="Logo" />
         </a>
         <button
           className="navbar-toggler"

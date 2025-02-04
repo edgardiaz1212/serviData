@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ScrollToTop from "./component/scrollToTop";
 //import { BackendURL } from "./component/backendURL"; // Ensure correct export
+import "../styles/index.css";
 
 import injectContext from "./store/appContext.js";
 import Navbar from "./component/navbar"; // Ensure this path is correct
@@ -21,7 +22,7 @@ const Layout = () => {
     //const backendURL = process.env.REACT_APP_BACKEND_URL || ""; // Updated
 
     return (
-        <div>
+        <div className="" style={{ backgroundColor: "#f5f2f2" }}>
             <BrowserRouter basename={basename}>
                 <ScrollToTop>
                     <Navbar />

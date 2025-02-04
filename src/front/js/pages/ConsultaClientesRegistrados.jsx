@@ -59,7 +59,7 @@ function ConsultaClientesRegistrados() {
   return (
     <>
       <ToastContainer />
-      <div className="container">
+      <div className="container vh-100'">
         <h3>Paso 1</h3>
         <h5>Validacion Cliente</h5>
         <div className="input-group mb-3">

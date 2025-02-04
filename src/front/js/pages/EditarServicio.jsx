@@ -44,7 +44,7 @@ function EditarServicio() {
   };
 
   return (
-    <div className="container">
+    <div className="container vh-100'">
       <h3>Editar Servicio</h3>
       {serviceData && (
         <form className="row g-3 needs-validation" onSubmit={handleSubmit} noValidate>

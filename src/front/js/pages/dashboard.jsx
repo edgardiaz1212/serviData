@@ -3,6 +3,7 @@ import { Context } from "../store/appContext";
 import ClientTypePieChart from "../component/ClientTypePieChart.jsx";
 import ServiceTypeBarChart from "../component/ServiceTypeBarChart.jsx";
 import TopServicesTable from "../component/TopservicesTable.jsx";
+import ClientServiceTable from "../component/ClientServiceTable.jsx";
 
 const Dashboard = () => {
   const { store, actions } = useContext(Context);
@@ -17,7 +18,7 @@ const Dashboard = () => {
       <div className="text-bg-light p-3">
         Bienvenido a la plataforma de servicios!
       </div>
-      <div className="container">
+      <div className="container   ">
         <div className="row justify-content-md-center ">
           <div className="col-md-2">
             <div className="card">
@@ -36,7 +37,7 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-        <div className="row ">
+        <div className="row mt-2">
           <div className="col-md-4">
             <div className="card">
               <div className="card-body">
@@ -58,6 +59,11 @@ const Dashboard = () => {
                 <TopServicesTable />
               </div>
             </div>
+          </div>
+        </div>
+        <div className="row mt-2">
+          <div className="card">
+            <ClientServiceTable />
           </div>
         </div>
       </div>
