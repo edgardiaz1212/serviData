@@ -10,7 +10,7 @@ const ClientTypePieChart = () => {
 
   useEffect(() => {
     actions.getClientCountsByType();
-  }, [actions]);
+  }, []);
 
   const data = {
     labels: Object.keys(store.clientCountsByType),

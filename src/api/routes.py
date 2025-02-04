@@ -394,9 +394,16 @@ def upload_excel():
 @api.route('/service-counts-by-type', methods=['GET'])
 def get_service_counts_by_type():
     service_counts = db.session.query(
-        Servicio.tipo_servicio, db.func.count(Servicio.id).label('count')
-    ).group_by(Servicio.tipo_servicio).all()
-    return jsonify([{'tipo_servicio': sc.tipo_servicio, 'count': sc.count} for sc in service_counts]), 200
+        Cliente.tipo, Servicio.tipo_servicio, db.func.count(Servicio.id)
+    ).join(Cliente, Servicio.cliente_id == Cliente.id).group_by(Cliente.tipo, Servicio.tipo_servicio).all()
+    
+    service_counts_dict = {}
+    for cliente_tipo, servicio_tipo, count in service_counts:
+        if cliente_tipo not in service_counts_dict:
+            service_counts_dict[cliente_tipo] = {}
+        service_counts_dict[cliente_tipo][servicio_tipo] = count
+    
+    return jsonify(service_counts_dict), 200
 
 @api.route('/client-counts-by-type', methods=['GET'])
 def get_client_counts_by_type():

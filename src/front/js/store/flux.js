@@ -13,7 +13,8 @@ const getState = ({ getStore, getActions, setStore }) => {
       clientData: [], // Add clientData state
       totalServices: 0, // Add totalServices state
       totalClients: 0, // Add totalClients state
-      clientCountsByType: {}
+      clientCountsByType: {},
+      servicesCountsByType: {},
     },
 
     actions: {
@@ -408,7 +409,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/service-counts-by-type`);
           if (response.ok) {
             const data = await response.json();
-            return data;
+            setStore({ serviceCountsByType: data });
           } else {
             console.error("Failed to get service counts by type");
           }

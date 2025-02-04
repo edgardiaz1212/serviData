@@ -1,7 +1,7 @@
 import React, { useEffect, useContext } from "react";
 import { Context } from "../store/appContext";
-
 import ClientTypePieChart from "../component/ClientTypePieChart.jsx";
+import ServiceTypeBarChart from "../component/ServiceTypeBarChart.jsx";
 
 const Dashboard = () => {
   const { store, actions } = useContext(Context);
@@ -35,17 +35,37 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-
         <div className="row ">
-          <div className="col-md-6">
+          <div className="col-md-4">
             <div className="card">
               <div className="card-body">
               <ClientTypePieChart />
               </div>
             </div>
           </div>
+          <div className="col-md-5">
+            <div className="card">
+              <div className="card-body">
+              <ServiceTypeBarChart />
+              </div>
+            </div>
+          </div>
+<div className="col-md-3">
+    <div className="card">
+      <div className="card-body">
+        tabla top servicios
         </div>
+
+    </div>
+</div>
+
+        </div>
+
+
+        
       </div>
+    
+        
     </>
   );
 };
