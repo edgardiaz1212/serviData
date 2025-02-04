@@ -226,7 +226,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       fetchClientData: async (name) => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/client-consult/?name=${name}`
+            `${process.env.REACT_APP_BACKEND_URL}/client-consult/${name}`
           );
           if (!response.ok) {
             throw new Error("Network response was not ok");

@@ -16,6 +16,7 @@ import Clientes from "./pages/Clientes.jsx";
 import ConsultaClientesRegistrados from "./pages/ConsultaClientesRegistrados.jsx";
 import DetalleCliente from "./pages/DetalleCliente.jsx";
 import EditarServicio from "./pages/EditarServicio.jsx";
+import DetalleServicio from "./pages/DetalleServicio.jsx";
 
 const Layout = () => {
     const basename = process.env.REACT_APP_BASENAME_REACTs || "";
@@ -35,6 +36,7 @@ const Layout = () => {
                         <Route path="consulta-clientes-registrados" element={<ConsultaClientesRegistrados/>} />
                         <Route path="/manual-data-entry" element={<ManualDataEntryPage />} /> "
                         <Route path='detalle-cliente/:clientId' element={<DetalleCliente />} />
+                        <Route path='detalle-servicio/:serviceId' element={<DetalleServicio />} />
                         <Route path="/editar-servicio/:serviceId" element={<EditarServicio />} />
                         <Route path="*" element={<h1>Not found!</h1>} />
                     </Routes>

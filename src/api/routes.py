@@ -82,11 +82,11 @@ def client_consult():
 
 @api.route('/client-consult/<int:cliente_id>', methods=['GET'])
 def client_consult_id(cliente_id):
-    cliente= Cliente.query.get(cliente_id)
+    cliente = Cliente.query.get(cliente_id)
     if not cliente:
         return jsonify({"message": "No users found"}), 404
-    else:    
-        return jsonify([cliente.serialize() for cliente in cliente]), 200
+    else:
+        return jsonify(cliente.serialize()), 200
 
 @api.route('/client-suggestions/', methods=['GET'])
 def client_suggestions():
@@ -115,13 +115,12 @@ def client_post():
     else:
         return jsonify({"message": "Invalid credentials"}), 401
 
-@api.route('/clientes/<int:id>', methods=['GET'])
-def get_client(id):
-    client = Cliente.query.get(id)
-    if client:
-        return jsonify(client.serialize()), 200
-    else:
+@api.route('/clientes/<int:client_id>', methods=['GET'])
+def get_client_by_id(client_id):
+    client = Cliente.query.get(client_id)
+    if not client:
         return jsonify({"message": "Client not found"}), 404
+    return jsonify(client.serialize()), 200
 
 @api.route('/clients_tipo', methods=['GET'])
 def get_clients_by_type():
