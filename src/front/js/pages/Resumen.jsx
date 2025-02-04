@@ -5,7 +5,7 @@ import ServiceTypeBarChart from "../component/ServiceTypeBarChart.jsx";
 import TopServicesTable from "../component/TopservicesTable.jsx";
 import ClientServiceTable from "../component/ClientServiceTable.jsx";
 
-const Dashboard = () => {
+const Resumen = () => {
   const { store, actions } = useContext(Context);
 
   useEffect(() => {
@@ -71,4 +71,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Resumen;

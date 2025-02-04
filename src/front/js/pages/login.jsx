@@ -12,7 +12,7 @@ const Login = () => {
   // Check authentication status after hooks
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/dashboard", { replace: true });
+      navigate("/resumen", { replace: true });
       toast.success("Bienvenido!"); // Use navigate for redirection
     }
   }, [isAuthenticated, navigate]);
@@ -25,7 +25,7 @@ const Login = () => {
     const response = await actions.login(username, password);
     if (response) {
       toast.success("Bienvenido!");
-      navigate("/dashboard"); // Redirect to dashboard or perform other actions
+      navigate("/resumen"); // Redirect to dashboard or perform other actions
     } else {
       toast.error("Error de Usuario");
     }

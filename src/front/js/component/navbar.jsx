@@ -36,7 +36,7 @@ const Navbar = () => {
             {isAuthenticated && (
               <>
               <li className="nav-item">
-                  <a className="nav-link text-white" href="/dashboard">
+                  <a className="nav-link text-white" href="/resumen">
                     Resumen
                   </a>
                 </li>

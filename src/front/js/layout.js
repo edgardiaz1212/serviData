@@ -8,7 +8,8 @@ import injectContext from "./store/appContext.js";
 import Navbar from "./component/navbar"; // Ensure this path is correct
 import Footer from "./component/footer"; // Ensure this path is correct
 import Login from "./pages/login.jsx"; // Ensure this path is correct
-import Dashboard from "./pages/Dashboard.jsx"; // Ensure this path is correct
+
+import Resumen from "./pages/Resumen.jsx"
 import DataEntryPage from "./pages/DataEntryPage.jsx";
 import UserRegistrationPage from "./pages/UserRegistrationPage.jsx";
 import ManualDataEntryPage from "./pages/ManualDataEntryPage.jsx";
@@ -29,8 +30,8 @@ const Layout = () => {
                     <Navbar />
                     <Routes>
                         <Route path="/" element={<Login />} />
-                        <Route path="/dashboard" element={<Dashboard />} />
-                        <Route path="/clientes" element={<Clientes />} /> {/* New route */}
+                        <Route path="/resumen" element={<Resumen/>} />
+                        <Route path="/clientes" element={<Clientes />} /> 
                         <Route path="data-registro" element={<DataEntryPage/>} />
                         <Route path="/user-register" element={<UserRegistrationPage />} />
                         <Route path="consulta-clientes-registrados" element={<ConsultaClientesRegistrados/>} />
