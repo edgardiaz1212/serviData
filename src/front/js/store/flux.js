@@ -11,6 +11,9 @@ const getState = ({ getStore, getActions, setStore }) => {
       users: [], // Add users state
       currentClient: [], // Add currentClient state
       clientData: [], // Add clientData state
+      totalServices: 0, // Add totalServices state
+      totalClients: 0, // Add totalClients state
+      clientCountsByType: {}
     },
 
     actions: {
@@ -240,6 +243,19 @@ const getState = ({ getStore, getActions, setStore }) => {
           return [];
         }
       },
+      getClientCountsByType: async () => {
+        try {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/client-counts-by-type`);
+          if (response.ok) {
+            const data = await response.json();
+            setStore({ clientCountsByType: data });
+          } else {
+            console.error("Failed to get client counts by type");
+          }
+        } catch (error) {
+          console.log("Error during getting client counts by type", error);
+        }
+      },
       getServicebyClient : async (clientId) => {
         try {
           const response = await fetch(
@@ -280,7 +296,29 @@ const getState = ({ getStore, getActions, setStore }) => {
       console.log("Error during getting service data", error);
     }
   },
-      
+  getTotalServices: async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/servicios/total`);
+      if (response.ok) {
+        const data = await response.json();
+        setStore({ totalServices: data.total });
+      }
+    } catch (error) {
+      console.log("Error fetching total services", error);
+    }
+  },
+  getTotalClients: async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/clientes/total`);
+      if (response.ok) {
+        const data = await response.json();
+        setStore({ totalClients: data.total });
+      }
+    } catch (error) {
+      console.log("Error fetching total clients", error);
+    }
+  },
+
       getClientById: async (clientId) => {
         try {
           const response = await fetch(
@@ -376,19 +414,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           }
         } catch (error) {
           console.log("Error during getting service counts by type", error);
-        }
-      },
-      getClientCountsByType: async () => {
-        try {
-          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/client-counts-by-type`);
-          if (response.ok) {
-            const data = await response.json();
-            return data;
-          } else {
-            console.error("Failed to get client counts by type");
-          }
-        } catch (error) {
-          console.log("Error during getting client counts by type", error);
         }
       },
       

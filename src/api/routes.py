@@ -136,6 +136,8 @@ def get_clients_by_type():
     else:
         return jsonify([client.serialize() for client in clients]), 200
 
+
+
 @api.route('/add_service/', methods=['POST'])
 def service_post():
     if request.method == 'POST':
@@ -213,6 +215,16 @@ def get_services(cliente_id):
         return jsonify([service.serialize() for service in services])
     else:
         return jsonify({"message": "Invalid credentials"}), 401
+
+@api.route('/servicios/total', methods=['GET'])
+def get_total_services():
+    total_services = Servicio.query.count()
+    return jsonify({"total": total_services}), 200
+
+@api.route('/clientes/total', methods=['GET'])
+def get_total_clients():
+    total_clients = Cliente.query.count()
+    return jsonify({"total": total_clients}), 200
 
 @api.route('servicios/<int:service_id>', methods=['GET'])
 def get_service(service_id):
@@ -388,6 +400,6 @@ def get_service_counts_by_type():
 
 @api.route('/client-counts-by-type', methods=['GET'])
 def get_client_counts_by_type():
-    public_count = Cliente.query.filter_by(tipo='publico').count()
-    private_count = Cliente.query.filter_by(tipo='privado').count()
-    return jsonify({'public': public_count, 'private': private_count}), 200
+    client_counts = db.session.query(Cliente.tipo, db.func.count(Cliente.id)).group_by(Cliente.tipo).all()
+    client_counts_dict = {tipo: count for tipo, count in client_counts}
+    return jsonify(client_counts_dict), 200
