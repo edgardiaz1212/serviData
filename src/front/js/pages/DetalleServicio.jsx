@@ -9,19 +9,47 @@ const DetalleServicio = () => {
   const [clientData, setClientData] = useState(null);
 
   console.log("detalleservicio",serviceId);
-  useEffect(() => {
-    const fetchServiceAndClientData = async () => {
-      const service = await actions.getServiceById(serviceId);
-      console.log("fluxserv",service);
-      setServiceData("servicio",service);
-      const client = await actions.getClientById(service.cliente_id);
-      setClientData(client);
-      console.log("fluxcliente",client);
+//   useEffect(() => {
+//     const fetchServiceAndClientData = async () => {
+//       const service = await actions.getServiceById(serviceId);
+//       console.log("fluxserv",service);
+//       console.log("CLIentidservice",service.client_id)
+//       setServiceData("servicio",service);
+//       const client = await actions.getClientById(service.cliente_id);
+//       setClientData(client);
+//       console.log("fluxcliente",client);
+//     };
+//     fetchServiceAndClientData();
+//   }, [serviceId, actions]);
+useEffect(() => {
+    const fetchServiceData = async () => {
+      try {
+        const service = await actions.getServiceById(serviceId);
+        console.log("fluxserv", service);
+        setServiceData(service);
+      } catch (error) {
+        console.error("Error fetching service data", error);
+      }
     };
-    fetchServiceAndClientData();
+    fetchServiceData();
   }, [serviceId, actions]);
 
-  console.log("servicio1",serviceData, clientData);
+  useEffect(() => {
+    const fetchClientData = async () => {
+      if (serviceData && serviceData.cliente_id) {
+        try {
+          const client = await actions.getClientById(serviceData.cliente_id);
+          setClientData(client);
+          console.log("fluxcliente", client);
+        } catch (error) {
+          console.error("Error fetching client data", error);
+        }
+      }
+    };
+    fetchClientData();
+  }, [serviceData, actions]);
+
+  console.log("servicio1",serviceData);
   console.log("cliente1", clientData);
 
   if (!serviceData || !clientData) {

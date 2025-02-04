@@ -11,12 +11,12 @@ function DetalleCliente() {
 
   useEffect(() => {
     const fetchClientAndServices = async () => {
-      const client = await actions.fetchClientData(clientId);
-      console.log("useClientdetalle",client);
+      const client = await actions.getClientById(clientId);
+      console.log("useClientdetalle", client);
       setClientData(client);
       const services = await actions.getServicebyClient(clientId);
       setServicesData(services);
-      console.log("useClientserv",services);
+      console.log("useClientserv", services);
     };
     fetchClientAndServices();
   }, [clientId, actions]);
@@ -25,7 +25,7 @@ function DetalleCliente() {
     navigate(`/detalle-servicio/${serviceId}`)
     console.log(serviceId);
   };
-
+console.log(clientData);
   const renderServiceDetail = (label, value) => {
     return value ? (
       <p className="mb-1"><strong>{label}:</strong> {value}</p>

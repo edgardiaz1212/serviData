@@ -86,7 +86,7 @@ def client_consult_id(cliente_id):
     if not cliente:
         return jsonify({"message": "No users found"}), 404
     else:
-        return jsonify(cliente.serialize()), 200
+        return jsonify({"message": "Client found", "client": cliente.serialize()}), 200
 
 @api.route('/client-suggestions/', methods=['GET'])
 def client_suggestions():
@@ -103,15 +103,18 @@ def client_suggestions():
 @api.route('/add_client/', methods=['POST'])
 def client_post():
     if request.method == 'POST':
-        data = request.get_json()
-        tipo= data.get('tipo')
-        rif = data.get('rif')
-        razon_social = data.get('razon_social')
-        new_cliente = Cliente( tipo=tipo, rif=rif, razon_social=razon_social)
-        db.session.add(new_cliente)
-        db.session.commit()
-        
-        return jsonify({"message": "CLient created successfully", "Cliente": new_cliente.serialize()}), 201
+        try:
+            data = request.get_json()
+            tipo= data.get('tipo')
+            rif = data.get('rif')
+            razon_social = data.get('razon_social')
+            new_cliente = Cliente( tipo=tipo, rif=rif, razon_social=razon_social)
+            db.session.add(new_cliente)
+            db.session.commit()
+            
+            return jsonify({"message": "Client created successfully", "Cliente": new_cliente.serialize()}), 201
+        except Exception as e:
+            return jsonify({"message": f"Error creating client: {str(e)}"}), 500
     else:
         return jsonify({"message": "Invalid credentials"}), 401
 
@@ -134,8 +137,6 @@ def get_clients_by_type():
         return jsonify({"message": "No clients found"}), 404
     else:
         return jsonify([client.serialize() for client in clients]), 200
-
-
 
 @api.route('/add_service/', methods=['POST'])
 def service_post():
@@ -225,7 +226,7 @@ def get_total_clients():
     total_clients = Cliente.query.count()
     return jsonify({"total": total_clients}), 200
 
-@api.route('servicios/<int:service_id>', methods=['GET'])
+@api.route('/servicios/<int:service_id>', methods=['GET'])
 def get_service(service_id):
     if request.method == 'GET':
         service = Servicio.query.get(service_id)
@@ -235,6 +236,7 @@ def get_service(service_id):
             return jsonify({"message": "Service not found"}), 404
     else:
         return jsonify({"message": "Invalid credentials"}), 401
+
 @api.route('/servicios/<int:service_id>', methods=['PUT'])
 def update_service(service_id):
     data = request.get_json()
@@ -419,4 +421,3 @@ def get_top_services():
 def get_client_counts_by_type():
     client_counts = db.session.query(Cliente.tipo, db.func.count(Cliente.id)).group_by(Cliente.tipo).all()
     client_counts_dict = {tipo: count for tipo, count in client_counts}
-    return jsonify(client_counts_dict), 200
