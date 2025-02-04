@@ -4,6 +4,7 @@ import ClientTypePieChart from "../component/ClientTypePieChart.jsx";
 import ServiceTypeBarChart from "../component/ServiceTypeBarChart.jsx";
 import TopServicesTable from "../component/TopservicesTable.jsx";
 import ClientServiceTable from "../component/ClientServiceTable.jsx";
+import "../../styles/resumen.css"
 
 const Resumen = () => {
   const { store, actions } = useContext(Context);

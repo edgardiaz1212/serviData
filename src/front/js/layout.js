@@ -3,12 +3,10 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ScrollToTop from "./component/scrollToTop";
 //import { BackendURL } from "./component/backendURL"; // Ensure correct export
 import "../styles/index.css";
-
 import injectContext from "./store/appContext.js";
 import Navbar from "./component/navbar"; // Ensure this path is correct
 import Footer from "./component/footer"; // Ensure this path is correct
 import Login from "./pages/login.jsx"; // Ensure this path is correct
-
 import Resumen from "./pages/Resumen.jsx"
 import DataEntryPage from "./pages/DataEntryPage.jsx";
 import UserRegistrationPage from "./pages/UserRegistrationPage.jsx";
