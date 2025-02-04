@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { Context } from '../store/appContext';
+import DetalleCliente from './DetalleCliente';
 
 const DetalleServicio = () => {
   const { serviceId } = useParams();
@@ -8,49 +9,25 @@ const DetalleServicio = () => {
   const [serviceData, setServiceData] = useState(null);
   const [clientData, setClientData] = useState(null);
 
-  console.log("detalleservicio",serviceId);
-//   useEffect(() => {
-//     const fetchServiceAndClientData = async () => {
-//       const service = await actions.getServiceById(serviceId);
-//       console.log("fluxserv",service);
-//       console.log("CLIentidservice",service.client_id)
-//       setServiceData("servicio",service);
-//       const client = await actions.getClientById(service.cliente_id);
-//       setClientData(client);
-//       console.log("fluxcliente",client);
-//     };
-//     fetchServiceAndClientData();
-//   }, [serviceId, actions]);
-useEffect(() => {
-    const fetchServiceData = async () => {
+  useEffect(() => {
+    const fetchServiceAndClientData = async () => {
       try {
         const service = await actions.getServiceById(serviceId);
         console.log("fluxserv", service);
         setServiceData(service);
-      } catch (error) {
-        console.error("Error fetching service data", error);
-      }
-    };
-    fetchServiceData();
-  }, [serviceId, actions]);
 
-  useEffect(() => {
-    const fetchClientData = async () => {
-      if (serviceData && serviceData.cliente_id) {
-        try {
-          const client = await actions.getClientById(serviceData.cliente_id);
+        if (service ) {
+          const client = await actions.getClientById(service.cliente_id);
           setClientData(client);
           console.log("fluxcliente", client);
-        } catch (error) {
-          console.error("Error fetching client data", error);
         }
+      } catch (error) {
+        console.error("Error fetching service or client data", error);
       }
     };
-    fetchClientData();
-  }, [serviceData, actions]);
+    fetchServiceAndClientData();
+  }, [serviceId, actions]);
 
-  console.log("servicio1",serviceData);
-  console.log("cliente1", clientData);
 
   if (!serviceData || !clientData) {
     return <div>Loading...</div>;
@@ -89,9 +66,7 @@ useEffect(() => {
       <p><strong>Comentarios:</strong> {serviceData.comentarios}</p>
 
       <h2>Detalles del Cliente</h2>
-      <p><strong>Tipo:</strong> {clientData.tipo}</p>
-      <p><strong>RIF:</strong> {clientData.rif}</p>
-      <p><strong>Razón Social:</strong> {clientData.razon_social}</p>
+      <DetalleCliente clientData={clientData} />
     </div>
   );
 };
