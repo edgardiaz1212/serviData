@@ -530,29 +530,27 @@ const getState = ({ getStore, getActions, setStore }) => {
     },
     deleteService: async (serviceId) => {
       try {
-        const response = await fetch(`${API_URL}/services/${serviceId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                
-            },
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/services/${serviceId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         });
 
         // Manejar respuestas no exitosas
         if (!response.ok) {
-            const errorData = await response.json(); // Intentar obtener detalles del error del backend
-            throw new Error(`Failed to delete service: ${errorData.message || response.statusText}`);
+          const errorData = await response.json(); // Intentar obtener detalles del error del backend
+          throw new Error(`Failed to delete service: ${errorData.message || response.statusText}`);
         }
+
         // Si la respuesta es exitosa, devolver un objeto indicando el éxito
         return { success: true };
-    } catch (error) {
+      } catch (error) {
         // Registrar el error en la consola y devolver un objeto con detalles
         console.error("Error during deleting service:", error.message);
         return { success: false, message: error.message };
-    }
-},
-
-
+      }
+    },
 
     },
   };
