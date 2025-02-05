@@ -19,7 +19,7 @@ import DetalleServicio from "./pages/DetalleServicio.jsx";
 import EditarCliente from "./pages/EditarCliente.jsx";
 
 const Layout = () => {
-    const basename = process.env.REACT_APP_BASENAME_REACTs || "";
+    const basename = process.env.REACT_APP_BASENAME_REACT || "";
     //const backendURL = process.env.REACT_APP_BACKEND_URL || ""; // Updated
 
     return (
