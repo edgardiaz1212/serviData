@@ -37,6 +37,9 @@ function ConsultaClientesRegistrados() {
         const servicesResponse = await actions.getServicebyClient(clientResponse[0].id);
         setServicesData(servicesResponse);
         setShowButton(true);
+        if (servicesResponse.length === 0) {
+          toast.info("Cliente encontrado, pero no tiene servicios registrados.");
+        }
       } else {
         toast.info("Cliente no encontrado. Puedes añadir un nuevo cliente.");
         setTimeout(() => {
@@ -101,7 +104,7 @@ function ConsultaClientesRegistrados() {
             </ul>
           </div>
         )}
-        {clientData && servicesData.length > 0 && (
+        {clientData && (
           <>
             {showButton && (
               <button
@@ -112,7 +115,11 @@ function ConsultaClientesRegistrados() {
                 Añadir Datos
               </button>
             )}
-            <ResumeTableClientServices clientData={clientData} servicesData={servicesData} />
+            {servicesData.length > 0 ? (
+              <ResumeTableClientServices clientData={clientData} servicesData={servicesData} />
+            ) : (
+              <p>Cliente encontrado, pero no tiene servicios registrados.</p>
+            )}
           </>
         )}
       </div>
