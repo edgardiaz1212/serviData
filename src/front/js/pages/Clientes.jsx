@@ -18,6 +18,7 @@ const Clientes = () => {
   return (
     <div className='container vh-100'>
       <h1>Clientes</h1>
+      <h5>Selecciona para detalles</h5>
       {/* <BB8Button/> */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div className="btn-group" role="group" aria-label="Basic radio toggle button group">
