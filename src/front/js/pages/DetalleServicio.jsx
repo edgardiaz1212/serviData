@@ -1,72 +1,148 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Context } from '../store/appContext';
-import DetalleCliente from './DetalleCliente';
 
 const DetalleServicio = () => {
   const { serviceId } = useParams();
   const { actions } = useContext(Context);
+  const navigate = useNavigate();
   const [serviceData, setServiceData] = useState(null);
-  const [clientData, setClientData] = useState(null);
 
   useEffect(() => {
-    const fetchServiceAndClientData = async () => {
+    const fetchServiceData = async () => {
       try {
         const service = await actions.getServiceById(serviceId);
-        console.log("fluxserv", service);
-        setServiceData(service);
-
-        // if (service ) {
-        //   const client = await actions.getClientById(service.cliente_id);
-        //   setClientData(client);
-        //   console.log("fluxcliente", client);
-        // }
+        // Verificar si service es un array y extraer el primer elemento si es necesario
+        const serviceObject = Array.isArray(service) ? service[0] : service;
+        setServiceData(serviceObject);
       } catch (error) {
-        console.error("Error fetching service or client data", error);
-      }
+        console.error("Error fetching service data", error);
+      } 
     };
-    fetchServiceAndClientData();
+    fetchServiceData();
   }, [serviceId, actions]);
 
-
-  if (!serviceData ) {
+  if (!serviceData) {
     return <div>Loading...</div>;
   }
 
+  const handleEditClick = () => {
+    navigate(`/editar-servicio/${serviceId}`);
+  };
+
   return (
     <div className="container">
-      <h2>Detalles del Servicio</h2>
-      <p><strong>Dominio:</strong> {serviceData.dominio}</p>
-      <p><strong>Estado:</strong> {serviceData.estado}</p>
-      <p><strong>Tipo de Servicio:</strong> {serviceData.tipo_servicio}</p>
-      <p><strong>Hostname:</strong> {serviceData.hostname}</p>
-      <p><strong>Cores:</strong> {serviceData.cores}</p>
-      <p><strong>Contrato:</strong> {serviceData.contrato}</p>
-      <p><strong>Plan Aprovisionado:</strong> {serviceData.plan_aprovisionado}</p>
-      <p><strong>Plan Facturado:</strong> {serviceData.plan_facturado}</p>
-      <p><strong>Detalle del Plan:</strong> {serviceData.detalle_plan}</p>
-      <p><strong>Sockets:</strong> {serviceData.sockets}</p>
-      <p><strong>Powerstate:</strong> {serviceData.powerstate}</p>
-      <p><strong>IP Privada:</strong> {serviceData.ip_privada}</p>
-      <p><strong>VLAN:</strong> {serviceData.vlan}</p>
-      <p><strong>IPAM:</strong> {serviceData.ipam}</p>
-      <p><strong>Datastore:</strong> {serviceData.datastore}</p>
-      <p><strong>Nombre del Servidor:</strong> {serviceData.nombre_servidor}</p>
-      <p><strong>Marca del Servidor:</strong> {serviceData.marca_servidor}</p>
-      <p><strong>Modelo del Servidor:</strong> {serviceData.modelo_servidor}</p>
-      <p><strong>Nombre del Nodo:</strong> {serviceData.nombre_nodo}</p>
-      <p><strong>Nombre de la Plataforma:</strong> {serviceData.nombre_plataforma}</p>
-      <p><strong>RAM:</strong> {serviceData.ram}</p>
-      <p><strong>HDD:</strong> {serviceData.hdd}</p>
-      <p><strong>CPU:</strong> {serviceData.cpu}</p>
-      <p><strong>Tipo de Servidor:</strong> {serviceData.tipo_servidor}</p>
-      <p><strong>Ubicación:</strong> {serviceData.ubicacion}</p>
-      <p><strong>Observaciones:</strong> {serviceData.observaciones}</p>
-      <p><strong>Facturado:</strong> {serviceData.facturado}</p>
-      <p><strong>Comentarios:</strong> {serviceData.comentarios}</p>
+      <div className="d-flex justify-content-between align-items-center">
+        <h2>Detalles del Servicio</h2>
+        <button className="btn btn-primary" onClick={handleEditClick}>
+          Editar
+        </button>
+      </div>
 
-      <h2>Detalles del Cliente</h2>
-      <DetalleCliente clientData={clientData} />
+      <h3>Datos de identificación del servicio</h3>
+      <div className="row">
+        <div className="col-md-6 mb-3">
+          <p><strong>Dominio:</strong> {serviceData.dominio}</p>
+        </div>
+        <div className="col-md-6 mb-3">
+          <p><strong>Tipo de Servicio:</strong> {serviceData.tipo_servicio}</p>
+        </div>
+        <div className="col-md-6 mb-3">
+          <p><strong>Hostname:</strong> {serviceData.hostname}</p>
+        </div>
+      </div>
+
+      <h3>Estado y contratación</h3>
+      <div className="row">
+        <div className="col-md-6 mb-3">
+          <p><strong>Estado:</strong> {serviceData.estado}</p>
+        </div>
+        <div className="col-md-6 mb-3">
+          <p><strong>Contrato:</strong> {serviceData.contrato}</p>
+        </div>
+        <div className="col-md-6 mb-3">
+          <p><strong>Plan Aprovisionado:</strong> {serviceData.plan_aprovisionado}</p>
+        </div>
+        <div className="col-md-6 mb-3">
+          <p><strong>Plan Facturado:</strong> {serviceData.plan_facturado}</p>
+        </div>
+        <div className="col-md-6 mb-3">
+          <p><strong>Detalle del Plan:</strong> {serviceData.detalle_plan}</p>
+        </div>
+        <div className="col-md-6 mb-3">
+          <p><strong>Facturado:</strong> {serviceData.facturado}</p>
+        </div>
+      </div>
+
+      <h3>Recursos del servidor</h3>
+      <div className="row">
+        <div className="col-md-6 mb-3">
+          <p><strong>Cores:</strong> {serviceData.cores}</p>
+        </div>
+        <div className="col-md-6 mb-3">
+          <p><strong>Sockets:</strong> {serviceData.sockets}</p>
+        </div>
+        <div className="col-md-6 mb-3">
+          <p><strong>RAM (GB):</strong> {serviceData.ram}</p>
+        </div>
+        <div className="col-md-6 mb-3">
+          <p><strong>HDD (GB):</strong> {serviceData.hdd}</p>
+        </div>
+        <div className="col-md-6 mb-3">
+          <p><strong>CPU (GHz):</strong> {serviceData.cpu}</p>
+        </div>
+      </div>
+
+      <h3>Datos de red</h3>
+      <div className="row">
+        <div className="col-md-6 mb-3">
+          <p><strong>IP Privada:</strong> {serviceData.ip_privada}</p>
+        </div>
+        <div className="col-md-6 mb-3">
+          <p><strong>VLAN:</strong> {serviceData.vlan}</p>
+        </div>
+        <div className="col-md-6 mb-3">
+          <p><strong>IPAM:</strong> {serviceData.ipam}</p>
+        </div>
+      </div>
+
+      <h3>Infraestructura</h3>
+      <div className="row">
+        <div className="col-md-6 mb-3">
+          <p><strong>Datastore:</strong> {serviceData.datastore}</p>
+        </div>
+        <div className="col-md-6 mb-3">
+          <p><strong>Nombre del Servidor:</strong> {serviceData.nombre_servidor}</p>
+        </div>
+        <div className="col-md-6 mb-3">
+          <p><strong>Marca del Servidor:</strong> {serviceData.marca_servidor}</p>
+        </div>
+        <div className="col-md-6 mb-3">
+          <p><strong>Modelo del Servidor:</strong> {serviceData.modelo_servidor}</p>
+        </div>
+        <div className="col-md-6 mb-3">
+          <p><strong>Nombre del Nodo:</strong> {serviceData.nombre_nodo}</p>
+        </div>
+        <div className="col-md-6 mb-3">
+          <p><strong>Nombre de la Plataforma:</strong> {serviceData.nombre_plataforma}</p>
+        </div>
+        <div className="col-md-6 mb-3">
+          <p><strong>Tipo de Servidor:</strong> {serviceData.tipo_servidor}</p>
+        </div>
+        <div className="col-md-6 mb-3">
+          <p><strong>Ubicación:</strong> {serviceData.ubicacion}</p>
+        </div>
+      </div>
+
+      <h3>Otros</h3>
+      <div className="row">
+        <div className="col-md-6 mb-3">
+          <p><strong>Estado de Energía:</strong> {serviceData.powerstate}</p>
+        </div>
+        <div className="col-md-6 mb-3">
+          <p><strong>Comentarios:</strong> {serviceData.comentarios}</p>
+        </div>
+      </div>
     </div>
   );
 };

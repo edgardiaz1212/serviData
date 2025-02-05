@@ -15,7 +15,9 @@ function EditarServicio() {
     const fetchServiceData = async () => {
       const service = await actions.getServiceById(serviceId);
       console.log('service:', service);
-      setServiceData(service);
+      // Verificar si service es un array y extraer el primer elemento si es necesario
+      const serviceObject = Array.isArray(service) ? service[0] : service;
+      setServiceData(serviceObject);
     };
     fetchServiceData();
   }, [serviceId, actions]);
@@ -25,41 +27,27 @@ function EditarServicio() {
     setServiceData((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (e.target.checkValidity() === false) {
-      e.stopPropagation();
-      toast.error('Por favor, complete todos los campos obligatorios.');
-    } else {
-      try {
-        await actions.updateServiceData(serviceId, serviceData);
-        toast.success('Datos del servicio actualizados correctamente');
-        navigate(`/detalle-cliente/${serviceData.cliente_id}`);
-      } catch (error) {
-        toast.error('Error al actualizar los datos del servicio');
-        console.error('Error updating service data:', error);
-      }
+  const handleSave = async () => {
+    try {
+      await actions.updateService(serviceId, serviceData);
+      toast.success('Servicio actualizado con éxito');
+      navigate(`/detalle-servicio/${serviceId}`);
+    } catch (error) {
+      toast.error('Error al actualizar el servicio');
     }
-    e.target.classList.add('was-validated');
   };
 
+  if (!serviceData) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className="container vh-100'">
-      <h3>Editar Servicio</h3>
-      {serviceData && (
-        <form className="row g-3 needs-validation" onSubmit={handleSubmit} noValidate>
-          <DatosServicio
-            serviceData={serviceData}
-            handleChange={handleChange}
-          />
-          <button className="btn btn-success mt-2" type="submit">
-            Guardar
-          </button>
-          <button className="btn btn-secondary mt-2" onClick={() => navigate(-1)}>
-            Cancelar
-          </button>
-        </form>
-      )}
+    <div className="container">
+      <h2>Editar Servicio</h2>
+      <DatosServicio serviceData={serviceData} handleChange={handleChange} />
+      <button className="btn btn-primary mt-3" onClick={handleSave}>
+        Guardar
+      </button>
       <ToastContainer />
     </div>
   );
