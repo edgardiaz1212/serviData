@@ -36,6 +36,7 @@ function ConsultaClientesRegistrados() {
         setClientData(clientResponse[0]);
         const servicesResponse = await actions.getServicebyClient(clientResponse[0].id);
         setServicesData(servicesResponse);
+        console.log('servicesResponse:', servicesResponse);
         setShowButton(true);
         if (servicesResponse.length === 0) {
           toast.info("Cliente encontrado, pero no tiene servicios registrados.");

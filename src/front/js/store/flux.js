@@ -271,7 +271,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       getServicebyClient: async (clientId) => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/servicios/${clientId}`,
+            `${process.env.REACT_APP_BACKEND_URL}/servicios-by-cliente/${clientId}`,
             {
               method: "GET",
               headers: {

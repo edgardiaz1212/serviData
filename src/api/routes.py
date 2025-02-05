@@ -208,13 +208,22 @@ def service_post():
     else:
         return jsonify({"message": "Invalid credentials"}), 401
 
-@api.route('/servicios/<int:cliente_id>', methods=['GET'])
+@api.route('/servicios-by-cliente/<int:cliente_id>', methods=['GET'])
 def get_services(cliente_id):
-    if request.method == 'GET':
+    try:
+        # Consultar los servicios asociados al cliente
         services = Servicio.query.filter_by(cliente_id=cliente_id).all()
-        return jsonify([service.serialize() for service in services])
-    else:
-        return jsonify({"message": "Invalid credentials"}), 401
+
+        # Si no se encuentran servicios, devolver una respuesta vacía con código 200
+        if not services:
+            return jsonify({"message": "No services found for this client", "services": []}), 200
+
+        # Serializar los servicios y devolverlos
+        return jsonify([service.serialize() for service in services]), 200
+
+    except Exception as e:
+        # Manejar errores inesperados
+        return jsonify({"message": "An error occurred", "error": str(e)}), 500
 
 @api.route('/servicios/total', methods=['GET'])
 def get_total_services():

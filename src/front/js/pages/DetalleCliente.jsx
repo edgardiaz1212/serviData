@@ -15,6 +15,7 @@ function DetalleCliente({ clientData: propClientData }) {
         const client = await actions.getClientById(clientId);
         setClientData(client);
         const services = await actions.getServicebyClient(clientId);
+        console.log(services);
         setServicesData(services || []);
       };
       fetchClientAndServices();

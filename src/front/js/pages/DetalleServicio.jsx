@@ -7,7 +7,7 @@ const DetalleServicio = () => {
   const { actions } = useContext(Context);
   const navigate = useNavigate();
   const [serviceData, setServiceData] = useState(null);
-
+console.log('serviceId:', serviceId); 
   useEffect(() => {
     const fetchServiceData = async () => {
       try {
