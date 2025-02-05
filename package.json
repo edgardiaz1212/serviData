@@ -2,7 +2,9 @@
   "name": "ServiData",
   "version": "0.1.0",
   "private": true,
-  "author": {"name": "Edgar Diaz", "url": "https://github.com/edgargdiaz1212"
+  "author": {
+    "name": "Edgar Diaz",
+    "url": "https://github.com/edgargdiaz1212"
   },
   "dependencies": {
     "chart.js": "^4.4.7",
@@ -40,5 +42,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
   }
 }
