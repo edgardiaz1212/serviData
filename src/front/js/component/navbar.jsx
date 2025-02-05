@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Context } from "../store/appContext";
 import logo from "../../img/CDHLogo.jpg"
 
@@ -16,10 +16,10 @@ const Navbar = () => {
   return (
     <nav className="navbar navbar-expand-lg" style={{ backgroundColor: "#001f3f" }}>
       <div className="container-fluid">
-        <a className="navbar-brand text-white" href="/">
+        <Link className="navbar-brand text-white" to="/">
           ServiData
           <img  className="logo-icon " src={logo} alt="Logo" />
-        </a>
+        </Link>
         <button
           className="navbar-toggler"
           type="button"
@@ -36,24 +36,24 @@ const Navbar = () => {
             {isAuthenticated && (
               <>
               <li className="nav-item">
-                  <a className="nav-link text-white" href="/resumen">
+                  <Link className="nav-link text-white" to="/resumen">
                     Resumen
-                  </a>
+                  </Link>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link text-white" href="/clientes">
+                  <Link className="nav-link text-white" to="/clientes">
                     Clientes
-                  </a>
+                  </Link>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link text-white" href="/data-registro">
+                  <Link className="nav-link text-white" to="/data-registro">
                     Registro
-                  </a>
+                  </Link>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link text-white" href="/user-register">
+                  <Link className="nav-link text-white" to="/user-register">
                     Configuración
-                  </a>
+                  </Link>
                 </li>
                 <li className="nav-item">
                   <span className="nav-link text-white">Hola, {user ? user.username : 'Usuario'}!</span>

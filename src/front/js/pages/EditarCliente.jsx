@@ -84,6 +84,8 @@ const EditarCliente = () => {
       <button className="btn btn-primary mt-3" onClick={handleSave}>
         Guardar
       </button>
+      <button className='btn btn-secondary mt-3 ms-2' onClick={() => navigate(`/detalle-cliente/${clientId}`)}>Regresar</button>
+        
       <ToastContainer />
     </div>
   );

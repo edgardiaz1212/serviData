@@ -354,9 +354,49 @@ def upload_excel():
     data = request.get_json()
     df = pd.DataFrame(data)
 
+    # Definir un mapeo de nombres de columnas esperados
+    column_mapping = {
+        'tipo': 'tipo',
+        'rif': 'rif',
+        'razon_social': 'razon_social',
+        'dominio': 'dominio',
+        'estado': 'estado',
+        'tipo_servicio': 'tipo_servicio',
+        'hostname': 'hostname',
+        'cores': 'cores',
+        'contrato': 'contrato',
+        'plan_aprovisionado': 'plan_aprovisionado',
+        'plan_facturado': 'plan_facturado',
+        'detalle_plan': 'detalle_plan',
+        'sockets': 'sockets',
+        'powerstate': 'powerstate',
+        'ip_privada': 'ip_privada',
+        'vlan': 'vlan',
+        'ipam': 'ipam',
+        'datastore': 'datastore',
+        'nombre_servidor': 'nombre_servidor',
+        'marca_servidor': 'marca_servidor',
+        'modelo_servidor': 'modelo_servidor',
+        'nombre_nodo': 'nombre_nodo',
+        'nombre_plataforma': 'nombre_plataforma',
+        'ram': 'ram',
+        'hdd': 'hdd',
+        'cpu': 'cpu',
+        'tipo_servidor': 'tipo_servidor',
+        'ubicacion': 'ubicacion',
+        'observaciones': 'observaciones',
+        'facturado': 'facturado',
+        'comentarios': 'comentarios'
+    }
+
+    # Renombrar las columnas del DataFrame según el mapeo
+    df.rename(columns=column_mapping, inplace=True)
+
     for index, row in df.iterrows():
+        # Verificar si el cliente ya existe en la base de datos
         cliente = Cliente.query.filter_by(rif=row['rif']).first()
         if not cliente:
+            # Crear un nuevo cliente si no existe
             cliente = Cliente(
                 tipo=row.get('tipo', ''),
                 rif=row.get('rif', ''),
@@ -365,6 +405,7 @@ def upload_excel():
             db.session.add(cliente)
             db.session.commit()
 
+        # Crear un nuevo servicio para el cliente
         servicio = Servicio(
             dominio=row.get('dominio', ''),
             estado=row.get('estado', ''),
@@ -400,7 +441,6 @@ def upload_excel():
 
     db.session.commit()
     return jsonify({"message": "Data uploaded successfully"}), 201
-
 
 @api.route('/service-counts-by-type', methods=['GET'])
 def get_service_counts_by_type():
@@ -481,4 +521,3 @@ def update_client(client_id):
     finally:
         # Cierra la sesión de la base de datos
         db.session.close()
-    
