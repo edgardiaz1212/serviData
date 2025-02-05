@@ -1,9 +1,9 @@
 import React from 'react';
 import { servicios } from './TipoServicios.jsx'; // Importar la lista de servicios
 
-function DatosServicio({ clientData, serviceData, handleChange }) {
+const DatosServicio = ({ serviceData, handleChange }) => {
   return (
-    <>
+    <div>
       <h3>Datos de identificación del servicio</h3>
       <div className="row">
         <div className="col-md-6 mb-3">
@@ -16,30 +16,19 @@ function DatosServicio({ clientData, serviceData, handleChange }) {
             placeholder="Dominio"
             className="form-control"
             id="dominio"
-            required
           />
-          <div className="invalid-feedback">
-            Añada Dominio.
-          </div>
         </div>
         <div className="col-md-6 mb-3">
           <label htmlFor="tipo_servicio" className="form-label">Tipo de Servicio</label>
-          <select
+          <input
+            type="text"
             name="tipo_servicio"
             value={serviceData.tipo_servicio}
             onChange={handleChange}
+            placeholder="Tipo de Servicio"
             className="form-control"
             id="tipo_servicio"
-            required
-          >
-            <option value="" disabled>Seleccione Tipo de Servicio</option>
-            {servicios.map((servicio, index) => (
-              <option key={index} value={servicio}>{servicio}</option>
-            ))}
-          </select>
-          <div className="invalid-feedback">
-            Seleccione Tipo de Servicio.
-          </div>
+          />
         </div>
         <div className="col-md-6 mb-3">
           <label htmlFor="hostname" className="form-label">Hostname</label>
@@ -136,7 +125,7 @@ function DatosServicio({ clientData, serviceData, handleChange }) {
         <div className="col-md-6 mb-3">
           <label htmlFor="cores" className="form-label">Cores</label>
           <input
-            type="text"
+            type="number"
             name="cores"
             value={serviceData.cores}
             onChange={handleChange}
@@ -148,7 +137,7 @@ function DatosServicio({ clientData, serviceData, handleChange }) {
         <div className="col-md-6 mb-3">
           <label htmlFor="sockets" className="form-label">Sockets</label>
           <input
-            type="text"
+            type="number"
             name="sockets"
             value={serviceData.sockets}
             onChange={handleChange}
@@ -160,7 +149,7 @@ function DatosServicio({ clientData, serviceData, handleChange }) {
         <div className="col-md-6 mb-3">
           <label htmlFor="ram" className="form-label">RAM (GB)</label>
           <input
-            type="text"
+            type="number"
             name="ram"
             value={serviceData.ram}
             onChange={handleChange}
@@ -172,7 +161,7 @@ function DatosServicio({ clientData, serviceData, handleChange }) {
         <div className="col-md-6 mb-3">
           <label htmlFor="hdd" className="form-label">HDD (GB)</label>
           <input
-            type="text"
+            type="number"
             name="hdd"
             value={serviceData.hdd}
             onChange={handleChange}
@@ -184,7 +173,7 @@ function DatosServicio({ clientData, serviceData, handleChange }) {
         <div className="col-md-6 mb-3">
           <label htmlFor="cpu" className="form-label">CPU (GHz)</label>
           <input
-            type="text"
+            type="number"
             name="cpu"
             value={serviceData.cpu}
             onChange={handleChange}
@@ -361,8 +350,8 @@ function DatosServicio({ clientData, serviceData, handleChange }) {
           />
         </div>
       </div>
-    </>
+    </div>
   );
-}
+};
 
 export default DatosServicio;
