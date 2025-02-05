@@ -1,7 +1,8 @@
 {
-  "name": "my-app",
+  "name": "ServiData",
   "version": "0.1.0",
   "private": true,
+  "author": "Edgar Diaz",
   "dependencies": {
     "chart.js": "^4.4.7",
     "cra-template": "1.2.0",
