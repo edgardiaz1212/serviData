@@ -38,8 +38,18 @@ const ClientTypePieChart = () => {
       },
     ],
   };
-
-  return <Pie data={data} />;
+  const options = {
+    plugins: {
+      title: {
+        display: true,
+        text: 'Distribución de Clientes por Tipo',
+        font: {
+          size: 12,
+        },
+      },
+    },
+  };
+  return <Pie data={data} options={options} />;
 };
 
 export default ClientTypePieChart;
