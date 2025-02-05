@@ -7,7 +7,7 @@ const DetalleServicio = () => {
   const { actions } = useContext(Context);
   const navigate = useNavigate();
   const [serviceData, setServiceData] = useState(null);
-console.log('serviceId:', serviceId); 
+
   useEffect(() => {
     const fetchServiceData = async () => {
       try {
@@ -31,6 +31,7 @@ console.log('serviceId:', serviceId);
   };
 
   return (
+    <>
     <div className="container">
       <div className="d-flex justify-content-between align-items-center">
         <h2>Detalles del Servicio</h2>
@@ -143,7 +144,9 @@ console.log('serviceId:', serviceId);
           <p><strong>Comentarios:</strong> {serviceData.comentarios}</p>
         </div>
       </div>
+      <button className="btn btn-secondary" onClick={() => navigate('/clientes')}>Volver</button>
     </div>
+    </>
   );
 };
 

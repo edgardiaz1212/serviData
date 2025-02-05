@@ -372,25 +372,45 @@ const getState = ({ getStore, getActions, setStore }) => {
         }
       },
       updateServiceData: async (serviceId, serviceData) => {
-        try {
-          const response = await fetch(
+    try {
+        // Validar que serviceId sea un número válido
+        if (!serviceId || typeof serviceId !== "number") {
+            throw new Error("Invalid service ID. It must be a number.");
+        }
+
+        // Validar que serviceData sea un objeto no vacío
+        if (!serviceData || typeof serviceData !== "object" || Object.keys(serviceData).length === 0) {
+            throw new Error("Invalid service data. It must be a non-empty object.");
+        }
+
+        // Realizar la solicitud PUT
+        const response = await fetch(
             `${process.env.REACT_APP_BACKEND_URL}/servicios/${serviceId}`,
             {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(serviceData),
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(serviceData),
             }
-          );
-          if (response.ok) {
-            const data = await response.json();
-            return data;
-          }
-        } catch (error) {
-          console.log("Error during updating service data", error);
+        );
+
+        // Manejar respuestas no exitosas
+        if (!response.ok) {
+            const errorData = await response.json(); // Intentar obtener detalles del error del backend
+            throw new Error(`Failed to update service data: ${errorData.message || response.statusText}`);
         }
-      },
+
+        // Procesar la respuesta exitosa
+        const data = await response.json();
+        return data;
+
+    } catch (error) {
+        // Registrar el error en la consola y devolver un objeto con detalles
+        console.error("Error during updating service data:", error.message);
+        return { error: true, message: error.message };
+    }
+},
       getClientbyTipo: async (tipo) => {
         const store = getStore;
         try {

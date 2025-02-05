@@ -29,11 +29,19 @@ function EditarServicio() {
 
   const handleSave = async () => {
     try {
-      await actions.updateService(serviceId, serviceData);
+      const numericServiceId = Number(serviceId); // Convertir serviceId a número
+      if (isNaN(numericServiceId)) {
+        throw new Error("Invalid service ID. It must be a number.");
+      }
+      const result = await actions.updateServiceData(numericServiceId, serviceData);
+      if (result.error) {
+        throw new Error(result.message);
+      }
       toast.success('Servicio actualizado con éxito');
       navigate(`/detalle-servicio/${serviceId}`);
     } catch (error) {
       toast.error('Error al actualizar el servicio');
+      console.error(error);
     }
   };
 
@@ -48,6 +56,7 @@ function EditarServicio() {
       <button className="btn btn-primary mt-3" onClick={handleSave}>
         Guardar
       </button>
+      <button className="btn btn-secondary mt-3 ms-2" onClick={() => navigate(-1)}>Regresar</button>
       <ToastContainer />
     </div>
   );
