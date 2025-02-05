@@ -24,8 +24,7 @@ const DetalleServicio = () => {
 
   if (!serviceData) {
     return <div>Loading...</div>;
-  }console.log('serviceData:', serviceData);
-
+  }
   const handleEditClick = () => {
     navigate(`/editar-servicio/${serviceId}`);
   };
