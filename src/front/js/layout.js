@@ -16,6 +16,7 @@ import ConsultaClientesRegistrados from "./pages/ConsultaClientesRegistrados.jsx
 import DetalleCliente from "./pages/DetalleCliente.jsx";
 import EditarServicio from "./pages/EditarServicio.jsx";
 import DetalleServicio from "./pages/DetalleServicio.jsx";
+import EditarCliente from "./pages/EditarCliente.jsx";
 
 const Layout = () => {
     const basename = process.env.REACT_APP_BASENAME_REACTs || "";
@@ -37,6 +38,7 @@ const Layout = () => {
                         <Route path='detalle-cliente/:clientId' element={<DetalleCliente />} />
                         <Route path='detalle-servicio/:serviceId' element={<DetalleServicio />} />
                         <Route path="/editar-servicio/:serviceId" element={<EditarServicio />} />
+                        <Route path="/editar-cliente/:clientId" element={<EditarCliente />} />
                         <Route path="*" element={<h1>Not found!</h1>} />
                     </Routes>
                     <Footer />

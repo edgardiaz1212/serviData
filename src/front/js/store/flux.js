@@ -483,6 +483,53 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during getting client service counts", error);
         }
       },
+      updateClientData: async (clientId, clientData) => {
+        try {
+            // Validar que clientId sea un número válido
+            if (!clientId || typeof clientId !== "number") {
+                throw new Error("Invalid client ID. It must be a number.");
+            }
+    
+            // Validar que clientData sea un objeto no vacío
+            if (!clientData || typeof clientData !== "object" || Object.keys(clientData).length === 0) {
+                throw new Error("Invalid client data. It must be a non-empty object.");
+            }
+    
+            // Realizar la solicitud PUT
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/clients/${clientId}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(clientData),
+                }
+            );
+    
+            // Manejar respuestas no exitosas
+            if (!response.ok) {
+                const errorData = await response.json(); // Intentar obtener detalles del error del backend
+                throw new Error(`Failed to update client: ${errorData.message || response.statusText}`);
+            }
+    
+            // Procesar la respuesta exitosa
+            const data = await response.json();
+    
+            // Actualizar el estado global con los datos actualizados
+            setStore({ client: data });
+    
+            // Devolver los datos actualizados para su uso en el componente que llama a esta función
+            return { success: true, data };
+    
+        } catch (error) {
+            // Registrar el error en la consola y devolver un objeto con detalles
+            console.error("Error during updating client data:", error.message);
+            return { success: false, message: error.message };
+        }
+    },
+
+
     },
   };
 };

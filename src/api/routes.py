@@ -441,3 +441,44 @@ def get_client_counts_by_type():
     except Exception as e:
         # Manejo de errores: devuelve un mensaje de error en caso de que algo falle
         return jsonify({"error": str(e)}), 500
+    
+@api.route('/clients/<int:client_id>', methods=['PUT'])
+def update_client(client_id):
+    try:
+        # Verifica si se envió un JSON en la solicitud
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No se proporcionaron datos para actualizar"}), 400
+
+        # Obtiene el cliente de la base de datos
+        cliente = db.session.query(Cliente).get(client_id)
+        if not cliente:
+            return jsonify({"error": "Cliente no encontrado"}), 404
+
+        # Actualiza los datos del cliente con los valores proporcionados
+        if 'tipo' in data:
+            cliente.tipo = data['tipo']
+        if 'rif' in data:
+            cliente.rif = data['rif']
+        if 'razon_social' in data:
+            cliente.razon_social = data['razon_social']
+
+        # Guarda los cambios en la base de datos
+        db.session.commit()
+
+        # Devuelve la respuesta en formato JSON
+        return jsonify(cliente.serialize()), 200
+
+    except SQLAlchemyError as e:
+        # Manejo de errores de SQLAlchemy
+        db.session.rollback()  # Revierte los cambios en caso de error
+        return jsonify({"error": "Error en la base de datos", "details": str(e)}), 500
+
+    except Exception as e:
+        # Manejo de errores generales
+        return jsonify({"error": "Error interno del servidor", "details": str(e)}), 500
+
+    finally:
+        # Cierra la sesión de la base de datos
+        db.session.close()
+    

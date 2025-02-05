@@ -26,6 +26,10 @@ function DetalleCliente({ clientData: propClientData }) {
     navigate(`/detalle-servicio/${serviceId}`);
   };
 
+  const handleEditUserClick = () => {
+    navigate(`/editar-cliente/${clientId}`);
+  };
+
   const renderServiceDetail = (label, value) => {
     return value ? (
       <p className="mb-1"><strong>{label}:</strong> {value}</p>
@@ -58,7 +62,12 @@ function DetalleCliente({ clientData: propClientData }) {
 
   return (
     <div className="container vh-100'">
-      <h3>Detalles del Cliente {clientData ? clientData.razon_social : ''}</h3>
+      <div className="d-flex justify-content-between align-items-center">
+        <h3>Detalles del Cliente {clientData ? clientData.razon_social : ''}</h3>
+        <button className="btn btn-primary" onClick={handleEditUserClick}>
+          Editar Usuario
+        </button>
+      </div>
       <div>
         <h5>Datos del Cliente</h5>
         {clientData && (
