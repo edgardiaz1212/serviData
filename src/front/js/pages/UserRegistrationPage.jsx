@@ -12,15 +12,15 @@ const UserRegistrationPage = () => {
   const [editingUser, setEditingUser] = useState(null);
 
   useEffect(() => {
-    let isMounted = true; // Flag to track if the component is mounted
+    let isMounted = true;
     if (!isAuthenticated && isMounted) {
-      navigate("/login", { replace: true }); // Use replace to avoid adding to history
+      navigate("/login", { replace: true });
     } else if (isMounted) {
-      actions.fetchUserData(); // Fetch user data when the component mounts
+      actions.fetchUserData();
     }
 
     return () => {
-      isMounted = false; // Cleanup function to set the flag to false on unmount
+      isMounted = false;
     };
   }, []);
 
@@ -45,10 +45,19 @@ const UserRegistrationPage = () => {
     }
   }, [user]);
 
+  // Función para verificar si los campos están llenos
+  const isFormValid = () => {
+    return newUser.username.trim() !== "" && newUser.password.trim() !== "" && newUser.role.trim() !== "";
+  };
+
   const handleAddNewUser = async (e) => {
     e.preventDefault();
+    if (!isFormValid()) {
+      toast.error("Por favor, complete todos los campos.");
+      return;
+    }
     await actions.addUser(newUser);
-    toast.success("User added successfully");
+    toast.success("Usuario agregado correctamente");
     setNewUser({ username: "", password: "", role: "user" });
   };
 
@@ -58,6 +67,7 @@ const UserRegistrationPage = () => {
     toast.success("Usuario editado con éxito!");
     setEditingUser(null);
   };
+
   const handleEdit = (user) => {
     setEditingUser(user);
     setShowModal(true);
@@ -84,126 +94,143 @@ const UserRegistrationPage = () => {
   };
 
   return (
-    <div className="container vh-100'">
+    <div className="container vh-100">
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
 
-      <h1>Edita tus Datos</h1>
-      <form className="m-3" onSubmit={handleEditCurrentUser}>
-        <div className="container p-3">
-          <div className="row ">
-          <div className="col-6 ">
-          <div>
-            <label htmlFor="formUser" className="col-sm-5 col-form-label">
-              Nombre de usuario:
-            </label>
-            <input
-              className="form-control"
-              id="formUser"
-              type="text"
-              value={currentUser.username}
-              onChange={(e) =>
-                setCurrentUser({ ...currentUser, username: e.target.value })
-              }
-              required
-            />
+      <h1 className="text">Edita tus Datos</h1>
+      <div className="d-flex justify-content-center">
+        <form className="m-3 w-50" onSubmit={handleEditCurrentUser}>
+          <div className="container p-3">
+            <div className="row">
+              <div className="col-12">
+                <div>
+                  <label htmlFor="formUser" className="col-sm-5 col-form-label">
+                    Nombre de usuario:
+                  </label>
+                  <input
+                    className="form-control"
+                    id="formUser"
+                    type="text"
+                    value={currentUser.username}
+                    onChange={(e) =>
+                      setCurrentUser({ ...currentUser, username: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="formPassword">Contraseña:</label>
+                  <input
+                    className="form-control"
+                    id="formPassword"
+                    type="password"
+                    value={currentUser.password}
+                    onChange={(e) =>
+                      setCurrentUser({ ...currentUser, password: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <label htmlFor="formPassword">Contraseña:</label>
-            <input
-              className="form-control"
-              id="formPassword"
-              type="password"
-              value={currentUser.password}
-              onChange={(e) =>
-                setCurrentUser({ ...currentUser, password: e.target.value })
-              }
-              required
-            />
-          </div>
-          </div> 
-          </div>
-        </div>
 
-        <button className="btn btn-primary m-2" type="submit">
-          {"Guardar Cambios"}
-        </button>
-      </form>
+          <div className="d-flex justify-content-center">
+            <button className="btn btn-primary m-2" type="submit">
+              {"Guardar Cambios"}
+            </button>
+          </div>
+        </form>
+      </div>
 
       {user.role === "Admin" && (
         <>
-          <h2>Agregar Usuario</h2>
-          <form className="form-inline m-3" onSubmit={handleAddNewUser}>
-            <div className="form-group mx-2">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Nombre de Usuario"
-                value={newUser.username}
-                onChange={(e) =>
-                  setNewUser({ ...newUser, username: e.target.value })
-                }
-                required
-              />
-            </div>
-            <div className="form-group mx-2">
-              <input
-                className="form-control"
-                type="password"
-                placeholder="Contraseña"
-                value={newUser.password}
-                onChange={(e) =>
-                  setNewUser({ ...newUser, password: e.target.value })
-                }
-                required
-              />
-            </div>
-            <div className="form-group mx-2">
-              <select
-                className="custom-select mr-sm-2"
-                value={newUser.role}
-                onChange={(e) =>
-                  setNewUser({ ...newUser, role: e.target.value })
-                }
-              >
-                <option value="User">Usuario</option>
-                <option value="Admin">Administrador</option>
-              </select>
-            </div>
-            <button type="submit" className="btn btn-success">
-              Agregar
-            </button>
-          </form>
+          <h2 className="text">Agregar Usuario</h2>
+          <div className="d-flex justify-content-center">
+            <form className="form-inline m-3 w-50" onSubmit={handleAddNewUser}>
+              <div className="form-group mx-2">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Nombre de Usuario"
+                  value={newUser.username}
+                  onChange={(e) =>
+                    setNewUser({ ...newUser, username: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="form-group mx-2">
+                <input
+                  className="form-control"
+                  type="password"
+                  placeholder="Contraseña"
+                  value={newUser.password}
+                  onChange={(e) =>
+                    setNewUser({ ...newUser, password: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="form-group mx-2">
+                <select
+                  className="custom-select mr-sm-2"
+                  value={newUser.role}
+                  onChange={(e) =>
+                    setNewUser({ ...newUser, role: e.target.value })
+                  }
+                  required
+                >
+                  <option value="User">Usuario</option>
+                  <option value="Admin">Administrador</option>
+                </select>
+              </div>
+              <div className="d-flex justify-content-center">
+                <button
+                  type="submit"
+                  className="btn btn-success m-2"
+                  disabled={!isFormValid()} // Deshabilitar el botón si el formulario no es válido
+                >
+                  Agregar
+                </button>
+              </div>
+            </form>
+          </div>
 
           <div className="container">
-      <h2>Lista de Usuarios Registrados</h2>
-      <div className="list-group list-group-horizontal"></div>
-      <div className="row">
-        <ul className="list-group w-50">
-          {store.users.map((user, index) => (
-            <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
-              <span>{user.username} - {user.role}</span>
-              <button
-                type="button"
-                className="btn btn-outline-warning"
-                onClick={() => handleEdit(user)}
-              >
-                Editar
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
+            <h2 className="text">Lista de Usuarios Registrados</h2>
+            <div className="d-flex justify-content-center">
+              <ul className="list-group w-50">
+                {store.users.map((user, index) => (
+                  <li
+                    key={index}
+                    className="list-group-item d-flex justify-content-between align-items-center"
+                  >
+                    <span>
+                      {user.username} - {user.role}
+                    </span>
+                    <button
+                      type="button"
+                      className="btn btn-outline-warning"
+                      onClick={() => handleEdit(user)}
+                    >
+                      Editar
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-      {editingUser && (
-        <ModalEditUser
-          user={editingUser}
-          show={showModal}
-          handleClose={handleClose}
-          handleSave={handleSave}
-          handleDelete={handleDelete}
-        />
-      )}
-    </div>
+            {editingUser && (
+              <ModalEditUser
+                user={editingUser}
+                show={showModal}
+                handleClose={handleClose}
+                handleSave={handleSave}
+                handleDelete={handleDelete}
+              />
+            )}
+          </div>
         </>
       )}
     </div>

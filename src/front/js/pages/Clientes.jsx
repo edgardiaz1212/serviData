@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Search } from 'lucide-react'
 import TotalClient from '../component/TotalCLient.jsx'; // Asegúrate de que la ruta sea correcta
-
+import BB8Button from '../component/BB8Button.jsx';
+import "../../styles/clientes.css"
 const Clientes = () => {
   const [clientType, setClientType] = useState('Privada');
   const [searchQuery, setSearchQuery] = useState('');
@@ -17,6 +18,7 @@ const Clientes = () => {
   return (
     <div className='container vh-100'>
       <h1>Clientes</h1>
+      {/* <BB8Button/> */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div className="btn-group" role="group" aria-label="Basic radio toggle button group">
           <input type="radio" className="btn-check" name="btnradio" id="btnradio1" autoComplete="off" checked={clientType === 'Privada'} onChange={handleClientTypeChange} />

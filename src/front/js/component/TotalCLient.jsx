@@ -19,8 +19,8 @@ function TotalClient({ clientType, searchQuery }) {
   };
 
   return (
-    <div>
-      <ul className="list-group">
+    <div className="d-flex justify-content-center">
+      <ul className="list-group w-50" style={{ maxWidth: '600px' }}>
         {filteredClients.length > 0 ? (
           filteredClients.map((client, index) => (
             <div

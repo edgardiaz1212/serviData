@@ -141,7 +141,7 @@ function InputClienteServicio({ onSubmit }) {
           handleChange={handleServiceChange}
         />
 
-        <button className="btn btn-success mt-2" type="submit">
+        <button className="btn btn-success mt-2 w-25" type="submit">
           Guardar
         </button>
       </form>

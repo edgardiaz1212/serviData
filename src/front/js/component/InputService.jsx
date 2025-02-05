@@ -37,7 +37,7 @@ function InputService({ clientData }) {
     powerstate: '',
     comentarios: '',
   });
-console.log('clientData:', clientData);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setServiceData((prevState) => ({ ...prevState, [name]: value }));
@@ -52,7 +52,7 @@ console.log('clientData:', clientData);
       try {
         await actions.addServiceData({ ...serviceData, cliente_id: clientData.id }); // Send data to backend
         toast.success('Datos del servicio enviados correctamente');
-        console.log('Service data submitted:', serviceData);
+      
         setTimeout(() => {
           navigate("/data-registro"); // Redirect to Manual Data Entry if client not found
         }, 1500)
@@ -73,7 +73,7 @@ console.log('clientData:', clientData);
           serviceData={serviceData}
           handleChange={handleChange}
         />
-        <button className="btn btn-success mt-2" type="submit">
+        <button className="btn btn-success mt-2 w-25" type="submit">
           Guardar
         </button>
       </form>
