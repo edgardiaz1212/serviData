@@ -509,7 +509,7 @@ def update_client(client_id):
         # Devuelve la respuesta en formato JSON
         return jsonify(cliente.serialize()), 200
 
-    except SQLAlchemyError as e:
+    except Exception as e:
         # Manejo de errores de SQLAlchemy
         db.session.rollback()  # Revierte los cambios en caso de error
         return jsonify({"error": "Error en la base de datos", "details": str(e)}), 500
@@ -521,3 +521,30 @@ def update_client(client_id):
     finally:
         # Cierra la sesión de la base de datos
         db.session.close()
+
+@api.route('/services/<int:service_id>', methods=['DELETE'])
+def delete_service(service_id):
+    try:
+        # Busca el servicio en la base de datos 
+        servicio = db.session.query(Servicio).get(service_id)
+
+        # Verifica si el servicio existe
+        if servicio is None:
+            return jsonify({"error": "Servicio no encontrado"}), 404
+
+        # Elimina el servicio de la base de datos
+        db.session.delete(servicio)
+        db.session.commit()
+
+        # Devuelve la respuesta en formato JSON
+        return jsonify({"message": "Servicio eliminado con éxito"}), 200
+
+    except SQLAlchemyError as e:
+        # Manejo de errores de SQLAlchemy
+        db.session.rollback()  # Revierte los cambios en caso de error
+        return jsonify({"error": "Error en la base de datos", "details": str(e)}), 500
+    except Exception as e:
+        # Manejo de errores generales
+        db.session.rollback()  # Revierte los cambios en caso de error
+        return jsonify({"error": "Error interno del servidor", "details": str(e)}), 500
+    

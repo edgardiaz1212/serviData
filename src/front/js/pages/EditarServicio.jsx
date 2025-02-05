@@ -44,6 +44,25 @@ function EditarServicio() {
       console.error(error);
     }
   };
+const handleDelete = async () => {
+    try {
+
+      const numericServiceId = Number(serviceId); // Convertir serviceId a número
+      if (isNaN(numericServiceId)) {
+        throw new Error("Invalid service ID. It must be a number.");
+      }
+      const result = await actions.deleteService(numericServiceId);
+      if (result.error) {
+        throw new Error(result.message);
+      }
+      toast.success('Servicio eliminado con éxito');
+      navigate('/servicios');
+    } catch (error) {
+      toast.error('Error al eliminar el servicio');
+      console.error(error);
+
+    }
+  }
 
   if (!serviceData) {
     return <div>Loading...</div>;
@@ -56,6 +75,7 @@ function EditarServicio() {
       <button className="btn btn-primary mt-3" onClick={handleSave}>
         Guardar
       </button>
+      <button className="btn btn-danger mt-3 ms-2" onclick= {handleDelete}>Eliminar</button>
       <button className="btn btn-secondary mt-3 ms-2" onClick={() => navigate(-1)}>Regresar</button>
       <ToastContainer />
     </div>
