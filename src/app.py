@@ -60,7 +60,7 @@ def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
 
 # generate sitemap with all your endpoints
-@app.route('/')
+@app.route('/servidata')
 def sitemap():
     if ENV == "development":
         return generate_sitemap(app)
@@ -77,5 +77,5 @@ def serve_any_other_file(path):
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
-    PORT = int(os.environ.get('PORT', 3001))
+    PORT = int(os.environ.get('PORT', 3002))
     app.run(host='0.0.0.0', port=PORT, debug=True)
