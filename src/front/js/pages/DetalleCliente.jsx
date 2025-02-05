@@ -1,23 +1,25 @@
-import React, { useEffect, useState, useContext } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Context } from "../store/appContext";
+import React, { useEffect, useState, useContext } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Context } from '../store/appContext';
 
-function DetalleCliente() {
+function DetalleCliente({ clientData: propClientData }) {
   const { clientId } = useParams();
   const { actions } = useContext(Context);
   const navigate = useNavigate();
-  const [clientData, setClientData] = useState(null);
+  const [clientData, setClientData] = useState(propClientData || null);
   const [servicesData, setServicesData] = useState([]);
 
   useEffect(() => {
-    const fetchClientAndServices = async () => {
-      const client = await actions.getClientById(clientId);
-      setClientData(client);
-      const services = await actions.getServicebyClient(clientId);
-      setServicesData(services);
-    };
-    fetchClientAndServices();
-  }, [clientId, actions]);
+    if (!propClientData) {
+      const fetchClientAndServices = async () => {
+        const client = await actions.getClientById(clientId);
+        setClientData(client);
+        const services = await actions.getServicebyClient(clientId);
+        setServicesData(services);
+      };
+      fetchClientAndServices();
+    }
+  }, [clientId, actions, propClientData]);
 
   const handleServiceClick = (serviceId) => {
     navigate(`/detalle-servicio/${serviceId}`);
@@ -25,38 +27,49 @@ function DetalleCliente() {
 
   const renderServiceDetail = (label, value) => {
     return value ? (
-      <p className="mb-1">
-        <strong>{label}:</strong> {value}
-      </p>
+      <p className="mb-1"><strong>{label}:</strong> {value}</p>
     ) : null;
   };
 
-  return (
-    <div className="container vh-100">
-      <h3 className="text-center">
-        Detalles del Cliente {clientData ? clientData.razon_social : ""}
-      </h3>
+  const hasIdentificationDetails = (service) => {
+    return service.dominio || service.tipo_servicio || service.hostname;
+  };
 
-      <h5 className="text">Datos del Cliente</h5>
-      <div className="d-flex justify-content-center">
-        <div className="w-50">
-          {" "}
-          {/* Ajusta el ancho aquí */}
-          {clientData && (
-            <>
-              <div className="card m-3">
-                <div className="card-body">
-                  {renderServiceDetail("RIF", clientData.rif)}
-                  {renderServiceDetail("Razón Social", clientData.razon_social)}
-                  {renderServiceDetail("Tipo", clientData.tipo)}
-                </div>
-              </div>
-            </>
-          )}
-        </div>
+  const hasStateDetails = (service) => {
+    return service.estado || service.contrato;
+  };
+
+  const hasResourceDetails = (service) => {
+    return service.cores || service.ram || service.hdd || service.cpu;
+  };
+
+  const hasNetworkDetails = (service) => {
+    return service.ip_privada || service.vlan || service.ipam;
+  };
+
+  const hasInfrastructureDetails = (service) => {
+    return service.nombre_servidor || service.marca_servidor || service.modelo_servidor || service.nombre_nodo || service.nombre_plataforma;
+  };
+
+  const hasOtherDetails = (service) => {
+    return service.ubicacion || service.observaciones || service.facturado || service.comentarios;
+  };
+
+  return (
+    <div className="container vh-100'">
+      <h3>Detalles del Cliente {clientData ? clientData.razon_social : ''}</h3>
+      <div>
+        <h5>Datos del Cliente</h5>
+        {clientData && (
+          <>
+            {renderServiceDetail('RIF', clientData.rif)}
+            {renderServiceDetail('Razón Social', clientData.razon_social)}
+            {renderServiceDetail('Tipo', clientData.tipo)}
+          </>
+        )}
       </div>
       <div>
-        <h5 className="text">Servicios</h5>
+        <h5>Servicios</h5>
         <ul className="list-group">
           {servicesData.length > 0 ? (
             servicesData.map((service, index) => (
@@ -65,137 +78,94 @@ function DetalleCliente() {
                 className="list-group-item list-group-item-action"
                 onClick={() => handleServiceClick(service.id)}
               >
-                <div className="">
-                  <h5 className="mb-1">
-                    {service.plan_aprovisionado || "Servicio"}
-                  </h5>
+                <div className="d-flex w-100 justify-content-between">
+                  <h5 className="mb-1">{service.tipo_servicio || "Servicio"}</h5>
                 </div>
-                <div className="d-flex justify-content-between ">
-                  <div className="card">
-                    <div className="card-body">
-                      <h5 className="card-title">Identificacion</h5>
-                      <div className="card-text">
-                        {renderServiceDetail("Dominio", service.dominio)}
-                        {renderServiceDetail(
-                          "Tipo de Servicio",
-                          service.tipo_servicio
-                        )}
-                        {renderServiceDetail("Hostname", service.hostname)}
+                <div className="d-flex justify-content-between">
+                  {hasIdentificationDetails(service) && (
+                    <div className="card">
+                      <div className="card-body">
+                        <h5 className="card-title">Identificación</h5>
+                        <div className="card-text">
+                          {renderServiceDetail("Dominio", service.dominio)}
+                          {renderServiceDetail("Tipo de Servicio", service.tipo_servicio)}
+                          {renderServiceDetail("Hostname", service.hostname)}
+                        </div>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="card">
-                    <div className="card-body">
-                      <h5 className="card-title">Estado</h5>
-                      <div className="card-text">
-                        {renderServiceDetail("Estado", service.estado)}
-                        {renderServiceDetail("Contrato", service.contrato)}
-                        {renderServiceDetail(
-                          "Plan Aprovisionado",
-                          service.plan_aprovisionado
-                        )}
-                        {renderServiceDetail(
-                          "Plan Facturado",
-                          service.plan_facturado
-                        )}
-                        {renderServiceDetail(
-                          "Detalle del Plan",
-                          service.detalle_plan
-                        )}
-                        {renderServiceDetail("Facturado", service.facturado)}
+                  )}
+                  {hasStateDetails(service) && (
+                    <div className="card">
+                      <div className="card-body">
+                        <h5 className="card-title">Estado</h5>
+                        <div className="card-text">
+                          {renderServiceDetail("Estado", service.estado)}
+                          {renderServiceDetail("Contrato", service.contrato)}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="card">
-                    <div className="card-body">
-                      <h5 className="card-title">Recursos</h5>
-                      <div className="card-text">
-                        {renderServiceDetail("Cores", service.cores)}
-
-                        {renderServiceDetail("Sockets", service.sockets)}
-                        {renderServiceDetail("RAM", service.ram)}
-                        {renderServiceDetail("HDD", service.hdd)}
-                        {renderServiceDetail("CPU", service.cpu)}
+                  )}
+                  {hasResourceDetails(service) && (
+                    <div className="card">
+                      <div className="card-body">
+                        <h5 className="card-title">Recursos</h5>
+                        <div className="card-text">
+                          {renderServiceDetail("Cores", service.cores)}
+                          {renderServiceDetail("RAM", service.ram)}
+                          {renderServiceDetail("HDD", service.hdd)}
+                          {renderServiceDetail("CPU", service.cpu)}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="card">
-                    <div className="card-body">
-                      <h5 className="card-title">Red</h5>
-                      <div className="card-text">
-                        {renderServiceDetail("IP Privada", service.ip_privada)}
-                        {renderServiceDetail("VLAN", service.vlan)}
-                        {renderServiceDetail("IPAM", service.ipam)}
+                  )}
+                  {hasNetworkDetails(service) && (
+                    <div className="card">
+                      <div className="card-body">
+                        <h5 className="card-title">Red</h5>
+                        <div className="card-text">
+                          {renderServiceDetail("IP Privada", service.ip_privada)}
+                          {renderServiceDetail("VLAN", service.vlan)}
+                          {renderServiceDetail("IPAM", service.ipam)}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="card">
-                    <div className="card-body">
-                      <h5 className="card-title">Infraestructura</h5>
-                      <div className="card-text">
-                        {renderServiceDetail("Datastore", service.datastore)}
-                        {renderServiceDetail(
-                          "Nombre del Servidor",
-                          service.nombre_servidor
-                        )}
-                        {renderServiceDetail(
-                          "Marca del Servidor",
-                          service.marca_servidor
-                        )}
-                        {renderServiceDetail(
-                          "Modelo del Servidor",
-                          service.modelo_servidor
-                        )}
-                        {renderServiceDetail(
-                          "Nombre del Nodo",
-                          service.nombre_nodo
-                        )}
-                        {renderServiceDetail(
-                          "Nombre de la Plataforma",
-                          service.nombre_plataforma
-                        )}
-
-                        {renderServiceDetail(
-                          "Tipo de Servidor",
-                          service.tipo_servidor
-                        )}
-                        {renderServiceDetail("Ubicación", service.ubicacion)}
+                  )}
+                  {hasInfrastructureDetails(service) && (
+                    <div className="card">
+                      <div className="card-body">
+                        <h5 className="card-title">Infraestructura</h5>
+                        <div className="card-text">
+                          {renderServiceDetail("Nombre del Servidor", service.nombre_servidor)}
+                          {renderServiceDetail("Marca del Servidor", service.marca_servidor)}
+                          {renderServiceDetail("Modelo del Servidor", service.modelo_servidor)}
+                          {renderServiceDetail("Nombre del Nodo", service.nombre_nodo)}
+                          {renderServiceDetail("Nombre de la Plataforma", service.nombre_plataforma)}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="card">
-                    <div className="card-body">
-                      <h5 className="card-title">Otros</h5>
-                      <div className="card-text">
-                        {renderServiceDetail("Powerstate", service.powerstate)}
-                        {renderServiceDetail(
-                          "Observaciones",
-                          service.observaciones
-                        )}
-
-                        {renderServiceDetail(
-                          "Comentarios",
-                          service.comentarios
-                        )}
+                  )}
+                  {hasOtherDetails(service) && (
+                    <div className="card">
+                      <div className="card-body">
+                        <h5 className="card-title">Otros</h5>
+                        <div className="card-text">
+                          {renderServiceDetail("Ubicación", service.ubicacion)}
+                          {renderServiceDetail("Observaciones", service.observaciones)}
+                          {renderServiceDetail("Facturado", service.facturado)}
+                          {renderServiceDetail("Comentarios", service.comentarios)}
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             ))
           ) : (
-            <li className="list-group-item">
-              No hay servicios registrados para este cliente.
-            </li>
+            <li className="list-group-item">No hay servicios registrados para este cliente.</li>
           )}
         </ul>
       </div>
-      <div className="d-flex justify-content-center mt-3">
-        <button className="btn btn-secondary" onClick={() => navigate(-1)}>
-          Regresar
-        </button>
-      </div>
+      <button className="btn btn-secondary mt-3" onClick={() => navigate(-1)}>Regresar</button>
     </div>
   );
 }

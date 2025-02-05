@@ -16,11 +16,11 @@ const DetalleServicio = () => {
         console.log("fluxserv", service);
         setServiceData(service);
 
-        if (service ) {
-          const client = await actions.getClientById(service.cliente_id);
-          setClientData(client);
-          console.log("fluxcliente", client);
-        }
+        // if (service ) {
+        //   const client = await actions.getClientById(service.cliente_id);
+        //   setClientData(client);
+        //   console.log("fluxcliente", client);
+        // }
       } catch (error) {
         console.error("Error fetching service or client data", error);
       }
@@ -29,7 +29,7 @@ const DetalleServicio = () => {
   }, [serviceId, actions]);
 
 
-  if (!serviceData || !clientData) {
+  if (!serviceData ) {
     return <div>Loading...</div>;
   }
 
