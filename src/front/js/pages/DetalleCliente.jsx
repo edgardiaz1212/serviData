@@ -175,7 +175,7 @@ function DetalleCliente({ clientData: propClientData }) {
           )}
         </ul>
       </div>
-      <button className="btn btn-secondary mt-3" onClick={() => navigate(-1)}>Regresar</button>
+      <button className="btn btn-secondary mt-3" onClick={() => navigate( '/clientes')   }>Regresar</button>
     </div>
   );
 }
