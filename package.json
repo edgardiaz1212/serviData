@@ -2,7 +2,8 @@
   "name": "ServiData",
   "version": "0.1.0",
   "private": true,
-  "author": "Edgar Diaz",
+  "author": {"name": "Edgar Diaz", "url": "https://github.com/edgargdiaz1212"
+  },
   "dependencies": {
     "chart.js": "^4.4.7",
     "cra-template": "1.2.0",
