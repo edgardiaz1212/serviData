@@ -552,6 +552,31 @@ const getState = ({ getStore, getActions, setStore }) => {
       }
     },
 
+    deleteClientAndServices: async (clientId) => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/clients/${clientId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        // Manejar respuestas no exitosas
+        if (!response.ok) {
+          const errorData = await response.json(); // Intentar obtener detalles del error del backend
+          throw new Error(`Failed to delete user and services: ${errorData.message || response.statusText}`);
+        }
+
+        // Si la respuesta es exitosa, devolver un objeto indicando el éxito
+        return { success: true };
+      } catch (error) {
+        // Registrar el error en la consola y devolver un objeto con detalles
+        console.error("Error during deleting user and services:", error.message);
+        return { success: false, message: error.message };
+      }
+    },
+
+
     },
   };
 };

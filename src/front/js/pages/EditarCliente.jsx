@@ -25,21 +25,39 @@ const EditarCliente = () => {
 
   const handleSave = async () => {
     try {
-        const numericClientId = Number(clientId); // Convertir clientId a número
-        if (isNaN(numericClientId)) {
-          throw new Error("Invalid client ID. It must be a number.");
-        }
-        const result = await actions.updateClientData(numericClientId, clientData);
-        if (result.error) {
-          throw new Error(result.message);
-        }
-        toast.success('Cliente actualizado con éxito');
-        navigate(`/detalle-cliente/${clientId}`);
-      } catch (error) {
-        toast.error('Error al actualizar el cliente');
-        console.error(error);
+      const numericClientId = Number(clientId); // Convertir clientId a número
+      if (isNaN(numericClientId)) {
+        throw new Error("Invalid client ID. It must be a number.");
       }
-    };
+      const result = await actions.updateClientData(numericClientId, clientData);
+      if (result.error) {
+        throw new Error(result.message);
+      }
+      toast.success('Cliente actualizado con éxito');
+      navigate(`/detalle-cliente/${clientId}`);
+    } catch (error) {
+      toast.error('Error al actualizar el cliente');
+      console.error(error);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      const numericClientId = Number(clientId); // Convertir clientId a número
+      if (isNaN(numericClientId)) {
+        throw new Error("Invalid client ID. It must be a number.");
+      }
+      const result = await actions.deleteClientAndServices(numericClientId);
+      if (result.error) {
+        throw new Error(result.message);
+      }
+      toast.success('Cliente y servicios eliminados con éxito');
+      navigate('/clientes');
+    } catch (error) {
+      toast.error('Error al eliminar el cliente y servicios');
+      console.error(error);
+    }
+  };
 
   if (!clientData) {
     return <div>Loading...</div>;
@@ -84,8 +102,12 @@ const EditarCliente = () => {
       <button className="btn btn-primary mt-3" onClick={handleSave}>
         Guardar
       </button>
-      <button className='btn btn-secondary mt-3 ms-2' onClick={() => navigate(`/detalle-cliente/${clientId}`)}>Regresar</button>
-        
+      <button className="btn btn-danger mt-3 ms-2" onClick={handleDelete}>
+        Eliminar Cliente y Servicios
+      </button>
+      <button className="btn btn-secondary mt-3 ms-2" onClick={() => navigate(`/detalle-cliente/${clientId}`)}>
+        Regresar
+      </button>
       <ToastContainer />
     </div>
   );

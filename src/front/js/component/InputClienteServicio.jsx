@@ -127,7 +127,7 @@ function InputClienteServicio({ onSubmit }) {
             required
           >
             <option value="" disabled>Seleccione Tipo</option>
-            <option value="Publica">Pública</option>
+            <option value="Pública">Pública</option>
             <option value="Privada">Privada</option>
           </select>
           <div className="invalid-feedback">

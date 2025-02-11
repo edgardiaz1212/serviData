@@ -8,7 +8,7 @@ const Clientes = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleClientTypeChange = (event) => {
-    setClientType(event.target.id === 'btnradio1' ? 'Privada' : 'Publica');
+    setClientType(event.target.id === 'btnradio1' ? 'Privada' : 'Pública');
   };
 
   const handleSearchChange = (event) => {
@@ -16,7 +16,7 @@ const Clientes = () => {
   };
 
   return (
-    <div className='container vh-100'>
+    <div className='container'>
       <h1>Clientes</h1>
       <h5>Selecciona para detalles</h5>
       {/* <BB8Button/> */}
@@ -25,8 +25,8 @@ const Clientes = () => {
           <input type="radio" className="btn-check" name="btnradio" id="btnradio1" autoComplete="off" checked={clientType === 'Privada'} onChange={handleClientTypeChange} />
           <label className="btn btn-outline-primary" htmlFor="btnradio1">Privada</label>
 
-          <input type="radio" className="btn-check" name="btnradio" id="btnradio2" autoComplete="off" checked={clientType === 'Publica'} onChange={handleClientTypeChange} />
-          <label className="btn btn-outline-primary" htmlFor="btnradio2">Publica</label>
+          <input type="radio" className="btn-check" name="btnradio" id="btnradio2" autoComplete="off" checked={clientType === 'Pública'} onChange={handleClientTypeChange} />
+          <label className="btn btn-outline-primary" htmlFor="btnradio2">Pública</label>
         </div>
         <div className="input-group" style={{ maxWidth: '200px' }}>
           <div className="input-group-text" id="btnGroupAddon"><Search /></div>

@@ -48,7 +48,7 @@ def delete_user(user_id):
 
     if not user:
         return jsonify({"message": "User not found"}), 404
-
+    
     db.session.delete(user)
     db.session.commit()
 
@@ -393,6 +393,10 @@ def upload_excel():
     df.rename(columns=column_mapping, inplace=True)
 
     for index, row in df.iterrows():
+        # Verificar si el valor de 'rif' es NaN y omitir la fila si es así
+        if pd.isna(row['rif']):
+            continue
+
         # Verificar si el cliente ya existe en la base de datos
         cliente = Cliente.query.filter_by(rif=row['rif']).first()
         if not cliente:
@@ -548,3 +552,35 @@ def delete_service(service_id):
         db.session.rollback()  # Revierte los cambios en caso de error
         return jsonify({"error": "Error interno del servidor", "details": str(e)}), 500
     
+@api.route('/clients/<int:client_id>', methods=['DELETE'])
+def delete_client_and_services(client_id):
+    
+    try:
+        # Buscar el cliente por su ID
+        client = Cliente.query.get(client_id)
+        if not client:
+            return jsonify({"message": "Client not found"}), 404
+
+        # Iniciar una transacción para asegurar la integridad de los datos
+        try:
+            # Eliminar todos los servicios asociados al cliente
+            servicios = Servicio.query.filter_by(cliente_id=client_id).all()
+            for servicio in servicios:
+                db.session.delete(servicio)
+
+            # Eliminar el cliente
+            db.session.delete(client)
+
+            # Confirmar la transacción
+            db.session.commit()
+
+            return jsonify({"message": "Client and associated services deleted successfully"}), 200
+
+        except Exception as e:
+            # En caso de error, revertir la transacción
+            db.session.rollback()
+            raise e
+
+    except Exception as e:
+        # Capturar errores inesperados y retornar un mensaje de error genérico
+        return jsonify({"message": "An unexpected error occurred", "error": str(e)}), 500
