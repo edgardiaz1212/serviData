@@ -1,5 +1,5 @@
 import React from 'react';
-import { servicios } from './TipoServicios.jsx'; // Importar la lista de servicios
+import { servicios } from './TipoServicios';
 
 const DatosServicio = ({ serviceData, handleChange }) => {
   return (
@@ -20,15 +20,20 @@ const DatosServicio = ({ serviceData, handleChange }) => {
         </div>
         <div className="col-md-6 mb-3">
           <label htmlFor="tipo_servicio" className="form-label">Tipo de Servicio</label>
-          <input
-            type="text"
+          <select
             name="tipo_servicio"
             value={serviceData.tipo_servicio}
             onChange={handleChange}
-            placeholder="Tipo de Servicio"
             className="form-control"
             id="tipo_servicio"
-          />
+          >
+            <option value="">Seleccione un tipo de servicio</option>
+            {servicios.map((servicio, index) => (
+              <option key={index} value={servicio}>
+                {servicio}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="col-md-6 mb-3">
           <label htmlFor="hostname" className="form-label">Hostname</label>
