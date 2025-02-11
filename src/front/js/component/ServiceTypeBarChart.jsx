@@ -43,6 +43,7 @@ const ServiceTypeBarChart = () => {
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false, // Permitir que el gráfico se redimensione sin mantener la relación de aspecto
     plugins: {
       legend: {
         position: 'top',
@@ -54,7 +55,11 @@ const ServiceTypeBarChart = () => {
     },
   };
 
-  return <Bar data={data} options={options} />;
+  return (
+    <div style={{ height: '400px' }}>
+      <Bar data={data} options={options} />
+    </div>
+  );
 };
 
 export default ServiceTypeBarChart;

@@ -38,7 +38,10 @@ const ClientTypePieChart = () => {
       },
     ],
   };
+
   const options = {
+    responsive: true,
+    maintainAspectRatio: false, // Permitir que el gráfico se redimensione sin mantener la relación de aspecto
     plugins: {
       title: {
         display: true,
@@ -49,7 +52,12 @@ const ClientTypePieChart = () => {
       },
     },
   };
-  return <Pie data={data} options={options} />;
+
+  return (
+    <div style={{ height: '400px' }}>
+      <Pie data={data} options={options} />
+    </div>
+  );
 };
 
 export default ClientTypePieChart;
