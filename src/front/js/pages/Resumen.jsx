@@ -17,7 +17,7 @@ const Resumen = () => {
   return (
     <>
       <div className="text-bg-light p-3">
-        Bienvenido a la plataforma de servicios!
+        Bienvenido a la plataforma para consultar servicios del DCCE!
       </div>
       <div className="container   ">
         <div className="row justify-content-md-center ">
