@@ -2,6 +2,8 @@ import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 import { Context } from '../store/appContext';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const DataEntryPage = () => {
   const { actions } = useContext(Context);
@@ -20,14 +22,20 @@ const DataEntryPage = () => {
 
       // Guardar los datos procesados en el estado
       setExcelData(jsonData);
+      toast.success('Archivo cargado correctamente');
     };
 
     reader.readAsArrayBuffer(file);
   };
 
   const handleConfirmUpload = async () => {
-    // Enviar los datos procesados al backend
-    await actions.uploadExcelData(excelData);
+    try {
+      // Enviar los datos procesados al backend
+      await actions.uploadExcelData(excelData);
+      toast.success('Datos cargados correctamente');
+    } catch (error) {
+      toast.error('Error al cargar los datos');
+    }
   };
 
   return (
@@ -61,7 +69,7 @@ const DataEntryPage = () => {
                 </tbody>
               </table>
             </div>
-            <button className="btn btn-success mt-3" onClick={handleConfirmUpload}>
+            <button className="btn btn-success mt-3 me-2" onClick={handleConfirmUpload}>
               Correcto, Cargar
             </button>
           </>
@@ -70,6 +78,7 @@ const DataEntryPage = () => {
           <button className="btn btn-secondary mt-3">Agregar Manualmente</button>
         </Link>
       </div>
+      <ToastContainer />
     </>
   );
 };
