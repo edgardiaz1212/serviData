@@ -19,12 +19,12 @@ const ClientTypePieChart = () => {
         label: 'Cantidad de Clientes',
         data: Object.values(store.clientCountsByType),
         backgroundColor: [
-          'rgba(255, 99, 132, 0.2)',
-          'rgba(54, 162, 235, 0.2)',
+          'rgba(255, 99, 133, 0.5)',
+          'rgba(54, 163, 235, 0.47)',
           'rgba(255, 206, 86, 0.2)',
-          'rgba(75, 192, 192, 0.2)',
-          'rgba(153, 102, 255, 0.2)',
-          'rgba(255, 159, 64, 0.2)',
+          'rgba(75, 192, 192, 0.46)',
+          'rgba(153, 102, 255, 0.49)',
+          'rgba(255, 160, 64, 0.49)',
         ],
         borderColor: [
           'rgba(255, 99, 132, 1)',
