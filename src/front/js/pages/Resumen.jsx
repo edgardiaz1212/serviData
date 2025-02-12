@@ -10,9 +10,13 @@ const Resumen = () => {
   const { store, actions } = useContext(Context);
 
   useEffect(() => {
+    actions.getServiceCountsByClientType()
     actions.getTotalServices();
     actions.getTotalClients();
   }, []);
+
+  const publicServicesCount = store.servicesCountsByClientType['Pública'] || 0;
+  const privateServicesCount = store.servicesCountsByClientType['Privada'] || 0;
 
   return (
     <>
@@ -21,6 +25,22 @@ const Resumen = () => {
       </div>
       <div className="container   ">
         <div className="row justify-content-md-center ">
+        <div className="col-md-2">
+            <div className="card">
+              <div className="card-body">
+                <h5 className="card-title">Cantidad de servicios Publicos</h5>
+                <p className="card-text text-end">{publicServicesCount}</p>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-2">
+            <div className="card">
+              <div className="card-body">
+                <h5 className="card-title">Cantidad de servicios Privados</h5>
+                <p className="card-text text-end">{privateServicesCount}</p>
+              </div>
+            </div>
+          </div>
           <div className="col-md-2">
             <div className="card">
               <div className="card-body">

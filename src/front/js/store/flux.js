@@ -14,7 +14,8 @@ const getState = ({ getStore, getActions, setStore }) => {
       totalServices: 0, // Add totalServices state
       totalClients: 0, // Add totalClients state
       clientCountsByType: {},
-      servicesCountsByType: {},
+      serviceCountsByType: {}, // Add servicesCountsByType state
+      servicesCountsByClientType: {}, // Add servicesCountsByClientType state
       topServices: [],
     },
 
@@ -501,6 +502,22 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during getting service counts by type", error);
         }
       },
+      getServiceCountsByClientType: async () => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/service-counts-by-client-type`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setStore({ servicesCountsByClientType: data });
+          } else {
+            console.error("Failed to get service counts by client type");
+          }
+        } catch (error) {
+          console.log("Error during getting service counts by client type", error);
+        }
+      },
+
       getClientServiceCounts: async () => {
         try {
           const response = await fetch(
