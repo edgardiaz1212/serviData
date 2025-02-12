@@ -17,6 +17,7 @@ import DetalleCliente from "./pages/DetalleCliente.jsx";
 import EditarServicio from "./pages/EditarServicio.jsx";
 import DetalleServicio from "./pages/DetalleServicio.jsx";
 import EditarCliente from "./pages/EditarCliente.jsx";
+import Aprovisionados from "./pages/Aprovisionados.jsx";
 
 const Layout = () => {
     const basename = process.env.REACT_APP_BASENAME_REACT || "";
@@ -39,6 +40,7 @@ const Layout = () => {
                         <Route path='detalle-servicio/:serviceId' element={<DetalleServicio />} />
                         <Route path="/editar-servicio/:serviceId" element={<EditarServicio />} />
                         <Route path="/editar-cliente/:clientId" element={<EditarCliente />} />
+                        <Route path="/aprovisionados" element={<Aprovisionados/>} />
                         <Route path="*" element={<h1>Not found!</h1>} />
                     </Routes>
                     <Footer />

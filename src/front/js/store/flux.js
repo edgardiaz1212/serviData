@@ -533,6 +533,25 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during getting client service counts", error);
         }
       },
+      
+      getNewServices: async () => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/new-services`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setStore({ newServices: data });
+            return data;
+          } else {
+            console.error("Failed to get new services");
+            return [];
+          }
+        } catch (error) {
+          console.log("Error during getting new services", error);
+          return [];
+        }
+      },
       // Actualizar y Eliminar Servicios
       updateServiceData: async (serviceId, serviceData) => {
         try {

@@ -57,6 +57,22 @@ const Resumen = () => {
               </div>
             </div>
           </div>
+          <div className="col-md-2">
+            <div className="card">
+              <div className="card-body">
+                <h5 className="card-title">Aprovisionamiento Mes pasado</h5>
+                <p className="card-text text-end">{store.totalClients}</p>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-2">
+            <div className="card">
+              <div className="card-body">
+                <h5 className="card-title">Aprovisionamiento Mes Actual</h5>
+                <p className="card-text text-end">{store.totalClients}</p>
+              </div>
+            </div>
+          </div>
         </div>
         <div className="row mt-2">
           <div className="col-md-4">

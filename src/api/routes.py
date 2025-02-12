@@ -353,6 +353,14 @@ def get_service_counts_by_client_type():
         return jsonify(service_counts_dict)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@api.route('/new-services', methods=['GET'])
+def get_new_services():
+    try:
+        new_services = Servicio.query.filter_by(is_new=True).all()
+        return jsonify([service.serialize() for service in new_services])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @api.route('/upload-excel', methods=['POST'])
 def upload_excel():

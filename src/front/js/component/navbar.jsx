@@ -51,6 +51,11 @@ const Navbar = () => {
                   </Link>
                 </li>
                 <li className="nav-item">
+                  <Link className="nav-link text-white" to="/aprovisionados">
+                    Aprovisionados
+                  </Link>
+                </li>
+                <li className="nav-item">
                   <Link className="nav-link text-white" to="/user-register">
                     Configuración
                   </Link>
