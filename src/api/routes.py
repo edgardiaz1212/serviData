@@ -5,55 +5,22 @@ from flask_cors import CORS
 import pandas as pd
 
 api = Blueprint('api', __name__)
-
 CORS(api)
+
+# ------------------------------
+# Acciones para Usuario
+# ------------------------------
 
 @api.route('/login', methods=['POST'])
 def login_user():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
-
     user = User.query.filter_by(username=username, password=password).first()
     if user:
         return jsonify({"message": "Login successful", "user": user.serialize()}), 200
     else:
         return jsonify({"message": "Invalid credentials"}), 401
-
-@api.route('/users/<int:user_id>', methods=['PUT'])
-def edit_user(user_id):
-    data = request.get_json()
-    user = User.query.get(user_id)
-    
-    if not user:
-        return jsonify({"message": "User not found"}), 404
-    
-    user.username = data.get('username', user.username)
-    user.password = data.get('password', user.password)
-    db.session.commit()
-    
-    return jsonify({"message": "User updated successfully", "user": user.serialize()}), 200
-
-@api.route('/users')
-def get_users():
-    users = User.query.all()
-    if not users:
-        return jsonify({"message": "No users found"}), 404
-    else:    
-        return jsonify([user.serialize() for user in users]), 200
-    
-@api.route('/users/<int:user_id>', methods=['DELETE'])
-def delete_user(user_id):
-    user = User.query.get(user_id)
-
-    if not user:
-        return jsonify({"message": "User not found"}), 404
-    
-    db.session.delete(user)
-    db.session.commit()
-
-    return jsonify({"message": "User deleted successfully"}), 200
-
 
 @api.route('/users', methods=['POST'])
 def create_user():
@@ -64,8 +31,56 @@ def create_user():
     new_user = User(username=username, password=password, role=role)
     db.session.add(new_user)
     db.session.commit()
-    
-    return jsonify({"message": "User/ created successfully", "user": new_user.serialize()}), 201
+    return jsonify({"message": "User created successfully", "user": new_user.serialize()}), 201
+
+@api.route('/users/<int:user_id>', methods=['PUT'])
+def edit_user(user_id):
+    data = request.get_json()
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    user.username = data.get('username', user.username)
+    user.password = data.get('password', user.password)
+    db.session.commit()
+    return jsonify({"message": "User updated successfully", "user": user.serialize()}), 200
+
+@api.route('/users', methods=['GET'])
+def get_users():
+    users = User.query.all()
+    if not users:
+        return jsonify({"message": "No users found"}), 404
+    else:    
+        return jsonify([user.serialize() for user in users]), 200
+
+@api.route('/users/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({"message": "User deleted successfully"}), 200
+
+# ------------------------------
+# Acciones para Cliente
+# ------------------------------
+
+@api.route('/add_client/', methods=['POST'])
+def client_post():
+    if request.method == 'POST':
+        try:
+            data = request.get_json()
+            tipo = data.get('tipo')
+            rif = data.get('rif')
+            razon_social = data.get('razon_social')
+            new_cliente = Cliente(tipo=tipo, rif=rif, razon_social=razon_social)
+            db.session.add(new_cliente)
+            db.session.commit()
+            return jsonify({"message": "Client created successfully", "Cliente": new_cliente.serialize()}), 201
+        except Exception as e:
+            return jsonify({"message": f"Error creating client: {str(e)}"}), 500
+    else:
+        return jsonify({"message": "Invalid credentials"}), 401
 
 @api.route('/client-consult/', methods=['GET'])
 def client_consult():
@@ -74,49 +89,10 @@ def client_consult():
         cliente = Cliente.query.filter(Cliente.razon_social.ilike(f'%{name}%')).all()  # Search by name
     else:
         cliente = Cliente.query.all()
-    
     if not cliente:
         return jsonify({"message": "No clients found"}), 404
     else:    
         return jsonify([c.serialize() for c in cliente]), 200
-
-@api.route('/client-consult/<int:cliente_id>', methods=['GET'])
-def client_consult_id(cliente_id):
-    cliente = Cliente.query.get(cliente_id)
-    if not cliente:
-        return jsonify({"message": "No/ users found"}), 404
-    else:
-        return jsonify({"message": "Client found", "client": cliente.serialize()}), 200
-
-@api.route('/client-suggestions/', methods=['GET'])
-def client_suggestions():
-    query = request.args.get('query', '')
-    if not query:
-        return jsonify({"message": "Query parameter is required"}), 400
-
-    clientes = Cliente.query.filter(Cliente.razon_social.ilike(f"%{query}%")).all()
-    if not clientes:
-        return jsonify({"message": "No clients found"}), 404
-    else:
-        return jsonify([cliente.serialize() for cliente in clientes]), 200
-
-@api.route('/add_client/', methods=['POST'])
-def client_post():
-    if request.method == 'POST':
-        try:
-            data = request.get_json()
-            tipo= data.get('tipo')
-            rif = data.get('rif')
-            razon_social = data.get('razon_social')
-            new_cliente = Cliente( tipo=tipo, rif=rif, razon_social=razon_social)
-            db.session.add(new_cliente)
-            db.session.commit()
-            
-            return jsonify({"message": "Client created successfully", "Cliente": new_cliente.serialize()}), 201
-        except Exception as e:
-            return jsonify({"message": f"Error creating client: {str(e)}"}), 500
-    else:
-        return jsonify({"message": "Invalid credentials"}), 401
 
 @api.route('/clientes/<int:client_id>', methods=['GET'])
 def get_client_by_id(client_id):
@@ -132,11 +108,79 @@ def get_clients_by_type():
         clients = Cliente.query.filter_by(tipo=tipo).all()
     else:
         clients = Cliente.query.all()
-    
     if not clients:
         return jsonify({"message": "No clients found"}), 404
     else:
         return jsonify([client.serialize() for client in clients]), 200
+
+@api.route('/client-suggestions/', methods=['GET'])
+def client_suggestions():
+    query = request.args.get('query', '')
+    if not query:
+        return jsonify({"message": "Query parameter is required"}), 400
+    clientes = Cliente.query.filter(Cliente.razon_social.ilike(f"%{query}%")).all()
+    if not clientes:
+        return jsonify({"message": "No clients found"}), 404
+    else:
+        return jsonify([cliente.serialize() for cliente in clientes]), 200
+
+@api.route('/clientes/total', methods=['GET'])
+def get_total_clients():
+    total_clients = Cliente.query.count()
+    return jsonify({"total": total_clients}), 200
+
+@api.route('/client-counts-by-type', methods=['GET'])
+def get_client_counts_by_type():
+    try:
+        client_counts = db.session.query(Cliente.tipo, db.func.count(Cliente.id)).group_by(Cliente.tipo).all()
+        client_counts_dict = {tipo: count for tipo, count in client_counts}
+        return jsonify(client_counts_dict)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api.route('/clients/<int:client_id>', methods=['PUT'])
+def update_client(client_id):
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No se proporcionaron datos para actualizar"}), 400
+        cliente = db.session.query(Cliente).get(client_id)
+        if not cliente:
+            return jsonify({"error": "Cliente no encontrado"}), 404
+        if 'tipo' in data:
+            cliente.tipo = data['tipo']
+        if 'rif' in data:
+            cliente.rif = data['rif']
+        if 'razon_social' in data:
+            cliente.razon_social = data['razon_social']
+        db.session.commit()
+        return jsonify(cliente.serialize()), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Error interno del servidor", "details": str(e)}), 500
+
+@api.route('/clients/<int:client_id>', methods=['DELETE'])
+def delete_client_and_services(client_id):
+    try:
+        client = Cliente.query.get(client_id)
+        if not client:
+            return jsonify({"message": "Client not found"}), 404
+        try:
+            servicios = Servicio.query.filter_by(cliente_id=client_id).all()
+            for servicio in servicios:
+                db.session.delete(servicio)
+            db.session.delete(client)
+            db.session.commit()
+            return jsonify({"message": "Client and associated services deleted successfully"}), 200
+        except Exception as e:
+            db.session.rollback()
+            raise e
+    except Exception as e:
+        return jsonify({"message": "An unexpected error occurred", "error": str(e)}), 500
+
+# ------------------------------
+# Acciones para Servicio
+# ------------------------------
 
 @api.route('/add_service/', methods=['POST'])
 def service_post():
@@ -200,10 +244,8 @@ def service_post():
             comentarios=comentarios,
             cliente_id=cliente_id
         )
-
         db.session.add(new_service)
         db.session.commit()
-
         return jsonify({"message": "Service created successfully", "service": new_service.serialize()}), 201
     else:
         return jsonify({"message": "Invalid credentials"}), 401
@@ -211,18 +253,11 @@ def service_post():
 @api.route('/servicios-by-cliente/<int:cliente_id>', methods=['GET'])
 def get_services(cliente_id):
     try:
-        # Consultar los servicios asociados al cliente
         services = Servicio.query.filter_by(cliente_id=cliente_id).all()
-
-        # Si no se encuentran servicios, devolver una respuesta vacía con código 200
         if not services:
             return jsonify({"message": "No services found for this client", "services": []}), 200
-
-        # Serializar los servicios y devolverlos
         return jsonify([service.serialize() for service in services]), 200
-
     except Exception as e:
-        # Manejar errores inesperados
         return jsonify({"message": "An error occurred", "error": str(e)}), 500
 
 @api.route('/servicios/total', methods=['GET'])
@@ -230,30 +265,20 @@ def get_total_services():
     total_services = Servicio.query.count()
     return jsonify({"total": total_services}), 200
 
-@api.route('/clientes/total', methods=['GET'])
-def get_total_clients():
-    total_clients = Cliente.query.count()
-    return jsonify({"total": total_clients}), 200
-
 @api.route('/servicios/<int:service_id>', methods=['GET'])
 def get_service(service_id):
-    if request.method == 'GET':
-        service = Servicio.query.get(service_id)
-        if service:
-            return jsonify(service.serialize())
-        else:
-            return jsonify({"message": "Service not found"}), 404
+    service = Servicio.query.get(service_id)
+    if service:
+        return jsonify(service.serialize())
     else:
-        return jsonify({"message": "Invalid credentials"}), 401
+        return jsonify({"message": "Service not found"}), 404
 
 @api.route('/servicios/<int:service_id>', methods=['PUT'])
 def update_service(service_id):
     data = request.get_json()
     service = Servicio.query.get(service_id)
-
     if not service:
         return jsonify({"message": "Service not found"}), 404
-
     service.dominio = data.get('dominio', service.dominio)
     service.estado = data.get('estado', service.estado)
     service.tipo_servicio = data.get('tipo_servicio', service.tipo_servicio)
@@ -282,79 +307,46 @@ def update_service(service_id):
     service.observaciones = data.get('observaciones', service.observaciones)
     service.facturado = data.get('facturado', service.facturado)
     service.comentarios = data.get('comentarios', service.comentarios)
-
     db.session.commit()
-
     return jsonify({"message": "Service updated successfully", "service": service.serialize()}), 200
 
-@api.route('/client-and-services', methods=['POST'])
-def add_client_services():
-    data = request.get_json()
-    if not data:
-        return jsonify({"message": "No input data provided"}), 400
-
-    # Validación de datos obligatorios
-    if not all(key in data for key in ['tipo', 'rif', 'razon_social']):
-        return jsonify({"message": "Missing required client data"}), 400
-    if not all(key in data for key in ['dominio', 'estado', 'tipo_servicio']):
-        return jsonify({"message": "Missing required service data"}), 400
-
-    # Crear nuevo cliente
-    new_cliente = Cliente(tipo=data.get('tipo'), rif=data.get('rif'), razon_social=data.get('razon_social'))
-
-    # Crear nuevo servicio
-    new_servicio = Servicio(
-        dominio=data.get('dominio'),
-        estado=data.get('estado'),
-        tipo_servicio=data.get('tipo_servicio'),
-        hostname=data.get('hostname'),
-        cores=int(data.get('cores', 0)) if data.get('cores') else 0,
-        contrato=data.get('contrato'),
-        plan_aprovisionado=data.get('plan_aprovisionado'),
-        plan_facturado=data.get('plan_facturado'),
-        detalle_plan=data.get('detalle_plan'),
-        sockets=int(data.get('sockets', 0)) if data.get('sockets') else 0,
-        powerstate=data.get('powerstate'),
-        ip_privada=data.get('ip_privada'),
-        vlan=data.get('vlan'),
-        ipam=data.get('ipam'),
-        datastore=data.get('datastore'),
-        nombre_servidor=data.get('nombre_servidor'),
-        marca_servidor=data.get('marca_servidor'),
-        modelo_servidor=data.get('modelo_servidor'),
-        nombre_nodo=data.get('nombre_nodo'),
-        nombre_plataforma=data.get('nombre_plataforma'),
-        ram=int(data.get('ram', 0)) if data.get('ram') else 0,
-        hdd=int(data.get('hdd', 0)) if data.get('hdd') else 0,
-        cpu=int(data.get('cpu', 0)) if data.get('cpu') else 0,
-        tipo_servidor=data.get('tipo_servidor'),
-        ubicacion=data.get('ubicacion'),
-        observaciones=data.get('observaciones'),
-        facturado=data.get('facturado'),
-        comentarios=data.get('comentarios')
-    )
-
+@api.route('/services/<int:service_id>', methods=['DELETE'])
+def delete_service(service_id):
     try:
-        db.session.add(new_cliente)
-        db.session.flush()  # Asigna un ID al nuevo cliente
-        new_servicio.cliente_id = new_cliente.id
-        db.session.add(new_servicio)
+        servicio = db.session.query(Servicio).get(service_id)
+        if not servicio:
+            return jsonify({"error": "Servicio no encontrado"}), 404
+        db.session.delete(servicio)
         db.session.commit()
-        return jsonify({
-            "message": "Client and services added successfully",
-            "client": new_cliente.serialize(),
-            "services": new_servicio.serialize()
-        }), 201
+        return jsonify({"message": "Servicio eliminado con éxito"}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({"message": f"ERROR adding client and services: {str(e)}"}), 500
-    
+        return jsonify({"error": "Error interno del servidor", "details": str(e)}), 500
+
+@api.route('/top-services', methods=['GET'])
+def get_top_services():
+    top_services = db.session.query(
+        Servicio.tipo_servicio, db.func.count(Servicio.id).label('count')
+    ).group_by(Servicio.tipo_servicio).order_by(db.desc('count')).limit(10).all()
+    top_services_list = [{'tipo_servicio': tipo_servicio, 'count': count} for tipo_servicio, count in top_services]
+    return jsonify(top_services_list), 200
+
+@api.route('/service-counts-by-type', methods=['GET'])
+def get_service_counts_by_type():
+    service_counts = db.session.query(
+        Cliente.tipo, Servicio.tipo_servicio, db.func.count(Servicio.id)
+    ).join(Cliente, Servicio.cliente_id == Cliente.id).group_by(Cliente.tipo, Servicio.tipo_servicio).all()
+    service_counts_dict = {}
+    for cliente_tipo, servicio_tipo, count in service_counts:
+        if cliente_tipo not in service_counts_dict:
+            service_counts_dict[cliente_tipo] = {}
+        service_counts_dict[cliente_tipo][servicio_tipo] = count
+    return jsonify(service_counts_dict), 200
+
 @api.route('/upload-excel', methods=['POST'])
 def upload_excel():
     data = request.get_json()
     df = pd.DataFrame(data)
-
-    # Definir un mapeo de nombres de columnas esperados
     column_mapping = {
         'tipo': 'tipo',
         'rif': 'rif',
@@ -388,19 +380,12 @@ def upload_excel():
         'facturado': 'facturado',
         'comentarios': 'comentarios'
     }
-
-    # Renombrar las columnas del DataFrame según el mapeo
     df.rename(columns=column_mapping, inplace=True)
-
     for index, row in df.iterrows():
-        # Verificar si el valor de 'rif' es NaN y omitir la fila si es así
         if pd.isna(row['rif']):
             continue
-
-        # Verificar si el cliente ya existe en la base de datos
         cliente = Cliente.query.filter_by(rif=row['rif']).first()
         if not cliente:
-            # Crear un nuevo cliente si no existe
             cliente = Cliente(
                 tipo=row.get('tipo', ''),
                 rif=row.get('rif', ''),
@@ -408,8 +393,6 @@ def upload_excel():
             )
             db.session.add(cliente)
             db.session.commit()
-
-        # Crear un nuevo servicio para el cliente
         servicio = Servicio(
             dominio=row.get('dominio', ''),
             estado=row.get('estado', ''),
@@ -442,145 +425,5 @@ def upload_excel():
             cliente_id=cliente.id
         )
         db.session.add(servicio)
-
     db.session.commit()
     return jsonify({"message": "Data uploaded successfully"}), 201
-
-@api.route('/service-counts-by-type', methods=['GET'])
-def get_service_counts_by_type():
-    service_counts = db.session.query(
-        Cliente.tipo, Servicio.tipo_servicio, db.func.count(Servicio.id)
-    ).join(Cliente, Servicio.cliente_id == Cliente.id).group_by(Cliente.tipo, Servicio.tipo_servicio).all()
-    
-    service_counts_dict = {}
-    for cliente_tipo, servicio_tipo, count in service_counts:
-        if cliente_tipo not in service_counts_dict:
-            service_counts_dict[cliente_tipo] = {}
-        service_counts_dict[cliente_tipo][servicio_tipo] = count
-    
-    return jsonify(service_counts_dict), 200
-
-@api.route('/top-services', methods=['GET'])
-def get_top_services():
-    top_services = db.session.query(
-        Servicio.tipo_servicio, db.func.count(Servicio.id).label('count')
-    ).group_by(Servicio.tipo_servicio).order_by(db.desc('count')).limit(10).all()
-    
-    top_services_list = [{'tipo_servicio': tipo_servicio, 'count': count} for tipo_servicio, count in top_services]
-    
-    return jsonify(top_services_list), 200
-
-@api.route('/client-counts-by-type', methods=['GET'])
-def get_client_counts_by_type():
-    try:
-        # Realiza la consulta para obtener el conteo de clientes por tipo
-        client_counts = db.session.query(Cliente.tipo, db.func.count(Cliente.id)).group_by(Cliente.tipo).all()
-        
-        # Convierte el resultado en un diccionario
-        client_counts_dict = {tipo: count for tipo, count in client_counts}
-        
-        # Devuelve la respuesta en formato JSON
-        return jsonify(client_counts_dict)
-    
-    except Exception as e:
-        # Manejo de errores: devuelve un mensaje de error en caso de que algo falle
-        return jsonify({"error": str(e)}), 500
-    
-@api.route('/clients/<int:client_id>', methods=['PUT'])
-def update_client(client_id):
-    try:
-        # Verifica si se envió un JSON en la solicitud
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "No se proporcionaron datos para actualizar"}), 400
-
-        # Obtiene el cliente de la base de datos
-        cliente = db.session.query(Cliente).get(client_id)
-        if not cliente:
-            return jsonify({"error": "Cliente no encontrado"}), 404
-
-        # Actualiza los datos del cliente con los valores proporcionados
-        if 'tipo' in data:
-            cliente.tipo = data['tipo']
-        if 'rif' in data:
-            cliente.rif = data['rif']
-        if 'razon_social' in data:
-            cliente.razon_social = data['razon_social']
-
-        # Guarda los cambios en la base de datos
-        db.session.commit()
-
-        # Devuelve la respuesta en formato JSON
-        return jsonify(cliente.serialize()), 200
-
-    except Exception as e:
-        # Manejo de errores de SQLAlchemy
-        db.session.rollback()  # Revierte los cambios en caso de error
-        return jsonify({"error": "Error en la base de datos", "details": str(e)}), 500
-
-    except Exception as e:
-        # Manejo de errores generales
-        return jsonify({"error": "Error interno del servidor", "details": str(e)}), 500
-
-    finally:
-        # Cierra la sesión de la base de datos
-        db.session.close()
-
-@api.route('/services/<int:service_id>', methods=['DELETE'])
-def delete_service(service_id):
-    try:
-        # Busca el servicio en la base de datos 
-        servicio = db.session.query(Servicio).get(service_id)
-
-        # Verifica si el servicio existe
-        if servicio is None:
-            return jsonify({"error": "Servicio no encontrado"}), 404
-
-        # Elimina el servicio de la base de datos
-        db.session.delete(servicio)
-        db.session.commit()
-
-        # Devuelve la respuesta en formato JSON
-        return jsonify({"message": "Servicio eliminado con éxito"}), 200
-
-    except SQLAlchemyError as e:
-        # Manejo de errores de SQLAlchemy
-        db.session.rollback()  # Revierte los cambios en caso de error
-        return jsonify({"error": "Error en la base de datos", "details": str(e)}), 500
-    except Exception as e:
-        # Manejo de errores generales
-        db.session.rollback()  # Revierte los cambios en caso de error
-        return jsonify({"error": "Error interno del servidor", "details": str(e)}), 500
-    
-@api.route('/clients/<int:client_id>', methods=['DELETE'])
-def delete_client_and_services(client_id):
-    
-    try:
-        # Buscar el cliente por su ID
-        client = Cliente.query.get(client_id)
-        if not client:
-            return jsonify({"message": "Client not found"}), 404
-
-        # Iniciar una transacción para asegurar la integridad de los datos
-        try:
-            # Eliminar todos los servicios asociados al cliente
-            servicios = Servicio.query.filter_by(cliente_id=client_id).all()
-            for servicio in servicios:
-                db.session.delete(servicio)
-
-            # Eliminar el cliente
-            db.session.delete(client)
-
-            # Confirmar la transacción
-            db.session.commit()
-
-            return jsonify({"message": "Client and associated services deleted successfully"}), 200
-
-        except Exception as e:
-            # En caso de error, revertir la transacción
-            db.session.rollback()
-            raise e
-
-    except Exception as e:
-        # Capturar errores inesperados y retornar un mensaje de error genérico
-        return jsonify({"message": "An unexpected error occurred", "error": str(e)}), 500
