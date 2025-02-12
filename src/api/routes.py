@@ -65,7 +65,7 @@ def create_user():
     db.session.add(new_user)
     db.session.commit()
     
-    return jsonify({"message": "User created successfully", "user": new_user.serialize()}), 201
+    return jsonify({"message": "User/ created successfully", "user": new_user.serialize()}), 201
 
 @api.route('/client-consult/', methods=['GET'])
 def client_consult():
@@ -84,7 +84,7 @@ def client_consult():
 def client_consult_id(cliente_id):
     cliente = Cliente.query.get(cliente_id)
     if not cliente:
-        return jsonify({"message": "No users found"}), 404
+        return jsonify({"message": "No/ users found"}), 404
     else:
         return jsonify({"message": "Client found", "client": cliente.serialize()}), 200
 
@@ -415,12 +415,12 @@ def upload_excel():
             estado=row.get('estado', ''),
             tipo_servicio=row.get('tipo_servicio', ''),
             hostname=row.get('hostname', ''),
-            cores=int(row.get('cores', 0)) if row.get('cores') else 0,
+            cores=int(row['cores']) if 'cores' in row and pd.notna(row['cores']) else 0,
             contrato=row.get('contrato', ''),
             plan_aprovisionado=row.get('plan_aprovisionado', ''),
             plan_facturado=row.get('plan_facturado', ''),
             detalle_plan=row.get('detalle_plan', ''),
-            sockets=int(row.get('sockets', 0)) if row.get('sockets') else 0,
+            sockets=int(row['sockets']) if 'sockets' in row and pd.notna(row['sockets']) else 0,
             powerstate=row.get('powerstate', ''),
             ip_privada=row.get('ip_privada', ''),
             vlan=row.get('vlan', ''),
@@ -431,9 +431,9 @@ def upload_excel():
             modelo_servidor=row.get('modelo_servidor', ''),
             nombre_nodo=row.get('nombre_nodo', ''),
             nombre_plataforma=row.get('nombre_plataforma', ''),
-            ram=int(row.get('ram', 0)) if row.get('ram') else 0,
-            hdd=int(row.get('hdd', 0)) if row.get('hdd') else 0,
-            cpu=int(row.get('cpu', 0)) if row.get('cpu') else 0,
+            ram=int(row['ram']) if 'ram' in row and pd.notna(row['ram']) else 0,
+            hdd=int(row['hdd']) if 'hdd' in row and pd.notna(row['hdd']) else 0,
+            cpu=int(row['cpu']) if 'cpu' in row and pd.notna(row['cpu']) else 0,
             tipo_servidor=row.get('tipo_servidor', ''),
             ubicacion=row.get('ubicacion', ''),
             observaciones=row.get('observaciones', ''),

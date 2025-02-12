@@ -4,7 +4,7 @@ import { Context } from '../store/appContext';
 
 function DetalleCliente({ clientData: propClientData }) {
   const { clientId } = useParams();
-  const { actions } = useContext(Context);
+  const { store, actions } = useContext(Context);
   const navigate = useNavigate();
   const [clientData, setClientData] = useState(propClientData || null);
   const [servicesData, setServicesData] = useState([]);
@@ -63,9 +63,11 @@ function DetalleCliente({ clientData: propClientData }) {
     <div className="container vh-100'">
       <div className="d-flex justify-content-between align-items-center">
         <h3>Detalles del Cliente {clientData ? clientData.razon_social : ''}</h3>
-        <button className="btn btn-primary" onClick={handleEditUserClick}>
-          Editar Usuario
-        </button>
+        {store.user?.role === 'admin' && (
+          <button className="btn btn-primary" onClick={handleEditUserClick}>
+            Editar Usuario
+          </button>
+        )}
       </div>
       <div>
         <h5>Datos del Cliente</h5>

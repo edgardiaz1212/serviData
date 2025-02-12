@@ -6,17 +6,21 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const EditarCliente = () => {
   const { clientId } = useParams();
-  const { actions } = useContext(Context);
+  const { store, actions } = useContext(Context);
   const navigate = useNavigate();
   const [clientData, setClientData] = useState(null);
 
   useEffect(() => {
-    const fetchClientData = async () => {
-      const client = await actions.getClientById(clientId);
-      setClientData(client);
-    };
-    fetchClientData();
-  }, [clientId, actions]);
+    if (store.user?.role !== 'admin') {
+      navigate('/'); // Redirigir si el usuario no es admin
+    } else {
+      const fetchClientData = async () => {
+        const client = await actions.getClientById(clientId);
+        setClientData(client);
+      };
+      fetchClientData();
+    }
+  }, [clientId, actions, store.user, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
