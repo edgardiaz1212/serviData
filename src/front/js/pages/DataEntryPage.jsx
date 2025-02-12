@@ -9,6 +9,7 @@ const DataEntryPage = () => {
   const { actions } = useContext(Context);
   const [excelData, setExcelData] = useState([]);
 
+
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     const reader = new FileReader();
@@ -33,6 +34,7 @@ const DataEntryPage = () => {
       // Enviar los datos procesados al backend
       await actions.uploadExcelData(excelData);
       toast.success('Datos cargados correctamente');
+      setExcelData([]);
     } catch (error) {
       toast.error('Error al cargar los datos');
     }

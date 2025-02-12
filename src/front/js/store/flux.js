@@ -19,6 +19,7 @@ const getState = ({ getStore, getActions, setStore }) => {
     },
 
     actions: {
+      // Autenticación
       login: async (username, password) => {
         const store = getStore();
         try {
@@ -54,7 +55,7 @@ const getState = ({ getStore, getActions, setStore }) => {
         sessionStorage.removeItem("user"); // Remove user data from session storage
         console.log("User logged out");
       },
-
+      // Gestión de Usuarios
       addUser: async (user) => {
         const store = getStore();
         try {
@@ -123,7 +124,9 @@ const getState = ({ getStore, getActions, setStore }) => {
           if (response.ok) {
             const data = await response.json();
             const loggedInUser = store.user;
-            const filteredUsers = data.filter(user => user.id !== loggedInUser.id);
+            const filteredUsers = data.filter(
+              (user) => user.id !== loggedInUser.id
+            );
             setStore({ users: filteredUsers });
             console.log("Users data fetched", filteredUsers);
             return filteredUsers;
@@ -157,6 +160,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during user deletion", error);
         }
       },
+      // Agregar y Consultar Clientes
       addClientData: async (data) => {
         try {
           const response = await fetch(
@@ -179,50 +183,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during adding client data", error);
         }
       },
-      addServiceData: async (data) => {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/add_service`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(data),
-            }
-          );
-          if (response.ok) {
-            const data = await response.json();
-            return data;
-          } else {
-            console.error("Failed to add service data");
-          }
-        } catch (error) {
-          console.log("Error during adding service data", error);
-        }
-      },
-      addClientAndServiceData: async (clientData, serviceData) => {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/client-and-services`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ ...clientData, ...serviceData }),
-            }
-          );
-          if (!response.ok) {
-            throw new Error("Failed to add client and service data");
-          }
-          const result = await response.json();
-          console.log("Client and service data added successfully:", result);
-        } catch (error) {
-          console.error("Error adding client and service DATA:", error);
-        }
-      },
-
       fetchClientData: async (name) => {
         try {
           const response = await fetch(
@@ -266,6 +226,196 @@ const getState = ({ getStore, getActions, setStore }) => {
           }
         } catch (error) {
           console.log("Error during getting client counts by type", error);
+        }
+      },
+      getTotalClients: async () => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/clientes/total`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setStore({ totalClients: data.total });
+          }
+        } catch (error) {
+          console.log("Error fetching total clients", error);
+        }
+      },
+      getClientById: async (clientId) => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/clientes/${clientId}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          } else {
+            console.error("Failed to get client data");
+          }
+        } catch (error) {
+          console.log("Error during getting client data", error);
+        }
+      },
+      getClientbyTipo: async (tipo) => {
+        const store = getStore;
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/clients_tipo?tipo=${tipo}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setStore({ clientData: data });
+            return data;
+          } else {
+            console.error("Failed to get client data");
+          }
+        } catch (error) {
+          console.log("Error during getting client data", error);
+        }
+      },
+      // Actualizar y Eliminar Clientes
+      updateClientData: async (clientId, clientData) => {
+        try {
+          // Validar que clientId sea un número válido
+          if (!clientId || typeof clientId !== "number") {
+            throw new Error("Invalid client ID. It must be a number.");
+          }
+
+          // Validar que clientData sea un objeto no vacío
+          if (
+            !clientData ||
+            typeof clientData !== "object" ||
+            Object.keys(clientData).length === 0
+          ) {
+            throw new Error(
+              "Invalid client data. It must be a non-empty object."
+            );
+          }
+
+          // Realizar la solicitud PUT
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/clients/${clientId}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(clientData),
+            }
+          );
+
+          // Manejar respuestas no exitosas
+          if (!response.ok) {
+            const errorData = await response.json(); // Intentar obtener detalles del error del backend
+            throw new Error(
+              `Failed to update client: ${
+                errorData.message || response.statusText
+              }`
+            );
+          }
+
+          // Procesar la respuesta exitosa
+          const data = await response.json();
+
+          // Actualizar el estado global con los datos actualizados
+          setStore({ client: data });
+
+          // Devolver los datos actualizados para su uso en el componente que llama a esta función
+          return { success: true, data };
+        } catch (error) {
+          // Registrar el error en la consola y devolver un objeto con detalles
+          console.error("Error during updating client data:", error.message);
+          return { success: false, message: error.message };
+        }
+      },
+      deleteClientAndServices: async (clientId) => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/clients/${clientId}`,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          // Manejar respuestas no exitosas
+          if (!response.ok) {
+            const errorData = await response.json(); // Intentar obtener detalles del error del backend
+            throw new Error(
+              `Failed to delete user and services: ${
+                errorData.message || response.statusText
+              }`
+            );
+          }
+
+          // Si la respuesta es exitosa, devolver un objeto indicando el éxito
+          return { success: true };
+        } catch (error) {
+          // Registrar el error en la consola y devolver un objeto con detalles
+          console.error(
+            "Error during deleting user and services:",
+            error.message
+          );
+          return { success: false, message: error.message };
+        }
+      },
+      // Acciones Combinadas
+      addClientAndServiceData: async (clientData, serviceData) => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/client-and-services`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ ...clientData, ...serviceData }),
+            }
+          );
+          if (!response.ok) {
+            throw new Error("Failed to add client and service data");
+          }
+          const result = await response.json();
+          console.log("Client and service data added successfully:", result);
+        } catch (error) {
+          console.error("Error adding client and service DATA:", error);
+        }
+      },
+      // Agregar y Consultar Servicios
+      addServiceData: async (data) => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/add_service`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          } else {
+            console.error("Failed to add service data");
+          }
+        } catch (error) {
+          console.log("Error during adding service data", error);
         }
       },
       getServicebyClient: async (clientId) => {
@@ -336,104 +486,117 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error fetching total services", error);
         }
       },
-      getTotalClients: async () => {
+      getServiceCountsByType: async () => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/clientes/total`
+            `${process.env.REACT_APP_BACKEND_URL}/service-counts-by-type`
           );
           if (response.ok) {
             const data = await response.json();
-            setStore({ totalClients: data.total });
-          }
-        } catch (error) {
-          console.log("Error fetching total clients", error);
-        }
-      },
-
-      getClientById: async (clientId) => {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/clientes/${clientId}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          if (response.ok) {
-            const data = await response.json();
-            return data;
+            setStore({ serviceCountsByType: data });
           } else {
-            console.error("Failed to get client data");
+            console.error("Failed to get service counts by type");
           }
         } catch (error) {
-          console.log("Error during getting client data", error);
+          console.log("Error during getting service counts by type", error);
         }
       },
+      getClientServiceCounts: async () => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/service-counts-by-type`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setStore({ clientServiceCounts: data });
+          } else {
+            console.error("Failed to get client service counts");
+          }
+        } catch (error) {
+          console.log("Error during getting client service counts", error);
+        }
+      },
+      // Actualizar y Eliminar Servicios
       updateServiceData: async (serviceId, serviceData) => {
-    try {
-        // Validar que serviceId sea un número válido
-        if (!serviceId || typeof serviceId !== "number") {
+        try {
+          // Validar que serviceId sea un número válido
+          if (!serviceId || typeof serviceId !== "number") {
             throw new Error("Invalid service ID. It must be a number.");
-        }
+          }
 
-        // Validar que serviceData sea un objeto no vacío
-        if (!serviceData || typeof serviceData !== "object" || Object.keys(serviceData).length === 0) {
-            throw new Error("Invalid service data. It must be a non-empty object.");
-        }
+          // Validar que serviceData sea un objeto no vacío
+          if (
+            !serviceData ||
+            typeof serviceData !== "object" ||
+            Object.keys(serviceData).length === 0
+          ) {
+            throw new Error(
+              "Invalid service data. It must be a non-empty object."
+            );
+          }
 
-        // Realizar la solicitud PUT
-        const response = await fetch(
+          // Realizar la solicitud PUT
+          const response = await fetch(
             `${process.env.REACT_APP_BACKEND_URL}/servicios/${serviceId}`,
             {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(serviceData),
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(serviceData),
             }
-        );
+          );
 
-        // Manejar respuestas no exitosas
-        if (!response.ok) {
+          // Manejar respuestas no exitosas
+          if (!response.ok) {
             const errorData = await response.json(); // Intentar obtener detalles del error del backend
-            throw new Error(`Failed to update service data: ${errorData.message || response.statusText}`);
+            throw new Error(
+              `Failed to update service data: ${
+                errorData.message || response.statusText
+              }`
+            );
+          }
+
+          // Procesar la respuesta exitosa
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          // Registrar el error en la consola y devolver un objeto con detalles
+          console.error("Error during updating service data:", error.message);
+          return { error: true, message: error.message };
         }
-
-        // Procesar la respuesta exitosa
-        const data = await response.json();
-        return data;
-
-    } catch (error) {
-        // Registrar el error en la consola y devolver un objeto con detalles
-        console.error("Error during updating service data:", error.message);
-        return { error: true, message: error.message };
-    }
-},
-      getClientbyTipo: async (tipo) => {
-        const store = getStore;
+      },
+      deleteService: async (serviceId) => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/clients_tipo?tipo=${tipo}`,
+            `${process.env.REACT_APP_BACKEND_URL}/services/${serviceId}`,
             {
-              method: "GET",
+              method: "DELETE",
               headers: {
                 "Content-Type": "application/json",
               },
             }
           );
-          if (response.ok) {
-            const data = await response.json();
-            setStore({ clientData: data });
-            return data;
-          } else {
-            console.error("Failed to get client data");
+
+          // Manejar respuestas no exitosas
+          if (!response.ok) {
+            const errorData = await response.json(); // Intentar obtener detalles del error del backend
+            throw new Error(
+              `Failed to delete service: ${
+                errorData.message || response.statusText
+              }`
+            );
           }
+
+          // Si la respuesta es exitosa, devolver un objeto indicando el éxito
+          return { success: true };
         } catch (error) {
-          console.log("Error during getting client data", error);
+          // Registrar el error en la consola y devolver un objeto con detalles
+          console.error("Error during deleting service:", error.message);
+          return { success: false, message: error.message };
         }
       },
+      //Acciones generales
       uploadExcelData: async (data) => {
         try {
           const response = await fetch(
@@ -455,128 +618,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.error("Error uploading data:", error);
         }
       },
-      getServiceCountsByType: async () => {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/service-counts-by-type`
-          );
-          if (response.ok) {
-            const data = await response.json();
-            setStore({ serviceCountsByType: data });
-          } else {
-            console.error("Failed to get service counts by type");
-          }
-        } catch (error) {
-          console.log("Error during getting service counts by type", error);
-        }
-      },
-      getClientServiceCounts: async () => {
-        try {
-          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/service-counts-by-type`);
-          if (response.ok) {
-            const data = await response.json();
-            setStore({ clientServiceCounts: data });
-          } else {
-            console.error("Failed to get client service counts");
-          }
-        } catch (error) {
-          console.log("Error during getting client service counts", error);
-        }
-      },
-      updateClientData: async (clientId, clientData) => {
-        try {
-            // Validar que clientId sea un número válido
-            if (!clientId || typeof clientId !== "number") {
-                throw new Error("Invalid client ID. It must be a number.");
-            }
-    
-            // Validar que clientData sea un objeto no vacío
-            if (!clientData || typeof clientData !== "object" || Object.keys(clientData).length === 0) {
-                throw new Error("Invalid client data. It must be a non-empty object.");
-            }
-    
-            // Realizar la solicitud PUT
-            const response = await fetch(
-                `${process.env.REACT_APP_BACKEND_URL}/clients/${clientId}`,
-                {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(clientData),
-                }
-            );
-    
-            // Manejar respuestas no exitosas
-            if (!response.ok) {
-                const errorData = await response.json(); // Intentar obtener detalles del error del backend
-                throw new Error(`Failed to update client: ${errorData.message || response.statusText}`);
-            }
-    
-            // Procesar la respuesta exitosa
-            const data = await response.json();
-    
-            // Actualizar el estado global con los datos actualizados
-            setStore({ client: data });
-    
-            // Devolver los datos actualizados para su uso en el componente que llama a esta función
-            return { success: true, data };
-    
-        } catch (error) {
-            // Registrar el error en la consola y devolver un objeto con detalles
-            console.error("Error during updating client data:", error.message);
-            return { success: false, message: error.message };
-        }
-    },
-    deleteService: async (serviceId) => {
-      try {
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/services/${serviceId}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        // Manejar respuestas no exitosas
-        if (!response.ok) {
-          const errorData = await response.json(); // Intentar obtener detalles del error del backend
-          throw new Error(`Failed to delete service: ${errorData.message || response.statusText}`);
-        }
-
-        // Si la respuesta es exitosa, devolver un objeto indicando el éxito
-        return { success: true };
-      } catch (error) {
-        // Registrar el error en la consola y devolver un objeto con detalles
-        console.error("Error during deleting service:", error.message);
-        return { success: false, message: error.message };
-      }
-    },
-
-    deleteClientAndServices: async (clientId) => {
-      try {
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/clients/${clientId}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        // Manejar respuestas no exitosas
-        if (!response.ok) {
-          const errorData = await response.json(); // Intentar obtener detalles del error del backend
-          throw new Error(`Failed to delete user and services: ${errorData.message || response.statusText}`);
-        }
-
-        // Si la respuesta es exitosa, devolver un objeto indicando el éxito
-        return { success: true };
-      } catch (error) {
-        // Registrar el error en la consola y devolver un objeto con detalles
-        console.error("Error during deleting user and services:", error.message);
-        return { success: false, message: error.message };
-      }
-    },
-
-
     },
   };
 };

@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Context } from '../store/appContext';
-import DatosServicio from '../component/DatosServicio';
+import DatosServicio from '../component/DatosServicio.jsx';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function EditarServicio() {
-  const { serviceId } = useParams();
+  const { serviceId,clientId } = useParams();
   const { actions } = useContext(Context);
   const navigate = useNavigate();
   const [serviceData, setServiceData] = useState(null);
@@ -57,8 +57,8 @@ function EditarServicio() {
       }
       toast.success('Servicio eliminado con éxito');
       setTimeout(() => {
-        navigate("/clientes");
-      }, 1500);
+        navigate(-2);
+      }, 1000);
     } catch (error) {
       toast.error('Error al eliminar el servicio');
       console.error(error);
