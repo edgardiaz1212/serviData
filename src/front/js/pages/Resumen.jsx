@@ -4,28 +4,28 @@ import ClientTypePieChart from "../component/ClientTypePieChart.jsx";
 import ServiceTypeBarChart from "../component/ServiceTypeBarChart.jsx";
 import TopServicesTable from "../component/TopservicesTable.jsx";
 import ClientServiceTable from "../component/ClientServiceTable.jsx";
-import "../../styles/resumen.css"
+import "../../styles/resumen.css";
 
 const Resumen = () => {
   const { store, actions } = useContext(Context);
 
   useEffect(() => {
-    actions.getServiceCountsByClientType()
+    actions.getServiceCountsByClientType();
     actions.getTotalServices();
     actions.getTotalClients();
   }, []);
 
-  const publicServicesCount = store.servicesCountsByClientType['Pública'] || 0;
-  const privateServicesCount = store.servicesCountsByClientType['Privada'] || 0;
+  const publicServicesCount = store.servicesCountsByClientType["Pública"] || 0;
+  const privateServicesCount = store.servicesCountsByClientType["Privada"] || 0;
 
   return (
     <>
       <div className="text-bg-light p-3">
         Bienvenido a la plataforma para consultar servicios del DCCE!
       </div>
-      <div className="container   ">
+      <div className="container  ">
         <div className="row justify-content-md-center ">
-        <div className="col-md-2">
+          <div className="col-md-2">
             <div className="card">
               <div className="card-body">
                 <h5 className="card-title">Cantidad de servicios Publicos</h5>
