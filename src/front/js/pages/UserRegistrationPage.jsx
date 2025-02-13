@@ -143,7 +143,8 @@ const UserRegistrationPage = () => {
         </form>
       </div>
 
-      {user.role === "Admin" && (
+      {user && user.role === "Admin" && (
+
         <>
           <h2 className="text">Agregar Usuario</h2>
           <div className="d-flex justify-content-center">
