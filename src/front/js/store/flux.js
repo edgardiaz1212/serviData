@@ -379,7 +379,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       addClientAndServiceData: async (clientData, serviceData) => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/client-and-services`,
+            `${process.env.REACT_APP_BACKEND_URL}/add_client_and_service`,
             {
               method: "POST",
               headers: {

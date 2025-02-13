@@ -388,7 +388,65 @@ def get_new_services_current_month():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# acciones combinadas
+@api.route('/add_client_and_service', methods=['POST'])
+def add_client_and_service():
+    try:
+        data = request.get_json()
+        tipo = data.get('tipo')
+        rif = data.get('rif')
+        razon_social = data.get('razon_social')
+        is_new = data.get('is_new', False)
 
+        # Crear o obtener el cliente
+        cliente = Cliente.query.filter_by(rif=rif).first()
+        if not cliente:
+            cliente = Cliente(tipo=tipo, rif=rif, razon_social=razon_social)
+            db.session.add(cliente)
+            db.session.commit()
+
+        # Crear el servicio asociado
+        servicio = Servicio(
+            dominio=data.get('dominio', ''),
+            estado=data.get('estado', ''),
+            tipo_servicio=data.get('tipo_servicio', ''),
+            hostname=data.get('hostname', ''),
+            cores=int(data.get('cores', 0)) if data.get('cores') else 0,
+            contrato=data.get('contrato', ''),
+            plan_aprovisionado=data.get('plan_aprovisionado', ''),
+            plan_facturado=data.get('plan_facturado', ''),
+            detalle_plan=data.get('detalle_plan', ''),
+            sockets=int(data.get('sockets', 0)) if data.get('sockets') else 0,
+            powerstate=data.get('powerstate', ''),
+            ip_privada=data.get('ip_privada', ''),
+            vlan=data.get('vlan', ''),
+            ipam=data.get('ipam', ''),
+            datastore=data.get('datastore', ''),
+            nombre_servidor=data.get('nombre_servidor', ''),
+            marca_servidor=data.get('marca_servidor', ''),
+            modelo_servidor=data.get('modelo_servidor', ''),
+            nombre_nodo=data.get('nombre_nodo', ''),
+            nombre_plataforma=data.get('nombre_plataforma', ''),
+            ram=int(data.get('ram', 0)) if data.get('ram') else 0,
+            hdd=int(data.get('hdd', 0)) if data.get('hdd') else 0,
+            cpu=int(data.get('cpu', 0)) if data.get('cpu') else 0,
+            tipo_servidor=data.get('tipo_servidor', ''),
+            ubicacion=data.get('ubicacion', ''),
+            observaciones=data.get('observaciones', ''),
+            facturado=data.get('facturado', ''),
+            comentarios=data.get('comentarios', ''),
+            cliente_id=cliente.id,
+            is_new=is_new
+        )
+        db.session.add(servicio)
+        db.session.commit()
+
+        return jsonify({"message": "Client and service created successfully", "client": cliente.serialize(), "service": servicio.serialize()}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+#acciones generales
 @api.route('/upload-excel', methods=['POST'])
 def upload_excel():
     data = request.get_json()
