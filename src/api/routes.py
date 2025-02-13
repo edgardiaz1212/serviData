@@ -3,6 +3,7 @@ from api.models import db, User, Cliente, Servicio
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 import pandas as pd
+from datetime import datetime
 
 api = Blueprint('api', __name__)
 CORS(api)
@@ -361,11 +362,39 @@ def get_new_services():
         return jsonify([service.serialize() for service in new_services])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@api.route('/new-services-current-month', methods=['GET'])
+def get_new_services_current_month():
+    try:
+         # Obtener el primer día del mes actual y el primer día del siguiente mes
+        current_date = datetime.now()
+        start_of_month = current_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        if current_date.month == 12:
+            # Si es diciembre, el siguiente mes es enero del próximo año
+            start_of_next_month = start_of_month.replace(year=current_date.year + 1, month=1)
+        else:
+            start_of_next_month = start_of_month.replace(month=current_date.month + 1)
+
+        # Consulta para obtener servicios nuevos en el mes actual
+        new_services = Servicio.query.filter(
+            Servicio.is_new == True,
+            Servicio.updated_at >= start_of_month,
+            Servicio.updated_at < start_of_next_month
+        ).all()
+        # Verificar si hay servicios nuevos
+        if not new_services:
+            return jsonify({"message": "No new services found for the current month"}), 200
+        return jsonify([service.serialize() for service in new_services])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @api.route('/upload-excel', methods=['POST'])
 def upload_excel():
     data = request.get_json()
     df = pd.DataFrame(data)
+    is_new = data.get('isNew', False)
+
     column_mapping = {
         'tipo': 'tipo',
         'rif': 'rif',
@@ -441,7 +470,8 @@ def upload_excel():
             observaciones=row.get('observaciones', ''),
             facturado=row.get('facturado', ''),
             comentarios=row.get('comentarios', ''),
-            cliente_id=cliente.id
+            cliente_id=cliente.id,
+            is_new=is_new
         )
         db.session.add(servicio)
     db.session.commit()

@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 const DataEntryPage = () => {
   const { actions } = useContext(Context);
   const [excelData, setExcelData] = useState([]);
-
+  const [isNew, setIsNew] = useState(false);
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
@@ -32,8 +32,9 @@ const DataEntryPage = () => {
   const handleConfirmUpload = async () => {
     try {
       // Enviar los datos procesados al backend
-      await actions.uploadExcelData(excelData);
+      await actions.uploadExcelData(excelData, isNew);
       toast.success('Datos cargados correctamente');
+      // Limpiar el estado para borrar la tabla de vista previa
       setExcelData([]);
     } catch (error) {
       toast.error('Error al cargar los datos');
@@ -44,7 +45,7 @@ const DataEntryPage = () => {
     <>
       <div className="container text-center vh-100">
         <h1>Registro de Clientes y Servicios</h1>
-        <div className="drag-drop-area border border-light p-5">
+        <div className="drag-drop-area border border-success-emphasis rounded p-5">
           <p>Arrastra tu archivo Excel aquí o haz clic para seleccionar</p>
           <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
         </div>
@@ -70,6 +71,18 @@ const DataEntryPage = () => {
                   ))}
                 </tbody>
               </table>
+            </div>
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="isNewCheck"
+                checked={isNew}
+                onChange={() => setIsNew(!isNew)}
+              />
+              <label className="form-check-label" htmlFor="isNewCheck">
+                ¿Es un nuevo aprovisionamiento?
+              </label>
             </div>
             <button className="btn btn-success mt-3 me-2" onClick={handleConfirmUpload}>
               Correcto, Cargar

@@ -13,11 +13,13 @@ const Resumen = () => {
     actions.getServiceCountsByClientType();
     actions.getTotalServices();
     actions.getTotalClients();
+    actions.getNewServicesCurrentMonth();
   }, []);
 
   const publicServicesCount = store.servicesCountsByClientType["Pública"] || 0;
   const privateServicesCount = store.servicesCountsByClientType["Privada"] || 0;
-
+  const newServicesCurrentMonthCount = store.newServicesCurrentMonth.length;
+ 
   return (
     <>
       <div className="text-bg-light p-3">
@@ -69,7 +71,7 @@ const Resumen = () => {
             <div className="card">
               <div className="card-body">
                 <h5 className="card-title">Aprovisionado Mes Actual</h5>
-                <p className="card-text text-end">{store.totalClients}</p>
+                <p className="card-text text-end">{newServicesCurrentMonthCount}</p>
               </div>
             </div>
           </div>
