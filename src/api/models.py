@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime, timezone
 
 db = SQLAlchemy()
 
@@ -8,7 +9,9 @@ class Cliente(db.Model):
     tipo = db.Column(db.String)
     rif = db.Column(db.String)
     razon_social = db.Column(db.String)
-    
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))  # Fecha de creación
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))  # Fecha de actualización
+
     servicios = db.relationship("Servicio", back_populates="cliente")
 
     def serialize(self):
@@ -17,6 +20,8 @@ class Cliente(db.Model):
             'tipo': self.tipo,
             'rif': self.rif,
             'razon_social': self.razon_social,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat(),
         }
 
 class Servicio(db.Model):
@@ -51,16 +56,20 @@ class Servicio(db.Model):
     observaciones = db.Column(db.String)
     facturado = db.Column(db.String)
     comentarios = db.Column(db.String)
+    is_new = db.Column(db.Boolean, default=True)  # Indica si es un servicio nuevo
+    
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))  # Fecha de creación
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))  # Fecha de actualización
 
     cliente = db.relationship("Cliente", back_populates="servicios")
 
     def serialize(self):
         return {
             'id': self.id,
+            'tipo_servicio': self.tipo_servicio,
             'cliente_id': self.cliente_id,
             'dominio': self.dominio,
             'estado': self.estado,
-            'tipo_servicio': self.tipo_servicio,
             'hostname': self.hostname,
             'cores': self.cores,
             'contrato': self.contrato,
@@ -85,7 +94,10 @@ class Servicio(db.Model):
             'ubicacion': self.ubicacion,
             'observaciones': self.observaciones,
             'facturado': self.facturado,
-            'comentarios': self.comentarios
+            'comentarios': self.comentarios,
+            'is_new': self.is_new,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat(),
         }
 
 class User(db.Model):
