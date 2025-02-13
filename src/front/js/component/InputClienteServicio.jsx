@@ -45,6 +45,8 @@ function InputClienteServicio({ onSubmit }) {
     comentarios: "",
   });
 
+  const [isNew, setIsNew] = useState(false);
+
   const handleClientChange = (e) => {
     const { name, value } = e.target;
     setClientData((prevState) => ({ ...prevState, [name]: value }));
@@ -62,7 +64,7 @@ function InputClienteServicio({ onSubmit }) {
       toast.error('Por favor, complete todos los campos obligatorios.');
     } else {
       try {
-        await actions.addClientAndServiceData({ ...clientData, ...serviceData });
+        await actions.addClientAndServiceData({ ...clientData, ...serviceData, is_new: isNew });
         toast.success('Datos del cliente y del servicio enviados correctamente');
         console.log('Client and Service data submitted:', { clientData, serviceData });
         if (onSubmit) onSubmit();
@@ -140,6 +142,19 @@ function InputClienteServicio({ onSubmit }) {
           serviceData={serviceData}
           handleChange={handleServiceChange}
         />
+
+        <div className="form-check mt-3">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id="isNewCheck"
+            checked={isNew}
+            onChange={() => setIsNew(!isNew)}
+          />
+          <label className="form-check-label" htmlFor="isNewCheck">
+            ¿Es un nuevo aprovisionamiento?
+          </label>
+        </div>
 
         <button className="btn btn-success mt-2 w-25" type="submit">
           Guardar

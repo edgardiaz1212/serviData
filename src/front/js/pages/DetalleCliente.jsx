@@ -63,7 +63,7 @@ function DetalleCliente({ clientData: propClientData }) {
     <div className="container vh-100'">
       <div className="d-flex justify-content-between align-items-center">
         <h3>Detalles del Cliente {clientData ? clientData.razon_social : ''}</h3>
-        {store.user?.role === 'admin' && (
+        {store.user?.role === 'Admin' && (
           <button className="btn btn-primary" onClick={handleEditUserClick}>
             Editar Usuario
           </button>

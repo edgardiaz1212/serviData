@@ -41,6 +41,8 @@ def edit_user(user_id):
     if not user:
         return jsonify({"message": "User not found"}), 404
     user.username = data.get('username', user.username)
+    if 'role' in data:
+        user.role = data['role']
     user.password = data.get('password', user.password)
     db.session.commit()
     return jsonify({"message": "User updated successfully", "user": user.serialize()}), 200
@@ -215,6 +217,8 @@ def service_post():
         facturado = data.get('facturado')
         comentarios = data.get('comentarios')
         cliente_id = data.get('cliente_id')
+        is_new = data.get('is_new', False)
+
         new_service = Servicio(
             dominio=dominio,
             estado=estado,
@@ -243,7 +247,8 @@ def service_post():
             ubicacion=ubicacion,
             facturado=facturado,
             comentarios=comentarios,
-            cliente_id=cliente_id
+            cliente_id=cliente_id,
+            is_new=is_new
         )
         db.session.add(new_service)
         db.session.commit()

@@ -111,6 +111,8 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during user editing", error);
         }
       },
+      
+      
       fetchUserData: async () => {
         const store = getStore();
         try {

@@ -37,13 +37,16 @@ const ModalEditUser = ({ user, show, handleClose, handleSave, handleDelete }) =>
               </div>
               <div className="form-group">
                 <label>Rol:</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  required
-                />
+                <select
+                className="form-control"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                required
+              >
+                <option value="">Seleccione un rol</option>
+                <option value="Admin">Administrador</option>
+                <option value="User">Usuario</option>
+              </select>
               </div>
               <div className="form-group">
                 <label>Contraseña:</label>
