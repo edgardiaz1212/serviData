@@ -3,3 +3,14 @@
     box-shadow:  -34px -34px 69px #ededed,
                  34px 34px 69px #ffffff;
                 }
+.card-text{font-size: 1.0rem;
+    font-weight: 500;
+    color: #000000;
+    text-align: center;
+    
+    }
+.card-title{font-size: 1rem;
+    font-weight: 400;
+    color: #000000;
+    text-align: left;
+    }

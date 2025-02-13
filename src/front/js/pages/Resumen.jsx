@@ -28,7 +28,7 @@ const Resumen = () => {
           <div className="col-md-2">
             <div className="card">
               <div className="card-body">
-                <h5 className="card-title">Cantidad de servicios Publicos</h5>
+                <h5 className="card-title">Publica.  Cantidad de servicios </h5>
                 <p className="card-text text-end">{publicServicesCount}</p>
               </div>
             </div>
@@ -36,7 +36,7 @@ const Resumen = () => {
           <div className="col-md-2">
             <div className="card">
               <div className="card-body">
-                <h5 className="card-title">Cantidad de servicios Privados</h5>
+                <h5 className="card-title"> Privada. Cantidad de servicios</h5>
                 <p className="card-text text-end">{privateServicesCount}</p>
               </div>
             </div>
@@ -44,7 +44,7 @@ const Resumen = () => {
           <div className="col-md-2">
             <div className="card">
               <div className="card-body">
-                <h5 className="card-title">Cantidad de servicios</h5>
+                <h5 className="card-title">Cantidad Total de servicios</h5>
                 <p className="card-text text-end">{store.totalServices}</p>
               </div>
             </div>
@@ -52,7 +52,7 @@ const Resumen = () => {
           <div className="col-md-2">
             <div className="card">
               <div className="card-body">
-                <h5 className="card-title">Cantidad de Clientes</h5>
+                <h5 className="card-title">Cantidad total de Clientes</h5>
                 <p className="card-text text-end">{store.totalClients}</p>
               </div>
             </div>
@@ -60,7 +60,7 @@ const Resumen = () => {
           <div className="col-md-2">
             <div className="card">
               <div className="card-body">
-                <h5 className="card-title">Aprovisionamiento Mes pasado</h5>
+                <h5 className="card-title">Aprovisionado Mes pasado</h5>
                 <p className="card-text text-end">{store.totalClients}</p>
               </div>
             </div>
@@ -68,7 +68,7 @@ const Resumen = () => {
           <div className="col-md-2">
             <div className="card">
               <div className="card-body">
-                <h5 className="card-title">Aprovisionamiento Mes Actual</h5>
+                <h5 className="card-title">Aprovisionado Mes Actual</h5>
                 <p className="card-text text-end">{store.totalClients}</p>
               </div>
             </div>
