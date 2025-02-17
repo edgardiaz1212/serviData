@@ -34,10 +34,13 @@ const DetalleServicio = () => {
     <div className="container">
       <div className="d-flex justify-content-between align-items-center">
         <h2>Detalles del Servicio</h2>
+        
         <button className="btn btn-primary" onClick={handleEditClick}>
           Editar
         </button>
       </div>
+      <h4>Ultimo status</h4>
+      
 
       <h3>Datos de identificación del servicio</h3>
       <div className="row">

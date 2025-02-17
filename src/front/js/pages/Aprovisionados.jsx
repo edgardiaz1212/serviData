@@ -1,5 +1,5 @@
-import React, { useEffect, useContext, useState } from 'react';
-import { Context } from '../store/appContext';
+import React, { useEffect, useContext, useState } from "react";
+import { Context } from "../store/appContext";
 
 function Aprovisionados() {
   const { store, actions } = useContext(Context);
@@ -16,11 +16,30 @@ function Aprovisionados() {
   return (
     <div className="container">
       <h2>Servicios Aprovisionados del Mes</h2>
+      <div className="card">
+        <div className="card-body">
+          <h5 className="card-title">Aprovisionados del Mes</h5>
+          <p className="card-text text-end">dato</p>
+        </div>
+      </div>
+      <div className="card">
+        <div className="card-body">
+          <h5 className="card-title">Reprovisionados del Mes</h5>
+          <p className="card-text text-end">dato</p>
+        </div>
+      </div>
+      <div className="card">
+        <div className="card-body">
+          <h5 className="card-title">Retirados del Mes</h5>
+          <p className="card-text text-end">dato</p>
+        </div>
+      </div>
       {newServices.length > 0 ? (
         <ul>
           {newServices.map((service) => (
             <li key={service.id}>
-              Dominio:{service.dominio} - Servicio: {service.tipo_servicio} - Fecha: {service.created_at}
+              Dominio:{service.dominio} - Servicio: {service.tipo_servicio} -
+              Fecha: {service.created_at}
             </li>
           ))}
         </ul>
