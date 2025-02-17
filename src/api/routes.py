@@ -3,7 +3,7 @@ from api.models import db, User, Cliente, Servicio
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 
 api = Blueprint('api', __name__)
 CORS(api)
@@ -391,6 +391,44 @@ def get_new_services_current_month():
             return jsonify({"message": "No new services found for the current month"}), 200
         return jsonify([service.serialize() for service in new_services])
     except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api.route('/new-services-last-month', methods=['GET'])
+def get_new_services_last_month():
+    try:
+        # Obtener la fecha actual
+        current_date = datetime.now()
+
+        # Calcular el primer día del mes actual
+        first_day_current_month = current_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+        # Calcular el primer día del mes pasado
+        if current_date.month == 1:
+            # Si estamos en enero, el mes pasado es diciembre del año anterior
+            first_day_last_month = first_day_current_month.replace(year=current_date.year - 1, month=12)
+        else:
+            # Para cualquier otro mes, restamos 1 al mes actual
+            first_day_last_month = first_day_current_month.replace(month=current_date.month - 1)
+
+        # Calcular el primer día del mes actual (que es el límite superior para el mes pasado)
+        first_day_current_month = first_day_current_month
+
+        # Consulta para obtener servicios nuevos en el mes pasado
+        new_services = Servicio.query.filter(
+            Servicio.is_new == True,
+            Servicio.updated_at >= first_day_last_month,
+            Servicio.updated_at < first_day_current_month
+        ).all()
+
+        # Verificar si hay servicios nuevos
+        if not new_services:
+            return jsonify({"message": "No new services found for the last month"}), 200
+
+        # Devolver los servicios serializados
+        return jsonify([service.serialize() for service in new_services]), 200
+
+    except Exception as e:
+        # Manejar errores generales
         return jsonify({"error": str(e)}), 500
 
 # acciones combinadas
