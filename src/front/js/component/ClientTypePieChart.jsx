@@ -64,7 +64,7 @@ const ClientTypePieChart = () => {
   };
 
   return (
-    <div>
+    <div tyle={{ height: '400px' }}>
       <p>Distribución de Clientes por Tipo</p>
       <Pie data={data} options={options} />
     </div>

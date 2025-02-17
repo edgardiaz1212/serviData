@@ -18,6 +18,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       servicesCountsByClientType: {}, // Add servicesCountsByClientType state
       topServices: [],
       newServicesCurrentMonth: [],
+      newServicesLastMonth: [],
     },
 
     actions: {
@@ -570,6 +571,22 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during getting new services for the current month", error);
         }
       },
+      getNewServicesPastMonth: async () => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/new-services-last-month`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setStore({ newServicesLastMonth: data });
+            } else {
+            console.error("Failed to get new services for the current month");
+          }
+        } catch (error) {
+          console.log("Error during getting new services for the current month", error);
+        }
+      },
+
       // Actualizar y Eliminar Servicios
       updateServiceData: async (serviceId, serviceData) => {
         try {

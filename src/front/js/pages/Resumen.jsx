@@ -14,11 +14,13 @@ const Resumen = () => {
     actions.getTotalServices();
     actions.getTotalClients();
     actions.getNewServicesCurrentMonth();
+    actions.getNewServicesPastMonth();
   }, []);
 
   const publicServicesCount = store.servicesCountsByClientType["Pública"] || 0;
   const privateServicesCount = store.servicesCountsByClientType["Privada"] || 0;
-  const newServicesCurrentMonthCount = store.newServicesCurrentMonth.length;
+  const newServicesCurrentMonthCount = (store.newServicesCurrentMonth || []).length;
+  const newServicesPastMonthCount = (store.newServicesPastMonth || []).length;
  
   return (
     <>
@@ -26,7 +28,7 @@ const Resumen = () => {
         Bienvenido a la plataforma para consultar servicios del DCCE!
       </div>
       <div className="container  ">
-        <div className="row justify-content-md-center ">
+        <div className="row justify-content-md-center">
           <div className="col-md-2">
             <div className="card">
               <div className="card-body">
@@ -63,7 +65,7 @@ const Resumen = () => {
             <div className="card">
               <div className="card-body">
                 <h5 className="card-title">Aprovisionado Mes pasado</h5>
-                <p className="card-text text-end">{store.totalClients}</p>
+                <p className="card-text text-end">{newServicesPastMonthCount}</p>
               </div>
             </div>
           </div>
