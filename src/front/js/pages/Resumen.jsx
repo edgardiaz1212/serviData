@@ -5,6 +5,7 @@ import ServiceTypeBarChart from "../component/ServiceTypeBarChart.jsx";
 import TopServicesTable from "../component/TopservicesTable.jsx";
 import ClientServiceTable from "../component/ClientServiceTable.jsx";
 import "../../styles/resumen.css";
+import ClientServicesBarChart from "../component/ClientServicesBarChart.jsx";
 
 const Resumen = () => {
   const { store, actions } = useContext(Context);
@@ -19,9 +20,10 @@ const Resumen = () => {
 
   const publicServicesCount = store.servicesCountsByClientType["Pública"] || 0;
   const privateServicesCount = store.servicesCountsByClientType["Privada"] || 0;
-  const newServicesCurrentMonthCount = (store.newServicesCurrentMonth || []).length;
+  const newServicesCurrentMonthCount = (store.newServicesCurrentMonth || [])
+    .length;
   const newServicesPastMonthCount = (store.newServicesPastMonth || []).length;
- 
+
   return (
     <>
       <div className="text-bg-light p-3">
@@ -32,7 +34,7 @@ const Resumen = () => {
           <div className="col-md-2">
             <div className="card">
               <div className="card-body">
-                <h5 className="card-title">Publica.  Cantidad de servicios </h5>
+                <h5 className="card-title">Publica. Cantidad de servicios </h5>
                 <p className="card-text text-end">{publicServicesCount}</p>
               </div>
             </div>
@@ -65,7 +67,9 @@ const Resumen = () => {
             <div className="card">
               <div className="card-body">
                 <h5 className="card-title">Aprovisionado Mes pasado</h5>
-                <p className="card-text text-end">{newServicesPastMonthCount}</p>
+                <p className="card-text text-end">
+                  {newServicesPastMonthCount}
+                </p>
               </div>
             </div>
           </div>
@@ -73,24 +77,48 @@ const Resumen = () => {
             <div className="card">
               <div className="card-body">
                 <h5 className="card-title">Aprovisionado Mes Actual</h5>
-                <p className="card-text text-end">{newServicesCurrentMonthCount}</p>
+                <p className="card-text text-end">
+                  {newServicesCurrentMonthCount}
+                </p>
               </div>
             </div>
           </div>
         </div>
-        <div className="row mt-2">
-          <div className="col-md-4">
-            <div className="card">
-              <div className="card-body">
-                <ClientTypePieChart />
+        <div className="row mt-2 ">
+          <div className="col ">
+            <div className="row p-2">
+              <div className="col-md-5">
+                <div className="card">
+                  <div className="card-body">
+                    <ClientTypePieChart />
+                  </div>
+                </div>
               </div>
+              <div className="col-md-7">
+                <div className="card">
+                  <div className="card-body">
+                    <ServiceTypeBarChart />
+                  </div>
+                </div>
+              </div>
+              
             </div>
-          </div>
-          <div className="col-md-5">
-            <div className="card">
-              <div className="card-body">
-                <ServiceTypeBarChart />
+            <div className="row p-2">
+              <div className="col-md-6">
+                <div className="card">
+                  <div className="card-body">
+                  <ClientServicesBarChart clientType="Pública" />
+                  </div>
+                </div>
               </div>
+              <div className="col-md-6">
+                <div className="card">
+                  <div className="card-body">
+                  <ClientServicesBarChart clientType="Privada" />
+                  </div>
+                </div>
+              </div>
+              
             </div>
           </div>
           <div className="col-md-3">

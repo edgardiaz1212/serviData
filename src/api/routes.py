@@ -4,6 +4,7 @@ from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 import pandas as pd
 from datetime import datetime, timedelta
+from sqlalchemy import func
 
 api = Blueprint('api', __name__)
 CORS(api)
@@ -279,6 +280,22 @@ def get_service(service_id):
     else:
         return jsonify({"message": "Service not found"}), 404
 
+@api.route('/services_by_client_type/<client_type>', methods=['GET'])
+def get_services_by_client_type(client_type):
+    try:
+        # Realizar una consulta agregada para contar los servicios por tipo de servicio según el tipo de cliente
+        services_count = db.session.query(
+            Servicio.tipo_servicio,
+            func.count(Servicio.id).label('cantidad')
+        ).join(Cliente).filter(Cliente.tipo == client_type).group_by(Servicio.tipo_servicio).all()
+
+        # Serializar los resultados
+        result = [{'tipo_servicio': service.tipo_servicio, 'cantidad': service.cantidad} for service in services_count]
+
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @api.route('/servicios/<int:service_id>', methods=['PUT'])
 def update_service(service_id):
     data = request.get_json()
@@ -349,15 +366,28 @@ def get_service_counts_by_type():
         service_counts_dict[cliente_tipo][servicio_tipo] = count
     return jsonify(service_counts_dict), 200
 
-@api.route('/service-counts-by-client-type', methods=['GET'])
-def get_service_counts_by_client_type():
+@api.route('/service-counts-by-client-type/<client_type>', methods=['GET'])
+def get_service_counts_by_client_type(client_type):
     try:
+        # Consulta para obtener el conteo de servicios agrupados por tipo de cliente y tipo de servicio
         service_counts = db.session.query(
-            Cliente.tipo, db.func.count(Servicio.id)
-        ).join(Servicio, Servicio.cliente_id == Cliente.id).group_by(Cliente.tipo).all()
-        service_counts_dict = {tipo: count for tipo, count in service_counts}
-        return jsonify(service_counts_dict)
+            Servicio.tipo_servicio,
+            func.count(Servicio.id).label("count")
+        ).join(
+            Cliente, Cliente.id == Servicio.cliente_id
+        ).filter(
+            Cliente.tipo == client_type
+        ).group_by(
+            Servicio.tipo_servicio
+        ).all()
+
+        # Convertir los resultados en un diccionario
+        result = {service.tipo_servicio: service.count for service in service_counts}
+
+        return jsonify(result), 200
+
     except Exception as e:
+        # Manejar errores generales
         return jsonify({"error": str(e)}), 500
     
 @api.route('/new-services', methods=['GET'])
