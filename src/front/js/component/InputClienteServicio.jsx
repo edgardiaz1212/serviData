@@ -43,9 +43,9 @@ function InputClienteServicio({ onSubmit }) {
     ubicacion: "",
     powerstate: "",
     comentarios: "",
+    estado_servicio: 'nuevo',
   });
 
-  const [isNew, setIsNew] = useState(false);
 
   const handleClientChange = (e) => {
     const { name, value } = e.target;
@@ -64,7 +64,7 @@ function InputClienteServicio({ onSubmit }) {
       toast.error('Por favor, complete todos los campos obligatorios.');
     } else {
       try {
-        await actions.addClientAndServiceData({ ...clientData, ...serviceData, is_new: isNew });
+        await actions.addClientAndServiceData({ ...clientData, ...serviceData });
         toast.success('Datos del cliente y del servicio enviados correctamente');
         console.log('Client and Service data submitted:', { clientData, serviceData });
         if (onSubmit) onSubmit();
@@ -76,7 +76,7 @@ function InputClienteServicio({ onSubmit }) {
         console.error('Error submitting client and service data:', error);
       }
     }
-    e.target.classList.add('was-validated');
+
   };
 
   return (
@@ -143,17 +143,19 @@ function InputClienteServicio({ onSubmit }) {
           handleChange={handleServiceChange}
         />
 
-        <div className="form-check mt-3">
-          <input
-            className="form-check-input"
-            type="checkbox"
-            id="isNewCheck"
-            checked={isNew}
-            onChange={() => setIsNew(!isNew)}
-          />
-          <label className="form-check-label" htmlFor="isNewCheck">
-            ¿Es un nuevo aprovisionamiento?
-          </label>
+<div className="form-group mt-3">
+          <label htmlFor="estado_servicio">Estado del Servicio</label>
+          <select
+            className="form-control"
+            id="estado_servicio"
+            name="estado_servicio"
+            value={serviceData.estado_servicio}
+            onChange={handleServiceChange}
+          >
+            <option value="nuevo">Nuevo Aprovisionamiento</option>
+            <option value="aprovisionado">Aprovisionado</option>
+            <option value="reaprovisionado">Reaprovisionado</option>
+          </select>
         </div>
 
         <button className="btn btn-success mt-2 w-25" type="submit">

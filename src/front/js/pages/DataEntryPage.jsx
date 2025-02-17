@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 const DataEntryPage = () => {
   const { actions } = useContext(Context);
   const [excelData, setExcelData] = useState([]);
-  const [isNew, setIsNew] = useState(false);
+  const [estadoServicio, setEstadoServicio] = useState('nuevo'); // Estado inicial
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
@@ -32,7 +32,7 @@ const DataEntryPage = () => {
   const handleConfirmUpload = async () => {
     try {
       // Enviar los datos procesados al backend
-      await actions.uploadExcelData(excelData, isNew);
+      await actions.uploadExcelData(excelData, estadoServicio);
       toast.success('Datos cargados correctamente');
       // Limpiar el estado para borrar la tabla de vista previa
       setExcelData([]);
@@ -72,17 +72,19 @@ const DataEntryPage = () => {
                 </tbody>
               </table>
             </div>
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                id="isNewCheck"
-                checked={isNew}
-                onChange={() => setIsNew(!isNew)}
-              />
-              <label className="form-check-label" htmlFor="isNewCheck">
-                ¿Es un nuevo aprovisionamiento?
-              </label>
+            <div className="form-group mt-3">
+              <label htmlFor="estado_servicio">Estado del Servicio</label>
+              <select
+                className="form-control"
+                id="estado_servicio"
+                name="estado_servicio"
+                value={estadoServicio}
+                onChange={(e) => setEstadoServicio(e.target.value)}
+              >
+                <option value="nuevo">Nuevo Aprovisionamiento</option>
+                <option value="aprovisionado">Aprovisionado</option>
+                <option value="reaprovisionado">Reaprovisionado</option>
+              </select>
             </div>
             <button className="btn btn-success mt-3 me-2" onClick={handleConfirmUpload}>
               Correcto, Cargar

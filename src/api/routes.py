@@ -218,7 +218,7 @@ def service_post():
         facturado = data.get('facturado')
         comentarios = data.get('comentarios')
         cliente_id = data.get('cliente_id')
-        is_new = data.get('is_new', False)
+        estado_servicio = data.get('estado_servicio', 'nuevo')  # Obtener el estado del servicio
 
         new_service = Servicio(
             dominio=dominio,
@@ -249,7 +249,7 @@ def service_post():
             facturado=facturado,
             comentarios=comentarios,
             cliente_id=cliente_id,
-            is_new=is_new
+            estado_servicio=estado_servicio,
         )
         db.session.add(new_service)
         db.session.commit()
@@ -412,7 +412,7 @@ def get_new_services_current_month():
 
         # Consulta para obtener servicios nuevos en el mes actual
         new_services = Servicio.query.filter(
-            Servicio.is_new == True,
+            Servicio.estado_servicio == 'nuevo',
             Servicio.updated_at >= start_of_month,
             Servicio.updated_at < start_of_next_month
         ).all()
@@ -445,7 +445,7 @@ def get_new_services_last_month():
 
         # Consulta para obtener servicios nuevos en el mes pasado
         new_services = Servicio.query.filter(
-            Servicio.is_new == True,
+            Servicio.estado_servicio == 'nuevo',
             Servicio.updated_at >= first_day_last_month,
             Servicio.updated_at < first_day_current_month
         ).all()
@@ -469,7 +469,7 @@ def add_client_and_service():
         tipo = data.get('tipo')
         rif = data.get('rif')
         razon_social = data.get('razon_social')
-        is_new = data.get('is_new', False)
+        estado_servicio = data.get('estado_servicio', 'nuevo')
 
         # Crear o obtener el cliente
         cliente = Cliente.query.filter_by(rif=rif).first()
@@ -509,7 +509,7 @@ def add_client_and_service():
             facturado=data.get('facturado', ''),
             comentarios=data.get('comentarios', ''),
             cliente_id=cliente.id,
-            is_new=is_new
+            estado_servicio=estado_servicio,
         )
         db.session.add(servicio)
         db.session.commit()
@@ -524,7 +524,7 @@ def add_client_and_service():
 def upload_excel():
     data = request.get_json()
     df = pd.DataFrame(data)
-    is_new = data.get('isNew', False)
+    estado_servicio = request.form.get('estado_servicio', 'nuevo')
 
     column_mapping = {
         'tipo': 'tipo',
@@ -602,7 +602,7 @@ def upload_excel():
             facturado=row.get('facturado', ''),
             comentarios=row.get('comentarios', ''),
             cliente_id=cliente.id,
-            is_new=is_new
+            estado_servicio=estado_servicio, 
         )
         db.session.add(servicio)
     db.session.commit()

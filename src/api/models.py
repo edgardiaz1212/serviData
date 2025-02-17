@@ -56,8 +56,10 @@ class Servicio(db.Model):
     observaciones = db.Column(db.String)
     facturado = db.Column(db.String)
     comentarios = db.Column(db.String)
-    is_new = db.Column(db.Boolean, default=True)  # Indica si es un servicio nuevo
-    
+
+    # Nuevo campo para el estado del servicio
+    estado_servicio = db.Column(db.String, default="nuevo")  # Valores posibles: "nuevo", "aprovisionado", "reaprovisionado"
+
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))  # Fecha de creación
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))  # Fecha de actualización
 
@@ -95,7 +97,7 @@ class Servicio(db.Model):
             'observaciones': self.observaciones,
             'facturado': self.facturado,
             'comentarios': self.comentarios,
-            'is_new': self.is_new,
+            'estado_servicio': self.estado_servicio,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),
         }
