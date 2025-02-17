@@ -10,7 +10,6 @@ const ClientServicesBarChart = ({ clientType }) => {
     const fetchServices = async () => {
       const data = await actions.getServiceCountsByClientType(clientType);
       setServices(data || {});
-      console.log(data);
     };
 
     fetchServices();

@@ -11,7 +11,7 @@ const EditarCliente = () => {
   const [clientData, setClientData] = useState(null);
 
   useEffect(() => {
-    if (store.user?.role !== 'admin') {
+    if (store.user?.role !== 'Admin') {
       navigate('/'); // Redirigir si el usuario no es admin
     } else {
       const fetchClientData = async () => {

@@ -11,16 +11,16 @@ function Aprovisionados() {
       setNewServices(services);
     };
     fetchNewServices();
-  }, [actions]);
+  }, []);
 
   return (
     <div className="container">
-      <h2>Servicios Aprovisionados</h2>
+      <h2>Servicios Aprovisionados del Mes</h2>
       {newServices.length > 0 ? (
         <ul>
           {newServices.map((service) => (
             <li key={service.id}>
-              {service.dominio} - {service.tipo_servicio} - {service.created_at}
+              Dominio:{service.dominio} - Servicio: {service.tipo_servicio} - Fecha: {service.created_at}
             </li>
           ))}
         </ul>
