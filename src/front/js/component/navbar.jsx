@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Context } from "../store/appContext";
 import logo from "../../img/CDHLogo.jpg"
+import {Cog} from 'lucide-react'
 
 const Navbar = () => {
   const { store, actions } = useContext(Context);
@@ -56,12 +57,12 @@ const Navbar = () => {
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link text-white" to="/user-register">
-                    Configuración
-                  </Link>
+                  <span className="nav-link text-white">Hola, {user ? user.username : 'Usuario'}!</span>
                 </li>
                 <li className="nav-item">
-                  <span className="nav-link text-white">Hola, {user ? user.username : 'Usuario'}!</span>
+                  <Link className="nav-link text-white" to="/user-register">
+                  <Cog />
+                  </Link>
                 </li>
                 <li className="nav-item">
                   <button className="btn btn-link nav-link text-white" onClick={handleLogout}>
