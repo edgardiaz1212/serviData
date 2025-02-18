@@ -10,6 +10,7 @@ import ClientServicesBarChart from "../component/ClientServicesBarChart.jsx";
 const Resumen = () => {
   const { store, actions } = useContext(Context);
 
+  // Cargar datos al montar el componente
   useEffect(() => {
     actions.getServiceCountsByClientType();
     actions.getTotalServices();
@@ -18,8 +19,13 @@ const Resumen = () => {
     actions.getNewServicesPastMonth();
   }, []);
 
-  const publicServicesCount = store.servicesCountsByClientType["Pública"] || 0;
-  const privateServicesCount = store.servicesCountsByClientType["Privada"] || 0;
+  // Validar si servicesCountsByClientType está definido
+  const publicServicesCount =
+    store.servicesCountsByClientType?.["Pública"] || 0;
+  const privateServicesCount =
+    store.servicesCountsByClientType?.["Privada"] || 0;
+
+  // Validar si newServicesCurrentMonth y newServicesPastMonth están definidos
   const newServicesCurrentMonthCount = (store.newServicesCurrentMonth || [])
     .length;
   const newServicesPastMonthCount = (store.newServicesPastMonth || []).length;
@@ -29,40 +35,53 @@ const Resumen = () => {
       <div className="text-bg-light p-3">
         Bienvenido a la plataforma para consultar servicios del DCCE!
       </div>
-      <div className="container  ">
+      <div className="container">
         <div className="row justify-content-md-center">
+          {/* Tarjeta para servicios públicos */}
           <div className="col-md-2">
             <div className="card">
               <div className="card-body">
-                <h5 className="card-title">Publica. Cantidad de servicios </h5>
+                <h5 className="card-title">Pública. Cantidad de servicios</h5>
                 <p className="card-text text-end">{publicServicesCount}</p>
               </div>
             </div>
           </div>
+
+          {/* Tarjeta para servicios privados */}
           <div className="col-md-2">
             <div className="card">
               <div className="card-body">
-                <h5 className="card-title"> Privada. Cantidad de servicios</h5>
+                <h5 className="card-title">Privada. Cantidad de servicios</h5>
                 <p className="card-text text-end">{privateServicesCount}</p>
               </div>
             </div>
           </div>
+
+          {/* Tarjeta para total de servicios */}
           <div className="col-md-2">
             <div className="card">
               <div className="card-body">
                 <h5 className="card-title">Cantidad Total de servicios</h5>
-                <p className="card-text text-end">{store.totalServices}</p>
+                <p className="card-text text-end">
+                  {store.totalServices || 0}
+                </p>
               </div>
             </div>
           </div>
+
+          {/* Tarjeta para total de clientes */}
           <div className="col-md-2">
             <div className="card">
               <div className="card-body">
                 <h5 className="card-title">Cantidad total de Clientes</h5>
-                <p className="card-text text-end">{store.totalClients}</p>
+                <p className="card-text text-end">
+                  {store.totalClients || 0}
+                </p>
               </div>
             </div>
           </div>
+
+          {/* Tarjeta para servicios aprovisionados el mes pasado */}
           <div className="col-md-2">
             <div className="card">
               <div className="card-body">
@@ -73,6 +92,8 @@ const Resumen = () => {
               </div>
             </div>
           </div>
+
+          {/* Tarjeta para servicios aprovisionados el mes actual */}
           <div className="col-md-2">
             <div className="card">
               <div className="card-body">
@@ -84,9 +105,12 @@ const Resumen = () => {
             </div>
           </div>
         </div>
-        <div className="row mt-2 ">
-          <div className="col ">
+
+        {/* Gráficos y tablas */}
+        <div className="row mt-2">
+          <div className="col">
             <div className="row p-2">
+              {/* Gráfico de tipos de clientes */}
               <div className="col-md-5">
                 <div className="card">
                   <div className="card-body">
@@ -94,6 +118,8 @@ const Resumen = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Gráfico de tipos de servicios */}
               <div className="col-md-7">
                 <div className="card">
                   <div className="card-body">
@@ -101,26 +127,28 @@ const Resumen = () => {
                   </div>
                 </div>
               </div>
-              
             </div>
+
+            {/* Gráficos de servicios por tipo de cliente */}
             <div className="row p-2">
               <div className="col-md-6">
                 <div className="card">
                   <div className="card-body">
-                  <ClientServicesBarChart clientType="Pública" />
+                    <ClientServicesBarChart clientType="Pública" />
                   </div>
                 </div>
               </div>
               <div className="col-md-6">
                 <div className="card">
                   <div className="card-body">
-                  <ClientServicesBarChart clientType="Privada" />
+                    <ClientServicesBarChart clientType="Privada" />
                   </div>
                 </div>
               </div>
-              
             </div>
           </div>
+
+          {/* Tabla de top servicios */}
           <div className="col-md-3">
             <div className="card">
               <div className="card-body">
@@ -130,6 +158,8 @@ const Resumen = () => {
             </div>
           </div>
         </div>
+
+        {/* Tabla de servicios por cliente */}
         <div className="row mt-2">
           <div className="card">
             <ClientServiceTable />

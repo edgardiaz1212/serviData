@@ -36,7 +36,7 @@ const DetalleServicio = () => {
         <h2>Detalles del Servicio</h2>
         
         <button className="btn btn-primary" onClick={handleEditClick}>
-          Editar
+          Editar Datos
         </button>
       </div>
       <h4>Ultimo status</h4>
@@ -147,6 +147,7 @@ const DetalleServicio = () => {
         </div>
       </div>
       <button className="btn btn-secondary" onClick={() => navigate('/clientes')}>Volver</button>
+    
     </div>
     </>
   );

@@ -1,24 +1,26 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Context } from '../store/appContext';
-import DatosServicio from '../component/DatosServicio.jsx';
+import DatosServicio from '../component/DatosServicio';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-function EditarServicio() {
-  const { serviceId,clientId } = useParams();
-  const { actions } = useContext(Context);
+const EditarServicio = () => {
+  const { serviceId } = useParams();
   const navigate = useNavigate();
+  const { actions } = useContext(Context);
   const [serviceData, setServiceData] = useState(null);
 
   useEffect(() => {
     const fetchServiceData = async () => {
-      const service = await actions.getServiceById(serviceId);
-      console.log('service:', service);
-      // Verificar si service es un array y extraer el primer elemento si es necesario
-      const serviceObject = Array.isArray(service) ? service[0] : service;
-      setServiceData(serviceObject);
+      try {
+        const data = await actions.getServiceById(serviceId);
+        setServiceData(data);
+      } catch (error) {
+        console.error(error);
+      }
     };
+
     fetchServiceData();
   }, [serviceId, actions]);
 
@@ -64,7 +66,16 @@ function EditarServicio() {
       console.error(error);
     }
   };
-
+  const handleRetire = async () => {
+    try {
+      await actions.updateServiceData(serviceId, { ...serviceData, estado_servicio: 'retirado' });
+      toast.success('Servicio retirado correctamente');
+      navigate(`/detalle-servicio/${serviceId}`);
+    } catch (error) {
+      toast.error('Error al retirar el servicio');
+      console.error(error);
+    }
+  };
   if (!serviceData) {
     return <div>Loading...</div>;
   }
@@ -76,6 +87,9 @@ function EditarServicio() {
       <button className="btn btn-primary mt-3" onClick={handleSave}>
         Guardar
       </button>
+      <button className="btn btn-outline-danger mt-3 ms-2" onClick={handleRetire}>
+        Retirar Servicio
+      </button>
       <button className="btn btn-danger mt-3 ms-2" onClick={handleDelete}>
         Eliminar
       </button>
@@ -83,6 +97,6 @@ function EditarServicio() {
       <ToastContainer />
     </div>
   );
-}
+};
 
 export default EditarServicio;

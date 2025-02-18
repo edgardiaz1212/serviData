@@ -35,7 +35,7 @@ function TotalClient({ clientType, searchQuery }) {
             </div>
           ))
         ) : (
-          <li className="list-group-item">Cliente no registrado.</li>
+          <li className="list-group-item">No clientes registrados.</li>
         )}
       </ul>
     </div>
