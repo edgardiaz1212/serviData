@@ -19,6 +19,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       topServices: [],
       newServicesCurrentMonth: [],
       newServicesLastMonth: [],
+      aprovisionados: []
     },
 
     actions: {
@@ -553,24 +554,25 @@ const getState = ({ getStore, getActions, setStore }) => {
         }
       },
       
-      getNewServices: async () => {
+      getAprovisionados: async () => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/new-services`
+            `${process.env.REACT_APP_BACKEND_URL}/aprovisionados`
           );
           if (response.ok) {
             const data = await response.json();
-            setStore({ newServices: data });
+            setStore({ aprovisionados: data });
             return data;
           } else {
-            console.error("Failed to get new services");
+            console.error("Failed to get aprovisionados");
             return [];
           }
         } catch (error) {
-          console.log("Error during getting new services", error);
+          console.log("Error during getting aprovisionados", error);
           return [];
         }
       },
+
       getNewServicesCurrentMonth: async () => {
         try {
           const response = await fetch(

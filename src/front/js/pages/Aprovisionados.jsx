@@ -1,66 +1,116 @@
-import React, { useEffect, useContext, useState } from "react";
-import { Context } from "../store/appContext";
+import React, { useEffect, useContext } from 'react';
+import { Context } from '../store/appContext';
 
-function Aprovisionados() {
+const Aprovisionados = () => {
   const { store, actions } = useContext(Context);
-  const [newServices, setNewServices] = useState([]);
 
   useEffect(() => {
-    const fetchNewServices = async () => {
-      const services = await actions.getNewServices();
-      setNewServices(services);
-    };
-    fetchNewServices();
+    actions.getNewServicesCurrentMonth();
   }, []);
 
+  const filteredNewServices = store.newServicesCurrentMonth.filter(service => service.estado_servicio === 'Nuevo');
+  const filteredReaprovServices = store.newServicesCurrentMonth.filter(service => service.estado_servicio === 'Reaprovisionado');
+  const filteredRetiredServices = store.newServicesCurrentMonth.filter(service => service.estado_servicio === 'Retirado');
+  
   return (
+  <>
     <div className="container">
-      <h2>Servicios Aprovisionados del Mes</h2>
-      <div className="card">
-        <div className="card-body">
-          <h5 className="card-title">Aprovisionados del Mes</h5>
-          <p className="card-text text-end">dato</p>
+      <h2>Servicios Aprovisionados</h2>
+      {filteredNewServices && filteredNewServices.length > 0 ? (
+        <div className="table-responsive">
+          <table className="table table-bordered">
+            <thead>
+              <tr>
+                <th>Tipo de Servicio</th>
+                <th>Dominio</th>
+                <th>Estado</th>
+                <th>Hostname</th>
+                <th>Razón Social</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredNewServices.map((service, index) => (
+                <tr key={index}>
+                  <td>{service.tipo_servicio}</td>
+                  <td>{service.dominio}</td>
+                  <td>{service.estado}</td>
+                  <td>{service.hostname}</td>
+                  <td>{service.razon_social}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </div>
-      <div className="card">
-        <div className="card-body">
-          <h5 className="card-title">Aprovisionados del Mes pasado</h5>
-          <p className="card-text text-end">dato</p>
-        </div>
-      </div>
-      <div className="card">
-        <div className="card-body">
-          <h5 className="card-title">Reprovisionados del Mes</h5>
-          <p className="card-text text-end">dato</p>
-        </div>
-      </div>
-      <div className="card">
-        <div className="card-body">
-          <h5 className="card-title">Retirados del Mes</h5>
-          <p className="card-text text-end">dato</p>
-        </div>
-      </div>
-
-      <h2>Clientes Aprovisionados</h2>
-      {newServices.length > 0 ? (
-        <ul>
-          {newServices.map((service) => (
-            <li key={service.id}>
-              Dominio:{service.dominio} - Servicio: {service.tipo_servicio} -
-              Fecha: {service.created_at}
-            </li>
-          ))}
-        </ul>
       ) : (
-        <p>No hay servicios nuevos aprovisionados.</p>
+        <p>No hay servicios aprovisionados.</p>
       )}
 
-<h2>Clientes Reaprovisionados</h2>
 
 
-<h2>Clientes Retirados</h2>
+<h2>Servicios Reaprovisionados</h2>
+      {filteredReaprovServices && filteredReaprovServices.length > 0 ? (
+        <div className="table-responsive">
+          <table className="table table-bordered">
+            <thead>
+              <tr>
+                <th>Tipo de Servicio</th>
+                <th>Dominio</th>
+                <th>Estado</th>
+                <th>Hostname</th>
+                <th>Razón Social</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredReaprovServices.map((service, index) => (
+                <tr key={index}>
+                  <td>{service.tipo_servicio}</td>
+                  <td>{service.dominio}</td>
+                  <td>{service.estado}</td>
+                  <td>{service.hostname}</td>
+                  <td>{service.razon_social}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p>No hay servicios Reaprovisionados.</p>
+      )}
+
+<h2>Servicios Retirados</h2>
+      {filteredRetiredServices && filteredRetiredServices.length > 0 ? (
+        <div className="table-responsive">
+          <table className="table table-bordered">
+            <thead>
+              <tr>
+                <th>Tipo de Servicio</th>
+                <th>Dominio</th>
+                <th>Estado</th>
+                <th>Hostname</th>
+                <th>Razón Social</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredRetiredServices.map((service, index) => (
+                <tr key={index}>
+                  <td>{service.tipo_servicio}</td>
+                  <td>{service.dominio}</td>
+                  <td>{service.estado}</td>
+                  <td>{service.hostname}</td>
+                  <td>{service.razon_social}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p>No hay servicios Retirados.</p>
+      )}
+
+
     </div>
+    </>
   );
-}
+};
 
 export default Aprovisionados;

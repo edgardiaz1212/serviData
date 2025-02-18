@@ -21,9 +21,11 @@ const Resumen = () => {
 
   // Validar si servicesCountsByClientType está definido
   const publicServicesCount =
-    store.servicesCountsByClientType?.["Pública"] || 0;
+    store.serviceCountsByClientType?.["Pública"] || 0;
+    console.log(publicServicesCount);
   const privateServicesCount =
-    store.servicesCountsByClientType?.["Privada"] || 0;
+    store.serviceCountsByClientType?.["Privada"] || 0;
+    console.log(privateServicesCount);
 
   // Validar si newServicesCurrentMonth y newServicesPastMonth están definidos
   const newServicesCurrentMonthCount = (store.newServicesCurrentMonth || [])
