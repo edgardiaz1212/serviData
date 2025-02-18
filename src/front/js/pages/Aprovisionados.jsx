@@ -19,7 +19,7 @@ const Aprovisionados = () => {
     <div className="container">
 <h5>Datos del mes en curso</h5>
 
-      <h2>Servicios Aprovisionados</h2>
+      <h2>Servicios Nuevos Aprovisionados</h2>
       {filteredNewServices && filteredNewServices.length > 0 ? (
         <div className="table-responsive">
           <table className="table table-bordered">
