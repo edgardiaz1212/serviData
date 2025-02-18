@@ -124,8 +124,8 @@ function DetalleCliente({ clientData: propClientData }) {
         )}
       </div>
       <div className="container">
-        <div className="row ">
-          <div className="col-6 border border-danger">
+        <div className="row justify-content-between">
+          <div className="col-7 ">
             <h5>Datos del Cliente</h5>
             {clientData && (
               <>
@@ -136,9 +136,9 @@ function DetalleCliente({ clientData: propClientData }) {
             )}
           </div>
           <div className="col-3">
-            <div class="card">
-              <div className="card-body"> # Servicios activos </div>
-              <p className="card-text">{store.activeServiceCount}</p>
+            <div class="card text-bg-success text-center ">
+              <div className="card-body"> {store.activeServiceCount} Servicios activos </div>
+              
             </div>
           </div>
         </div>
@@ -149,7 +149,7 @@ function DetalleCliente({ clientData: propClientData }) {
           <label htmlFor="filter">Mostrar servicios:</label>
           <select
             id="filter"
-            className="form-control border border-success col-3"
+            className="form-control  col-3"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
           >
