@@ -20,8 +20,12 @@ const getState = ({ getStore, getActions, setStore }) => {
       newServicesCurrentMonth: [],
       newServicesLastMonth: [],
       aprovisionados: [],
-      activeServiceCount:0, // Add activeServiceCount state
+      activeServiceCount: 0,
+      document: null, // Add document state
+      documentLoading: false, // Add document loading state
+      documentError: null, // Add document error state
     },
+
 
     actions: {
       // Autenticación
@@ -687,7 +691,72 @@ const getState = ({ getStore, getActions, setStore }) => {
         }
       },
       //Acciones generales
+      // Document handling actions
+      uploadDocument: async (entityType, entityId, file) => {
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+          
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/upload-document/${entityType}/${entityId}`,
+            {
+              method: 'POST',
+              body: formData,
+            }
+          );
+          
+          if (!response.ok) {
+            throw new Error('Failed to upload document');
+          }
+          
+          return await response.json();
+        } catch (error) {
+          console.error('Error uploading document:', error);
+          throw error;
+        }
+      },
+
+      downloadDocument: async (entityType, entityId) => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/download-document/${entityType}/${entityId}`
+          );
+          
+          if (!response.ok) {
+            throw new Error('Failed to download document');
+          }
+          
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          return url;
+        } catch (error) {
+          console.error('Error downloading document:', error);
+          throw error;
+        }
+      },
+
+      deleteDocument: async (entityType, entityId) => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/delete-document/${entityType}/${entityId}`,
+            {
+              method: 'DELETE',
+            }
+          );
+          
+          if (!response.ok) {
+            throw new Error('Failed to delete document');
+          }
+          
+          return await response.json();
+        } catch (error) {
+          console.error('Error deleting document:', error);
+          throw error;
+        }
+      },
+
       uploadExcelData: async (data) => {
+
         try {
           const response = await fetch(
             `${process.env.REACT_APP_BACKEND_URL}/upload-excel`,
