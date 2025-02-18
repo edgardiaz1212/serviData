@@ -134,7 +134,6 @@ const getState = ({ getStore, getActions, setStore }) => {
               (user) => user.id !== loggedInUser.id
             );
             setStore({ users: filteredUsers });
-            console.log("Users data fetched", filteredUsers);
             return filteredUsers;
           } else {
             console.error("Failed to fetch users data");
