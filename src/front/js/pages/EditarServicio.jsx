@@ -64,16 +64,7 @@ function EditarServicio() {
       console.error(error);
     }
   };
-  const handleRetire = async () => {
-    try {
-      await actions.updateServiceData(serviceId, { ...serviceData, estado_servicio: 'retirado' });
-      toast.success('Servicio retirado correctamente');
-      navigate(`/detalle-servicio/${serviceId}`);
-    } catch (error) {
-      toast.error('Error al retirar el servicio');
-      console.error(error);
-    }
-  };
+  
   if (!serviceData) {
     return <div>Loading...</div>;
   }
@@ -85,9 +76,7 @@ function EditarServicio() {
       <button className="btn btn-primary mt-3" onClick={handleSave}>
         Guardar
       </button>
-      <button className="btn btn-outline-danger mt-3 ms-2" onClick={handleRetire}>
-        Retirar Servicio
-      </button>
+      
       <button className="btn btn-danger mt-3 ms-2" onClick={handleDelete}>
         Eliminar
       </button>
