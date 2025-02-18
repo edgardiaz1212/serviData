@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timezone
+from sqlalchemy import LargeBinary
 
 db = SQLAlchemy()
 
@@ -11,6 +12,7 @@ class Cliente(db.Model):
     razon_social = db.Column(db.String)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))  # Fecha de creación
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))  # Fecha de actualización
+    documento = db.Column(LargeBinary)
 
     servicios = db.relationship("Servicio", back_populates="cliente")
 
@@ -20,6 +22,7 @@ class Cliente(db.Model):
             'tipo': self.tipo,
             'rif': self.rif,
             'razon_social': self.razon_social,
+            'documento': self.documento,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),
         }
@@ -56,7 +59,7 @@ class Servicio(db.Model):
     observaciones = db.Column(db.String)
     facturado = db.Column(db.String)
     comentarios = db.Column(db.String)
-
+    documento = db.Column(LargeBinary)
     # Nuevo campo para el estado del servicio
     estado_servicio = db.Column(db.String, default="nuevo")  # Valores posibles: "nuevo", "aprovisionado", "reaprovisionado"
 
@@ -98,6 +101,7 @@ class Servicio(db.Model):
             'facturado': self.facturado,
             'comentarios': self.comentarios,
             'estado_servicio': self.estado_servicio,
+            'documento': self.documento,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),
         }
