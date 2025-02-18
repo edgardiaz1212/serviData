@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Context } from '../store/appContext';
+import ModalDocumentLoad from '../component/ModalDocumentLoad';
 
 const DetalleServicio = () => {
   const { serviceId } = useParams();
@@ -147,6 +148,7 @@ const DetalleServicio = () => {
         <div className="col-md-6 mb-3">
           <p><strong>Comentarios:</strong> {serviceData.comentarios}</p>
         </div>
+        <ModalDocumentLoad />
       </div>
       <button className="btn btn-secondary" onClick={() => navigate('/clientes')}>Volver</button>
     

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Context } from "../store/appContext";
+import ModalDocumentLoad from "../component/ModalDocumentLoad";
 
 function DetalleCliente({ clientData: propClientData }) {
   const { clientId } = useParams();
@@ -142,6 +143,7 @@ function DetalleCliente({ clientData: propClientData }) {
             </div>
           </div>
         </div>
+        <ModalDocumentLoad/>
       </div>
       <div>
         <h5>Servicios</h5>
