@@ -67,23 +67,23 @@ function DetalleCliente({ clientData: propClientData }) {
 
  
 
-  const getServiceItemClass = (service) => {
-    const { estado_servicio, updated_at } = service;
-    let className = 'list-group-item';
+  // const getServiceItemClass = (service) => {
+  //   const { estado_servicio, updated_at } = service;
+  //   let className = 'list-group-item';
 
-    if (estado_servicio === 'Nuevo' ) {
-      className += ' list-group-item-success';
-    } else if (estado_servicio === 'Reaprovisionado' ) {
-      className += ' list-group-item-warning';
-    }
-    else if (estado_servicio === 'Aprovisionado') {
-      className += ' list-group';
+  //   if (estado_servicio === 'Nuevo' ) {
+  //     className += ' list-group-item-success';
+  //   } else if (estado_servicio === 'Reaprovisionado' ) {
+  //     className += ' list-group-item-warning';
+  //   }
+  //   else if (estado_servicio === 'Aprovisionado') {
+  //     className += ' list-group';
       
-    }
+  //   }
 
 
-    return className;
-  };
+  //  return className;
+ // };
 
   const filteredServices = servicesData.filter(service => {
     if (filter === 'activos') {
@@ -116,11 +116,11 @@ function DetalleCliente({ clientData: propClientData }) {
       </div>
       <div>
         <h5>Servicios</h5>
-        <div className="form-group">
+        <div className="form-group ">
           <label htmlFor="filter">Mostrar servicios:</label>
           <select
             id="filter"
-            className="form-control"
+            className="form-control border border-success col-3"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
           >
@@ -133,7 +133,7 @@ function DetalleCliente({ clientData: propClientData }) {
             filteredServices.map((service, index) => (
               <div
                 key={index}
-                className={getServiceItemClass(service)}
+                className= 'list-group-item list-group-item-action'
                 onClick={() => handleServiceClick(service.id)}
               >
                 <div className="d-flex w-100 justify-content-between">
