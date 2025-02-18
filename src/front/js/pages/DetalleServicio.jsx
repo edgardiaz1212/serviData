@@ -39,8 +39,10 @@ const DetalleServicio = () => {
           Editar Datos
         </button>
       </div>
-      <h4>Ultimo status</h4>
-      
+      <h5>Ultimo status</h5>
+      <div className="col-md-6 mb-3">
+          <p>{serviceData.estado_servicio}</p>
+        </div>
 
       <h3>Datos de identificación del servicio</h3>
       <div className="row">

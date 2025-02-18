@@ -143,21 +143,7 @@ function InputClienteServicio({ onSubmit }) {
           handleChange={handleServiceChange}
         />
 
-<div className="form-group mt-3">
-          <label htmlFor="estado_servicio">Estado del Servicio</label>
-          <select
-            className="form-control"
-            id="estado_servicio"
-            name="estado_servicio"
-            value={serviceData.estado_servicio}
-            onChange={handleServiceChange}
-          >
-            <option value="nuevo">Nuevo Aprovisionamiento</option>
-            <option value="aprovisionado">Aprovisionado</option>
-            <option value="reaprovisionado">Reaprovisionado</option>
-            <option value="retirado">Retirado</option>
-          </select>
-        </div>
+
 
         <button className="btn btn-success mt-2 w-25" type="submit">
           Guardar

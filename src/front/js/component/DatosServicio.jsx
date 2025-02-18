@@ -354,7 +354,25 @@ const DatosServicio = ({ serviceData, handleChange }) => {
             id="comentarios"
           />
         </div>
+
+
       </div>
+
+      <div className="form-group mt-3">
+          <label htmlFor="estado_servicio">Estado del Servicio</label>
+          <select
+            className="form-control"
+            id="estado_servicio"
+            name="estado_servicio"
+            value={serviceData.estado_servicio}
+            onChange={handleChange}
+          >
+            <option value="Nuevo">Nuevo Aprovisionamiento</option>
+            <option value="Aprovisionado">Aprovisionado</option>
+            <option value="Reaprovisionado">Reaprovisionado</option>
+            <option value="Retirado">Retirado</option>
+          </select>
+        </div>
     </div>
   );
 };

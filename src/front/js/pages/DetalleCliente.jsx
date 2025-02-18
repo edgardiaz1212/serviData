@@ -15,7 +15,9 @@ function DetalleCliente({ clientData: propClientData }) {
         const client = await actions.getClientById(clientId);
         setClientData(client);
         const services = await actions.getServicebyClient(clientId);
-        setServicesData(services || []);
+        // Filtrar los servicios donde el estado_servicio no sea "Retirado"
+        const activeServices = services.filter(service => service.estado_servicio !== 'Retirado');
+        setServicesData(activeServices || []);
       };
       fetchClientAndServices();
     }
