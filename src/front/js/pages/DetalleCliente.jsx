@@ -32,9 +32,13 @@ function DetalleCliente({ clientData: propClientData }) {
   };
 
   const renderServiceDetail = (label, value) => {
-    return value ? (
-      <p className="mb-1"><strong>{label}:</strong> {value}</p>
-    ) : null;
+    // Ignora valores null, undefined y 0
+    if (value === null || value === undefined || value === 0) return null;
+    return (
+      <p>
+        <strong>{label}:</strong> {value}
+      </p>
+    );
   };
 
   const hasIdentificationDetails = (service) => {
@@ -46,11 +50,13 @@ function DetalleCliente({ clientData: propClientData }) {
   };
 
   const hasResourceDetails = (service) => {
-    return service.cores || service.ram || service.hdd || service.cpu;
+    return service.cores !== 0 || service.ram !== 0 || service.hdd !== 0 || service.cpu !== 0;
   };
 
   const hasNetworkDetails = (service) => {
-    return service.ip_privada || service.vlan || service.ipam;
+    return (service.ip_privada && service.ip_privada !== 0) || 
+           (service.vlan && service.vlan !== 0) || 
+           (service.ipam && service.ipam !== 0);
   };
 
   const hasInfrastructureDetails = (service) => {
@@ -123,7 +129,6 @@ function DetalleCliente({ clientData: propClientData }) {
                       <div className="card-body">
                         <h5 className="card-title">Recursos</h5>
                         <div className="card-text">
-                          {renderServiceDetail("Cores", service.cores)}
                           {renderServiceDetail("RAM", service.ram)}
                           {renderServiceDetail("HDD", service.hdd)}
                           {renderServiceDetail("CPU", service.cpu)}
