@@ -8,6 +8,7 @@ function DetalleCliente({ clientData: propClientData }) {
   const navigate = useNavigate();
   const [clientData, setClientData] = useState(propClientData || null);
   const [servicesData, setServicesData] = useState([]);
+  const [filter, setFilter] = useState('activos'); // Estado para el filtro
 
   useEffect(() => {
     if (!propClientData) {
@@ -15,9 +16,7 @@ function DetalleCliente({ clientData: propClientData }) {
         const client = await actions.getClientById(clientId);
         setClientData(client);
         const services = await actions.getServicebyClient(clientId);
-        // Filtrar los servicios donde el estado_servicio no sea "retirado"
-        const activeServices = services.filter(service => service.estado_servicio !== 'Retirado');
-        setServicesData(activeServices || []);
+        setServicesData(services || []);
       };
       fetchClientAndServices();
     }
@@ -66,19 +65,15 @@ function DetalleCliente({ clientData: propClientData }) {
     return service.ubicacion || service.observaciones || service.facturado || service.comentarios;
   };
 
-  const isCurrentMonth = (date) => {
-    const now = new Date();
-    const updatedDate = new Date(date);
-    return now.getMonth() === updatedDate.getMonth() && now.getFullYear() === updatedDate.getFullYear();
-  };
+ 
 
   const getServiceItemClass = (service) => {
     const { estado_servicio, updated_at } = service;
     let className = 'list-group-item';
 
-    if (estado_servicio === 'Nuevo' && isCurrentMonth(updated_at)) {
+    if (estado_servicio === 'Nuevo' ) {
       className += ' list-group-item-success';
-    } else if (estado_servicio === 'Reaprovisionado' && isCurrentMonth(updated_at)) {
+    } else if (estado_servicio === 'Reaprovisionado' ) {
       className += ' list-group-item-warning';
     }
     else if (estado_servicio === 'Aprovisionado') {
@@ -86,10 +81,18 @@ function DetalleCliente({ clientData: propClientData }) {
       
     }
 
-    
 
     return className;
   };
+
+  const filteredServices = servicesData.filter(service => {
+    if (filter === 'activos') {
+      return ['Nuevo', 'Aprovisionado', 'Reaprovisionado'].includes(service.estado_servicio);
+    } else if (filter === 'retirados') {
+      return service.estado_servicio === 'Retirado';
+    }
+    return true;
+  });
 
   return (
     <div className="container vh-100'">
@@ -113,9 +116,21 @@ function DetalleCliente({ clientData: propClientData }) {
       </div>
       <div>
         <h5>Servicios</h5>
+        <div className="form-group">
+          <label htmlFor="filter">Mostrar servicios:</label>
+          <select
+            id="filter"
+            className="form-control"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          >
+            <option value="activos">Activos</option>
+            <option value="retirados">Retirados</option>
+          </select>
+        </div>
         <ul className="list-group">
-          {servicesData.length > 0 ? (
-            servicesData.map((service, index) => (
+          {filteredServices.length > 0 ? (
+            filteredServices.map((service, index) => (
               <div
                 key={index}
                 className={getServiceItemClass(service)}

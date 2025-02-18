@@ -12,9 +12,13 @@ const Aprovisionados = () => {
   const filteredReaprovServices = store.newServicesCurrentMonth.filter(service => service.estado_servicio === 'Reaprovisionado');
   const filteredRetiredServices = store.newServicesCurrentMonth.filter(service => service.estado_servicio === 'Retirado');
   
+  
   return (
   <>
+
     <div className="container">
+<h5>Datos del mes en curso</h5>
+
       <h2>Servicios Aprovisionados</h2>
       {filteredNewServices && filteredNewServices.length > 0 ? (
         <div className="table-responsive">
