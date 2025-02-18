@@ -14,6 +14,7 @@ const ServiceTypeBarChart = () => {
 
   const serviceCountsByType = store.serviceCountsByType || {}; // Default to empty object if undefined or null
 
+
   const labels = [];
   const datasets = [];
 

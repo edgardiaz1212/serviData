@@ -355,16 +355,31 @@ def get_top_services():
     return jsonify(top_services_list), 200
 
 @api.route('/service-counts-by-type', methods=['GET'])
-def get_service_counts_by_type():
-    service_counts = db.session.query(
-        Cliente.tipo, Servicio.tipo_servicio, db.func.count(Servicio.id)
-    ).join(Cliente, Servicio.cliente_id == Cliente.id).group_by(Cliente.tipo, Servicio.tipo_servicio).all()
-    service_counts_dict = {}
-    for cliente_tipo, servicio_tipo, count in service_counts:
-        if cliente_tipo not in service_counts_dict:
-            service_counts_dict[cliente_tipo] = {}
-        service_counts_dict[cliente_tipo][servicio_tipo] = count
-    return jsonify(service_counts_dict), 200
+def get_service_counts_by_type_active():
+    try:
+        # Consulta para obtener el conteo de servicios agrupados por tipo de cliente y tipo de servicio
+        service_counts = db.session.query(
+            Cliente.tipo, Servicio.tipo_servicio, db.func.count(Servicio.id)
+        ).join(
+            Cliente, Servicio.cliente_id == Cliente.id
+        ).filter(
+            Servicio.estado_servicio != "Retirado"  # Filtrar servicios que no estén retirados
+        ).group_by(
+            Cliente.tipo, Servicio.tipo_servicio
+        ).all()
+
+        # Convertir los resultados en un diccionario anidado
+        service_counts_dict = {}
+        for cliente_tipo, servicio_tipo, count in service_counts:
+            if cliente_tipo not in service_counts_dict:
+                service_counts_dict[cliente_tipo] = {}
+            service_counts_dict[cliente_tipo][servicio_tipo] = count
+
+        return jsonify(service_counts_dict), 200
+
+    except Exception as e:
+        # Manejar errores generales
+        return jsonify({"error": str(e)}), 500
 
 @api.route('/service-counts-by-client-type/<client_type>', methods=['GET'])
 def get_service_counts_by_client_type(client_type):
