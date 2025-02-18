@@ -1,4 +1,7 @@
-from flask import Flask, request, jsonify, url_for, Blueprint, session
+from flask import Flask, request, jsonify, url_for, Blueprint, session, send_file
+from werkzeug.utils import secure_filename
+import io
+
 from api.models import db, User, Cliente, Servicio
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
@@ -584,7 +587,67 @@ def add_client_and_service():
         return jsonify({"error": str(e)}), 500
 
 #acciones generales
+@api.route('/upload-document/<entity_type>/<entity_id>', methods=['POST'])
+def upload_document(entity_type, entity_id):
+    """Upload a document for a client or service"""
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+        
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+        
+    try:
+        # Get the appropriate model based on entity type
+        if entity_type == 'client':
+            entity = Cliente.query.get(entity_id)
+        elif entity_type == 'service':
+            entity = Servicio.query.get(entity_id)
+        else:
+            return jsonify({"error": "Invalid entity type"}), 400
+            
+        if not entity:
+            return jsonify({"error": f"{entity_type.capitalize()} not found"}), 404
+            
+        # Read file data
+        file_data = file.read()
+        entity.documento = file_data
+        db.session.commit()
+        
+        return jsonify({"message": "File uploaded successfully"}), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+@api.route('/download-document/<entity_type>/<entity_id>', methods=['GET'])
+def download_document(entity_type, entity_id):
+    """Download a document for a client or service"""
+    try:
+        # Get the appropriate model based on entity type
+        if entity_type == 'client':
+            entity = Cliente.query.get(entity_id)
+        elif entity_type == 'service':
+            entity = Servicio.query.get(entity_id)
+        else:
+            return jsonify({"error": "Invalid entity type"}), 400
+            
+        if not entity or not entity.documento:
+            return jsonify({"error": "Document not found"}), 404
+            
+        # Return the file as a download
+        return send_file(
+            io.BytesIO(entity.documento),
+            mimetype='application/octet-stream',
+            as_attachment=True,
+            download_name=f'document_{entity_id}.pdf'
+        )
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @api.route('/upload-excel', methods=['POST'])
+
 def upload_excel():
     data = request.get_json()
     df = pd.DataFrame(data)
