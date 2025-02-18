@@ -19,7 +19,8 @@ const getState = ({ getStore, getActions, setStore }) => {
       topServices: [],
       newServicesCurrentMonth: [],
       newServicesLastMonth: [],
-      aprovisionados: []
+      aprovisionados: [],
+      activeServiceCount:0, // Add activeServiceCount state
     },
 
     actions: {
@@ -436,6 +437,8 @@ const getState = ({ getStore, getActions, setStore }) => {
           );
           if (response.ok) {
             const data = await response.json();
+            const activeServices = data.filter(service => service.estado_servicio !== 'Retirado');
+            setStore({ activeServiceCount: activeServices.length });
             return data;
           } else {
             console.error("Failed to get service data");

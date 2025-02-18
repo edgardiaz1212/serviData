@@ -30,6 +30,7 @@ const Aprovisionados = () => {
                 <th>Estado</th>
                 <th>Hostname</th>
                 <th>Razón Social</th>
+                <th>Rif</th>
               </tr>
             </thead>
             <tbody>
@@ -39,7 +40,8 @@ const Aprovisionados = () => {
                   <td>{service.dominio}</td>
                   <td>{service.estado}</td>
                   <td>{service.hostname}</td>
-                  <td>{service.razon_social}</td>
+                  <td>{service.cliente.razon_social}</td>
+                  <td>{service.cliente.rif}</td>
                 </tr>
               ))}
             </tbody>
@@ -62,6 +64,7 @@ const Aprovisionados = () => {
                 <th>Estado</th>
                 <th>Hostname</th>
                 <th>Razón Social</th>
+                <th>Rif</th>
               </tr>
             </thead>
             <tbody>
@@ -72,6 +75,7 @@ const Aprovisionados = () => {
                   <td>{service.estado}</td>
                   <td>{service.hostname}</td>
                   <td>{service.razon_social}</td>
+                  <td>{service.cliente.rif}</td>
                 </tr>
               ))}
             </tbody>
@@ -92,6 +96,7 @@ const Aprovisionados = () => {
                 <th>Estado</th>
                 <th>Hostname</th>
                 <th>Razón Social</th>
+                <th>Rif</th>
               </tr>
             </thead>
             <tbody>
@@ -102,6 +107,7 @@ const Aprovisionados = () => {
                   <td>{service.estado}</td>
                   <td>{service.hostname}</td>
                   <td>{service.razon_social}</td>
+                  <td>{service.cliente.rif}</td>
                 </tr>
               ))}
             </tbody>

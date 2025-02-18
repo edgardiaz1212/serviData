@@ -390,24 +390,6 @@ def get_service_counts_by_client_type(client_type):
         # Manejar errores generales
         return jsonify({"error": str(e)}), 500
     
-@api.route('/aprovisionados', methods=['GET'])
-def get_aprovisionados():
-    try:
-        aprovisionados = db.session.query(Servicio, Cliente.razon_social).join(Cliente).filter(Servicio.estado_servicio == 'Nuevo').all()
-        result = [
-            {
-                "id": service.id,
-                "dominio": service.dominio,
-                "estado": service.estado,
-                "tipo_servicio": service.tipo_servicio,
-                "hostname": service.hostname,
-                "razon_social": razon_social
-            }
-            for service, razon_social in aprovisionados
-        ]
-        return jsonify(result), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
     
 @api.route('/new-services-current-month', methods=['GET'])
 def get_new_services_current_month():
@@ -421,9 +403,8 @@ def get_new_services_current_month():
         else:
             start_of_next_month = start_of_month.replace(month=current_date.month + 1)
 
-        # Consulta para obtener servicios nuevos en el mes actual junto con la razón social del cliente
-        new_services = db.session.query(Servicio, Cliente.razon_social).join(Cliente).filter(
-            # Servicio.estado_servicio == 'Nuevo',
+        # Consulta para obtener servicios nuevos en el mes actual junto con todos los datos del cliente
+        new_services = db.session.query(Servicio, Cliente).join(Cliente).filter(
             Servicio.updated_at >= start_of_month,
             Servicio.updated_at < start_of_next_month
         ).all()
@@ -461,9 +442,16 @@ def get_new_services_current_month():
                 "estado_servicio": service.estado_servicio,
                 "created_at": service.created_at,
                 "updated_at": service.updated_at,
-                "razon_social": razon_social
+                "cliente": {
+                    "id": cliente.id,
+                    "tipo": cliente.tipo,
+                    "rif": cliente.rif,
+                    "razon_social": cliente.razon_social,
+                    "created_at": cliente.created_at,
+                    "updated_at": cliente.updated_at
+                }
             }
-            for service, razon_social in new_services
+            for service, cliente in new_services
         ]
         return jsonify(result), 200
     except Exception as e:

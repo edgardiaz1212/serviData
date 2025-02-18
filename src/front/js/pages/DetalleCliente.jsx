@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Context } from '../store/appContext';
+import React, { useEffect, useState, useContext } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Context } from "../store/appContext";
 
 function DetalleCliente({ clientData: propClientData }) {
   const { clientId } = useParams();
@@ -8,7 +8,7 @@ function DetalleCliente({ clientData: propClientData }) {
   const navigate = useNavigate();
   const [clientData, setClientData] = useState(propClientData || null);
   const [servicesData, setServicesData] = useState([]);
-  const [filter, setFilter] = useState('activos'); // Estado para el filtro
+  const [filter, setFilter] = useState("activos"); // Estado para el filtro
 
   useEffect(() => {
     if (!propClientData) {
@@ -20,7 +20,7 @@ function DetalleCliente({ clientData: propClientData }) {
       };
       fetchClientAndServices();
     }
-  }, [clientId, actions, propClientData]);
+  }, [clientId, propClientData]);
 
   const handleServiceClick = (serviceId) => {
     navigate(`/detalle-servicio/${serviceId}`);
@@ -48,24 +48,40 @@ function DetalleCliente({ clientData: propClientData }) {
   };
 
   const hasResourceDetails = (service) => {
-    return service.cores !== 0 || service.ram !== 0 || service.hdd !== 0 || service.cpu !== 0;
+    return (
+      service.cores !== 0 ||
+      service.ram !== 0 ||
+      service.hdd !== 0 ||
+      service.cpu !== 0
+    );
   };
 
   const hasNetworkDetails = (service) => {
-    return (service.ip_privada && service.ip_privada !== 0) || 
-           (service.vlan && service.vlan !== 0) || 
-           (service.ipam && service.ipam !== 0);
+    return (
+      (service.ip_privada && service.ip_privada !== 0) ||
+      (service.vlan && service.vlan !== 0) ||
+      (service.ipam && service.ipam !== 0)
+    );
   };
 
   const hasInfrastructureDetails = (service) => {
-    return service.nombre_servidor || service.marca_servidor || service.modelo_servidor || service.nombre_nodo || service.nombre_plataforma;
+    return (
+      service.nombre_servidor ||
+      service.marca_servidor ||
+      service.modelo_servidor ||
+      service.nombre_nodo ||
+      service.nombre_plataforma
+    );
   };
 
   const hasOtherDetails = (service) => {
-    return service.ubicacion || service.observaciones || service.facturado || service.comentarios;
+    return (
+      service.ubicacion ||
+      service.observaciones ||
+      service.facturado ||
+      service.comentarios
+    );
   };
-
- 
 
   // const getServiceItemClass = (service) => {
   //   const { estado_servicio, updated_at } = service;
@@ -78,41 +94,54 @@ function DetalleCliente({ clientData: propClientData }) {
   //   }
   //   else if (estado_servicio === 'Aprovisionado') {
   //     className += ' list-group';
-      
+
   //   }
 
-
   //  return className;
- // };
+  // };
 
-  const filteredServices = servicesData.filter(service => {
-    if (filter === 'activos') {
-      return ['Nuevo', 'Aprovisionado', 'Reaprovisionado'].includes(service.estado_servicio);
-    } else if (filter === 'retirados') {
-      return service.estado_servicio === 'Retirado';
+  const filteredServices = servicesData.filter((service) => {
+    if (filter === "activos") {
+      return ["Nuevo", "Aprovisionado", "Reaprovisionado"].includes(
+        service.estado_servicio
+      );
+    } else if (filter === "retirados") {
+      return service.estado_servicio === "Retirado";
     }
     return true;
   });
 
   return (
     <div className="container vh-100'">
-      <div className="d-flex justify-content-between align-items-center">
-        <h3>Detalles del Cliente {clientData ? clientData.razon_social : ''}</h3>
-        {store.user?.role === 'Admin' && (
+      <div className="d-flex justify-content-between align-items-center ">
+        <h3>
+          Detalles del Cliente {clientData ? clientData.razon_social : ""}
+        </h3>
+        {store.user?.role === "Admin" && (
           <button className="btn btn-primary" onClick={handleEditUserClick}>
             Editar Usuario
           </button>
         )}
       </div>
-      <div>
-        <h5>Datos del Cliente</h5>
-        {clientData && (
-          <>
-            {renderServiceDetail('RIF', clientData.rif)}
-            {renderServiceDetail('Razón Social', clientData.razon_social)}
-            {renderServiceDetail('Tipo', clientData.tipo)}
-          </>
-        )}
+      <div className="container">
+        <div className="row ">
+          <div className="col-6 border border-danger">
+            <h5>Datos del Cliente</h5>
+            {clientData && (
+              <>
+                {renderServiceDetail("RIF", clientData.rif)}
+                {renderServiceDetail("Razón Social", clientData.razon_social)}
+                {renderServiceDetail("Tipo", clientData.tipo)}
+              </>
+            )}
+          </div>
+          <div className="col-3">
+            <div class="card">
+              <div className="card-body"> # Servicios activos </div>
+              <p className="card-text">{store.activeServiceCount}</p>
+            </div>
+          </div>
+        </div>
       </div>
       <div>
         <h5>Servicios</h5>
@@ -133,11 +162,13 @@ function DetalleCliente({ clientData: propClientData }) {
             filteredServices.map((service, index) => (
               <div
                 key={index}
-                className= 'list-group-item list-group-item-action'
+                className="list-group-item list-group-item-action"
                 onClick={() => handleServiceClick(service.id)}
               >
                 <div className="d-flex w-100 justify-content-between">
-                  <h5 className="mb-1">{service.tipo_servicio || "Servicio"}</h5>
+                  <h5 className="mb-1">
+                    {service.tipo_servicio || "Servicio"}
+                  </h5>
                 </div>
                 <div className="d-flex justify-content-between">
                   {hasIdentificationDetails(service) && (
@@ -146,7 +177,10 @@ function DetalleCliente({ clientData: propClientData }) {
                         <h5 className="card-title">Identificación</h5>
                         <div className="card-text">
                           {renderServiceDetail("Dominio", service.dominio)}
-                          {renderServiceDetail("Tipo de Servicio", service.tipo_servicio)}
+                          {renderServiceDetail(
+                            "Tipo de Servicio",
+                            service.tipo_servicio
+                          )}
                           {renderServiceDetail("Hostname", service.hostname)}
                         </div>
                       </div>
@@ -180,7 +214,10 @@ function DetalleCliente({ clientData: propClientData }) {
                       <div className="card-body">
                         <h5 className="card-title">Red</h5>
                         <div className="card-text">
-                          {renderServiceDetail("IP Privada", service.ip_privada)}
+                          {renderServiceDetail(
+                            "IP Privada",
+                            service.ip_privada
+                          )}
                           {renderServiceDetail("VLAN", service.vlan)}
                           {renderServiceDetail("IPAM", service.ipam)}
                         </div>
@@ -192,11 +229,26 @@ function DetalleCliente({ clientData: propClientData }) {
                       <div className="card-body">
                         <h5 className="card-title">Infraestructura</h5>
                         <div className="card-text">
-                          {renderServiceDetail("Nombre del Servidor", service.nombre_servidor)}
-                          {renderServiceDetail("Marca del Servidor", service.marca_servidor)}
-                          {renderServiceDetail("Modelo del Servidor", service.modelo_servidor)}
-                          {renderServiceDetail("Nombre del Nodo", service.nombre_nodo)}
-                          {renderServiceDetail("Nombre de la Plataforma", service.nombre_plataforma)}
+                          {renderServiceDetail(
+                            "Nombre del Servidor",
+                            service.nombre_servidor
+                          )}
+                          {renderServiceDetail(
+                            "Marca del Servidor",
+                            service.marca_servidor
+                          )}
+                          {renderServiceDetail(
+                            "Modelo del Servidor",
+                            service.modelo_servidor
+                          )}
+                          {renderServiceDetail(
+                            "Nombre del Nodo",
+                            service.nombre_nodo
+                          )}
+                          {renderServiceDetail(
+                            "Nombre de la Plataforma",
+                            service.nombre_plataforma
+                          )}
                         </div>
                       </div>
                     </div>
@@ -207,9 +259,15 @@ function DetalleCliente({ clientData: propClientData }) {
                         <h5 className="card-title">Otros</h5>
                         <div className="card-text">
                           {renderServiceDetail("Ubicación", service.ubicacion)}
-                          {renderServiceDetail("Observaciones", service.observaciones)}
+                          {renderServiceDetail(
+                            "Observaciones",
+                            service.observaciones
+                          )}
                           {renderServiceDetail("Facturado", service.facturado)}
-                          {renderServiceDetail("Comentarios", service.comentarios)}
+                          {renderServiceDetail(
+                            "Comentarios",
+                            service.comentarios
+                          )}
                         </div>
                       </div>
                     </div>
@@ -218,11 +276,18 @@ function DetalleCliente({ clientData: propClientData }) {
               </div>
             ))
           ) : (
-            <li className="list-group-item">No hay servicios registrados para este cliente.</li>
+            <li className="list-group-item">
+              No hay servicios registrados para este cliente.
+            </li>
           )}
         </ul>
       </div>
-      <button className="btn btn-secondary mt-3" onClick={() => navigate( '/clientes')   }>Regresar</button>
+      <button
+        className="btn btn-secondary mt-3"
+        onClick={() => navigate("/clientes")}
+      >
+        Regresar
+      </button>
     </div>
   );
 }
