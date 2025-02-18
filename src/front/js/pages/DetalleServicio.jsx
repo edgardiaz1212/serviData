@@ -8,6 +8,8 @@ const DetalleServicio = () => {
   const { actions } = useContext(Context);
   const navigate = useNavigate();
   const [serviceData, setServiceData] = useState(null);
+  const [showDocumentModal, setShowDocumentModal] = useState(false);
+
 
   useEffect(() => {
     const fetchServiceData = async () => {
@@ -21,7 +23,7 @@ const DetalleServicio = () => {
       } 
     };
     fetchServiceData();
-  }, [serviceId, actions]);
+  }, [serviceId]);
 
   if (!serviceData) {
     return <div>Loading...</div>;
@@ -36,9 +38,18 @@ const DetalleServicio = () => {
       <div className="d-flex justify-content-between align-items-center">
         <h2>Detalles del Servicio</h2>
         
-        <button className="btn btn-primary" onClick={handleEditClick}>
-          Editar Datos
-        </button>
+        <div>
+          <button className="btn btn-primary me-2" onClick={handleEditClick}>
+            Editar Datos
+          </button>
+          <button 
+            className="btn btn-secondary"
+            onClick={() => setShowDocumentModal(true)}
+          >
+            Gestionar Documentos
+          </button>
+        </div>
+
       </div>
       <h5>Ultimo status</h5>
       <div className="col-md-6 mb-3">
@@ -148,7 +159,13 @@ const DetalleServicio = () => {
         <div className="col-md-6 mb-3">
           <p><strong>Comentarios:</strong> {serviceData.comentarios}</p>
         </div>
-        <ModalDocumentLoad />
+        <ModalDocumentLoad
+          entityType="service"
+          entityId={serviceId}
+          show={showDocumentModal}
+          onClose={() => setShowDocumentModal(false)}
+        />
+
       </div>
       <button className="btn btn-secondary" onClick={() => navigate('/clientes')}>Volver</button>
     
