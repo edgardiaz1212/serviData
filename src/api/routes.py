@@ -348,11 +348,26 @@ def delete_service(service_id):
 
 @api.route('/top-services', methods=['GET'])
 def get_top_services():
-    top_services = db.session.query(
-        Servicio.tipo_servicio, db.func.count(Servicio.id).label('count')
-    ).group_by(Servicio.tipo_servicio).order_by(db.desc('count')).limit(10).all()
-    top_services_list = [{'tipo_servicio': tipo_servicio, 'count': count} for tipo_servicio, count in top_services]
-    return jsonify(top_services_list), 200
+    try:
+        # Consulta para obtener los servicios más populares, excluyendo aquellos con estado_servicio = "Retirado"
+        top_services = db.session.query(
+            Servicio.tipo_servicio, db.func.count(Servicio.id).label('count')
+        ).filter(
+            Servicio.estado_servicio != "Retirado"  # Filtrar servicios que no estén retirados
+        ).group_by(
+            Servicio.tipo_servicio
+        ).order_by(
+            db.desc('count')  # Ordenar por conteo descendente
+        ).limit(10).all()  # Limitar a los 10 servicios más populares
+
+        # Convertir los resultados en una lista de diccionarios
+        top_services_list = [{'tipo_servicio': tipo_servicio, 'count': count} for tipo_servicio, count in top_services]
+
+        return jsonify(top_services_list), 200
+
+    except Exception as e:
+        # Manejar errores generales
+        return jsonify({"error": str(e)}), 500
 
 @api.route('/service-counts-by-type', methods=['GET'])
 def get_service_counts_by_type_active():
