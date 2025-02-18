@@ -1,26 +1,24 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Context } from '../store/appContext';
-import DatosServicio from '../component/DatosServicio';
+import DatosServicio from '../component/DatosServicio.jsx';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const EditarServicio = () => {
-  const { serviceId } = useParams();
-  const navigate = useNavigate();
+function EditarServicio() {
+  const { serviceId,clientId } = useParams();
   const { actions } = useContext(Context);
+  const navigate = useNavigate();
   const [serviceData, setServiceData] = useState(null);
 
   useEffect(() => {
     const fetchServiceData = async () => {
-      try {
-        const data = await actions.getServiceById(serviceId);
-        setServiceData(data);
-      } catch (error) {
-        console.error(error);
-      }
+      const service = await actions.getServiceById(serviceId);
+      console.log('service:', service);
+      // Verificar si service es un array y extraer el primer elemento si es necesario
+      const serviceObject = Array.isArray(service) ? service[0] : service;
+      setServiceData(serviceObject);
     };
-
     fetchServiceData();
   }, [serviceId, actions]);
 

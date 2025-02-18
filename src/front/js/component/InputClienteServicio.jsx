@@ -155,6 +155,7 @@ function InputClienteServicio({ onSubmit }) {
             <option value="nuevo">Nuevo Aprovisionamiento</option>
             <option value="aprovisionado">Aprovisionado</option>
             <option value="reaprovisionado">Reaprovisionado</option>
+            <option value="retirado">Retirado</option>
           </select>
         </div>
 
