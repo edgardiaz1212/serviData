@@ -13,7 +13,10 @@ function Reportes() {
     <p>Servicios Publica</p>
     <p>Servicios Privada</p>
     <p>Servicios retirados por mes</p>
+    <p> Servicios aprovisionados por mes en curso</p>
     <p> Servicios aprovisionados por mes</p>
+    <p> Servicios aprovisionados por ano</p>
+
     </>
   )
 }
