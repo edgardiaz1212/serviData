@@ -83,7 +83,7 @@ const ModalDocumentLoad = ({ entityType, entityId, show, onClose }) => {
       <div className="modal-dialog">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">Document Management</h5>
+            <h5 className="modal-title">Carga Documentos</h5>
             <button 
               type="button" 
               className="btn-close" 

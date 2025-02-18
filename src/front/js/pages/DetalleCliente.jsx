@@ -10,6 +10,7 @@ function DetalleCliente({ clientData: propClientData }) {
   const [clientData, setClientData] = useState(propClientData || null);
   const [servicesData, setServicesData] = useState([]);
   const [filter, setFilter] = useState("activos"); // Estado para el filtro
+   const [showDocumentModal, setShowDocumentModal] = useState(false);
 
   useEffect(() => {
     if (!propClientData) {
@@ -124,7 +125,7 @@ function DetalleCliente({ clientData: propClientData }) {
           </button>
         )}
       </div>
-      <div className="container">
+      <div className="container border-bottom">
         <div className="row justify-content-between">
           <div className="col-7 ">
             <h5>Datos del Cliente</h5>
@@ -143,7 +144,12 @@ function DetalleCliente({ clientData: propClientData }) {
             </div>
           </div>
         </div>
-        <ModalDocumentLoad/>
+        <button 
+            className="btn btn-secondary"
+            onClick={() => setShowDocumentModal(true)}
+          >
+            Gestionar Documentos
+          </button>
       </div>
       <div>
         <h5>Servicios</h5>
@@ -290,6 +296,12 @@ function DetalleCliente({ clientData: propClientData }) {
       >
         Regresar
       </button>
+      <ModalDocumentLoad
+          entityType="client"
+          entityId={clientId}
+          show={showDocumentModal}
+          onClose={() => setShowDocumentModal(false)}
+        />
     </div>
   );
 }
