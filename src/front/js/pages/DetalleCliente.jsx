@@ -15,7 +15,7 @@ function DetalleCliente({ clientData: propClientData }) {
         const client = await actions.getClientById(clientId);
         setClientData(client);
         const services = await actions.getServicebyClient(clientId);
-        // Filtrar los servicios donde el estado_servicio no sea "Retirado"
+        // Filtrar los servicios donde el estado_servicio no sea "retirado"
         const activeServices = services.filter(service => service.estado_servicio !== 'Retirado');
         setServicesData(activeServices || []);
       };
@@ -32,8 +32,7 @@ function DetalleCliente({ clientData: propClientData }) {
   };
 
   const renderServiceDetail = (label, value) => {
-    // Ignora valores null, undefined y 0
-    if (value === null || value === undefined || value === 0) return null;
+    if (!value || value === 0) return null;
     return (
       <p>
         <strong>{label}:</strong> {value}
@@ -67,6 +66,31 @@ function DetalleCliente({ clientData: propClientData }) {
     return service.ubicacion || service.observaciones || service.facturado || service.comentarios;
   };
 
+  const isCurrentMonth = (date) => {
+    const now = new Date();
+    const updatedDate = new Date(date);
+    return now.getMonth() === updatedDate.getMonth() && now.getFullYear() === updatedDate.getFullYear();
+  };
+
+  const getServiceItemClass = (service) => {
+    const { estado_servicio, updated_at } = service;
+    let className = 'list-group-item';
+
+    if (estado_servicio === 'Nuevo' && isCurrentMonth(updated_at)) {
+      className += ' list-group-item-success';
+    } else if (estado_servicio === 'Reaprovisionado' && isCurrentMonth(updated_at)) {
+      className += ' list-group-item-warning';
+    }
+    else if (estado_servicio === 'Aprovisionado') {
+      className += ' list-group';
+      
+    }
+
+    
+
+    return className;
+  };
+
   return (
     <div className="container vh-100'">
       <div className="d-flex justify-content-between align-items-center">
@@ -94,7 +118,7 @@ function DetalleCliente({ clientData: propClientData }) {
             servicesData.map((service, index) => (
               <div
                 key={index}
-                className="list-group-item list-group-item-action"
+                className={getServiceItemClass(service)}
                 onClick={() => handleServiceClick(service.id)}
               >
                 <div className="d-flex w-100 justify-content-between">
