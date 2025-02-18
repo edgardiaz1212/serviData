@@ -57,6 +57,11 @@ const Navbar = () => {
                   </Link>
                 </li>
                 <li className="nav-item">
+                  <Link className="nav-link text-white" to="/reportes">
+                    Reportes
+                  </Link>
+                </li>
+                <li className="nav-item">
                   <span className="nav-link text-white">Hola, {user ? user.username : 'Usuario'}!</span>
                 </li>
                 <li className="nav-item">
