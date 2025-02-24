@@ -1,6 +1,19 @@
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
+import { Context } from '../store/appContext'
+import { useNavigate } from 'react-router-dom'
+
 
 function Reportes() {
+  const { store } = useContext(Context)
+  const { isAuthenticated } = store
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login', { replace: true })
+    }
+  }, [isAuthenticated, navigate])
+
   return (
     <>
 
