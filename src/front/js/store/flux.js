@@ -698,26 +698,27 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
       //Acciones generales
       // Document handling actions
-      uploadDocument: async (clientId, file, isClient = true) => {
+      uploadDocument: async (entityType, entityId, file) => {
         const formData = new FormData();
         formData.append("file", file);
-
+      
         try {
           const response = await fetch(
             `${process.env.REACT_APP_BACKEND_URL}/${
-              isClient ? "upload-client-document" : "upload-service-document"
-            }/${clientId}`,
+              entityType === "client" ? "upload-client-document" : "upload-service-document"
+            }/${entityId}`,
             {
               method: "POST",
               body: formData,
             }
           );
-
+      
           if (response.ok) {
             const data = await response.json();
             console.log("Documento subido:", data);
           } else {
-            console.error("Error al subir el documento");
+          console.error("Error al subir el documento:", response.statusText);
+
           }
         } catch (error) {
           console.error("Error durante la carga del documento:", error);
@@ -738,7 +739,9 @@ const getState = ({ getStore, getActions, setStore }) => {
       
           if (response.ok) {
             const data = await response.json();
-            return data.exists; // Devuelve true o false
+            return data.exists;
+             
+            // Devuelve true o false
           } else {
             throw new Error("Failed to check document existence");
           }

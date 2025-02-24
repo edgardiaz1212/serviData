@@ -15,6 +15,7 @@ const ModalDocumentLoad = ({ entityType, entityId, show, onClose }) => {
       try {
         const exists = await actions.checkDocumentExists(entityType, entityId);
         setHasDocument(exists);
+
       } catch (err) {
         setError("Failed to check document status");
         console.error(err);
@@ -37,10 +38,10 @@ const ModalDocumentLoad = ({ entityType, entityId, show, onClose }) => {
       setError("Please select a file to upload");
       return;
     }
-
+  
     setLoading(true);
     setError(null);
-
+  
     try {
       await actions.uploadDocument(entityType, entityId, file);
       setFile(null);
