@@ -665,7 +665,8 @@ def upload_service_document(servicio_id):
 
     # Save the file to the filesystem
     filename = secure_filename(file.filename)
-    file_path = os.path.join(UPLOAD_FOLDER, filename)
+    file_path = os.path.join(UPLOAD_FOLDER, filename).replace("\\", "/")
+
     file.save(file_path)
 
     # Update the service record with the file path
@@ -701,7 +702,8 @@ def upload_client_document(cliente_id):
 
     # Save the file to the filesystem
     filename = secure_filename(file.filename)
-    file_path = os.path.join(CLIENT_UPLOAD_FOLDER, filename)
+    file_path = os.path.join(CLIENT_UPLOAD_FOLDER, filename).replace("\\", "/")
+
     file.save(file_path)
 
     # Update the client record with the file path
