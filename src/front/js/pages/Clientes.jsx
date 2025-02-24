@@ -1,9 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Context } from '../store/appContext';
+
 import { Search } from 'lucide-react'
 import TotalClient from '../component/TotalCLient.jsx'; // Asegúrate de que la ruta sea correcta
 import BB8Button from '../component/BB8Button.jsx';
 import "../../styles/clientes.css"
 const Clientes = () => {
+  const { store } = useContext(Context);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!store.isAuthenticated) {
+      navigate('/login', { replace: true });
+    }
+  }, [store.isAuthenticated, navigate]);
+
   const [clientType, setClientType] = useState('Privada');
   const [searchQuery, setSearchQuery] = useState('');
 
