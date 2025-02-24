@@ -1,8 +1,18 @@
 import React, { useEffect, useContext } from 'react';
 import { Context } from '../store/appContext';
+import { useNavigate } from 'react-router-dom';
+
 
 const Aprovisionados = () => {
   const { store, actions } = useContext(Context);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!store.isAuthenticated) {
+      navigate('/login', { replace: true });
+    }
+  }, [store.isAuthenticated, navigate]);
+
 
   useEffect(() => {
     actions.getNewServicesCurrentMonth();

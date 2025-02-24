@@ -5,10 +5,19 @@ import DatosServicio from '../component/DatosServicio.jsx';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+
+
 function EditarServicio() {
   const { serviceId,clientId } = useParams();
-  const { actions } = useContext(Context);
+  const { store, actions } = useContext(Context);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!store.isAuthenticated) {
+      navigate('/login', { replace: true });
+    }
+  }, [store.isAuthenticated, navigate]);
+
   const [serviceData, setServiceData] = useState(null);
 
   useEffect(() => {
