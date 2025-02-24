@@ -3,10 +3,19 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Context } from "../store/appContext";
 import ModalDocumentLoad from "../component/ModalDocumentLoad.jsx";
 
+
+
 function DetalleCliente({ clientData: propClientData }) {
   const { clientId } = useParams();
   const { store, actions } = useContext(Context);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!store.isAuthenticated) {
+      navigate('/login', { replace: true });
+    }
+  }, [store.isAuthenticated, navigate]);
+
   const [clientData, setClientData] = useState(propClientData || null);
   const [servicesData, setServicesData] = useState([]);
   const [filter, setFilter] = useState("activos"); // Estado para el filtro

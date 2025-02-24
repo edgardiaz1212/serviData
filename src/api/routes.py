@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, url_for, Blueprint, session, send_file
 from werkzeug.utils import secure_filename
 import io
-
+import os
 from api.models import db, User, Cliente, Servicio
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
