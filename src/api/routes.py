@@ -12,10 +12,6 @@ from sqlalchemy import func
 api = Blueprint('api', __name__)
 CORS(api)
 
-# Carpeta donde se guardarán los archivos
-UPLOAD_FOLDER = './uploads/servicios'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
 # ------------------------------
 # Acciones para Usuario
 # ------------------------------
@@ -591,67 +587,207 @@ def add_client_and_service():
         return jsonify({"error": str(e)}), 500
 
 #acciones generales
-@api.route('/upload-document/<entity_type>/<entity_id>', methods=['POST'])
-def upload_document(entity_type, entity_id):
-    """Upload a document for a client or service"""
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part"}), 400
+# @api.route('/upload-document/<entity_type>/<entity_id>', methods=['POST'])
+# def upload_document(entity_type, entity_id):
+#     """Upload a document for a client or service"""
+#     if 'file' not in request.files:
+#         return jsonify({"error": "No file part"}), 400
         
+#     file = request.files['file']
+#     if file.filename == '':
+#         return jsonify({"error": "No selected file"}), 400
+        
+#     try:
+#         # Get the appropriate model based on entity type
+#         if entity_type == 'client':
+#             entity = Cliente.query.get(entity_id)
+#         elif entity_type == 'service':
+#             entity = Servicio.query.get(entity_id)
+#         else:
+#             return jsonify({"error": "Invalid entity type"}), 400
+            
+#         if not entity:
+#             return jsonify({"error": f"{entity_type.capitalize()} not found"}), 404
+            
+#         # Read file data
+#         file_data = file.read()
+#         entity.documento = file_data
+#         db.session.commit()
+        
+#         return jsonify({"message": "File uploaded successfully"}), 200
+        
+#     except Exception as e:
+#         db.session.rollback()
+#         return jsonify({"error": str(e)}), 500
+
+# @api.route('/download-document/<entity_type>/<entity_id>', methods=['GET'])
+# def download_document(entity_type, entity_id):
+#     """Download a document for a client or service"""
+#     try:
+#         # Get the appropriate model based on entity type
+#         if entity_type == 'client':
+#             entity = Cliente.query.get(entity_id)
+#         elif entity_type == 'service':
+#             entity = Servicio.query.get(entity_id)
+#         else:
+#             return jsonify({"error": "Invalid entity type"}), 400
+            
+#         if not entity or not entity.documento:
+#             return jsonify({"error": "Document not found"}), 404
+            
+#         # Return the file as a download
+#         return send_file(
+#             io.BytesIO(entity.documento),
+#             mimetype='application/octet-stream',
+#             as_attachment=True,
+#             download_name=f'document_{entity_id}.pdf'
+#         )
+        
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
+
+# Carpeta donde se guardarán los archivos
+UPLOAD_FOLDER = '../uploads/servicios'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+api.route('/upload-service-document/<int:servicio_id>', methods=['POST'])
+def upload_service_document(servicio_id):
+    if 'file' not in request.files:
+        return jsonify({"message": "No file part in the request"}), 400
+
     file = request.files['file']
     if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
-        
+        return jsonify({"message": "No selected file"}), 400
+
+    # Validar el tipo de archivo
+    allowed_extensions = {'pdf', 'xlsx', 'docx'}
+    if '.' not in file.filename or file.filename.rsplit('.', 1)[1].lower() not in allowed_extensions:
+        return jsonify({"message": "Invalid file type. Allowed types: pdf, xlsx, docx"}), 400
+
+    # Guardar el archivo en el sistema de archivos
+    filename = secure_filename(file.filename)
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
+    file.save(file_path)
+
+    # Actualizar el registro del servicio con la ruta del archivo
+    servicio = Servicio.query.get(servicio_id)
+    if not servicio:
+        return jsonify({"message": "Service not found"}), 404
+
+    servicio.documento = file_path
+    db.session.commit()
+
+    return jsonify({"message": "File uploaded successfully", "file_path": file_path}), 200
+
+CLIENT_UPLOAD_FOLDER = '../uploads/clientes'
+os.makedirs(CLIENT_UPLOAD_FOLDER, exist_ok=True)
+
+@api.route('/upload-client-document/<int:cliente_id>', methods=['POST'])
+def upload_client_document(cliente_id):
+    if 'file' not in request.files:
+        return jsonify({"message": "No file part in the request"}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"message": "No selected file"}), 400
+
+    # Validar el tipo de archivo
+    allowed_extensions = {'pdf', 'xlsx', 'docx'}
+    if '.' not in file.filename or file.filename.rsplit('.', 1)[1].lower() not in allowed_extensions:
+        return jsonify({"message": "Invalid file type. Allowed types: pdf, xlsx, docx"}), 400
+
+    # Guardar el archivo en el sistema de archivos
+    filename = secure_filename(file.filename)
+    file_path = os.path.join(CLIENT_UPLOAD_FOLDER, filename)
+    file.save(file_path)
+
+    # Actualizar el registro del cliente con la ruta del archivo
+    cliente = Cliente.query.get(cliente_id)
+    if not cliente:
+        return jsonify({"message": "Client not found"}), 404
+
+    cliente.documento = file_path
+    db.session.commit()
+
+    return jsonify({"message": "File uploaded successfully", "file_path": file_path}), 200
+
+@api.route('/<string:entity_type>/<int:entity_id>/document-exists', methods=['GET'])
+def check_document_exists(entity_type, entity_id):
     try:
-        # Get the appropriate model based on entity type
-        if entity_type == 'client':
+        if entity_type == "client":
             entity = Cliente.query.get(entity_id)
-        elif entity_type == 'service':
+        elif entity_type == "service":
             entity = Servicio.query.get(entity_id)
         else:
             return jsonify({"error": "Invalid entity type"}), 400
-            
+
         if not entity:
             return jsonify({"error": f"{entity_type.capitalize()} not found"}), 404
-            
-        # Read file data
-        file_data = file.read()
-        entity.documento = file_data
-        db.session.commit()
-        
-        return jsonify({"message": "File uploaded successfully"}), 200
-        
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 500
 
-@api.route('/download-document/<entity_type>/<entity_id>', methods=['GET'])
-def download_document(entity_type, entity_id):
-    """Download a document for a client or service"""
-    try:
-        # Get the appropriate model based on entity type
-        if entity_type == 'client':
-            entity = Cliente.query.get(entity_id)
-        elif entity_type == 'service':
-            entity = Servicio.query.get(entity_id)
-        else:
-            return jsonify({"error": "Invalid entity type"}), 400
-            
-        if not entity or not entity.documento:
-            return jsonify({"error": "Document not found"}), 404
-            
-        # Return the file as a download
-        return send_file(
-            io.BytesIO(entity.documento),
-            mimetype='application/octet-stream',
-            as_attachment=True,
-            download_name=f'document_{entity_id}.pdf'
-        )
-        
+        # Verificar si el campo 'documento' existe y no es nulo
+        document_exists = bool(entity.documento)
+
+        return jsonify({"exists": document_exists}), 200
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@api.route('/download-client-document/<int:cliente_id>', methods=['GET'])
+def download_client_document(cliente_id):
+    cliente = Cliente.query.get(cliente_id)
+    if not cliente or not cliente.documento:
+        return jsonify({"message": "Document not found"}), 404
+
+    file_path = cliente.documento
+    if not os.path.exists(file_path):
+        return jsonify({"message": "File not found on server"}), 404
+
+    return send_file(file_path, as_attachment=True)
+
+@api.route('/download-service-document/<int:servicio_id>', methods=['GET'])
+def download_service_document(servicio_id):
+    servicio = Servicio.query.get(servicio_id)
+    if not servicio or not servicio.documento:
+        return jsonify({"message": "Document not found"}), 404
+
+    file_path = servicio.documento
+    if not os.path.exists(file_path):
+        return jsonify({"message": "File not found on server"}), 404
+
+    return send_file(file_path, as_attachment=True)
+
+@api.route('/delete-client-document/<int:cliente_id>', methods=['DELETE'])
+def delete_client_document(cliente_id):
+    cliente = Cliente.query.get(cliente_id)
+    if not cliente or not cliente.documento:
+        return jsonify({"message": "Document not found"}), 404
+
+    file_path = cliente.documento
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
+    cliente.documento = None
+    db.session.commit()
+
+    return jsonify({"message": "Document deleted successfully"}), 200
+
+@api.route('/delete-service-document/<int:servicio_id>', methods=['DELETE'])
+def delete_service_document(servicio_id):
+    servicio = Servicio.query.get(servicio_id)
+    if not servicio or not servicio.documento:
+        return jsonify({"message": "Document not found"}), 404
+
+    file_path = servicio.documento
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
+    servicio.documento = None
+    db.session.commit()
+
+    return jsonify({"message": "Document deleted successfully"}), 200
+
+#Carga DE Informacion excel
 @api.route('/upload-excel', methods=['POST'])
-
 def upload_excel():
     data = request.get_json()
     df = pd.DataFrame(data)

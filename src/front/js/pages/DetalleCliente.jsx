@@ -147,7 +147,7 @@ function DetalleCliente({ clientData: propClientData }) {
             )}
           </div>
           <div className="col-3">
-            <div class="card text-bg-success text-center ">
+            <div className="card text-bg-success text-center ">
               <div className="card-body"> {store.activeServiceCount} Servicios activos </div>
               
             </div>

@@ -26,7 +26,6 @@ const getState = ({ getStore, getActions, setStore }) => {
       documentError: null, // Add document error state
     },
 
-
     actions: {
       // Autenticación
       login: async (username, password) => {
@@ -118,8 +117,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during user editing", error);
         }
       },
-      
-      
+
       fetchUserData: async () => {
         const store = getStore();
         try {
@@ -441,7 +439,9 @@ const getState = ({ getStore, getActions, setStore }) => {
           );
           if (response.ok) {
             const data = await response.json();
-            const activeServices = data.filter(service => service.estado_servicio !== 'Retirado');
+            const activeServices = data.filter(
+              (service) => service.estado_servicio !== "Retirado"
+            );
             setStore({ activeServiceCount: activeServices.length });
             return data;
           } else {
@@ -559,7 +559,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during getting client service counts", error);
         }
       },
-      
+
       getAprovisionados: async () => {
         try {
           const response = await fetch(
@@ -587,11 +587,14 @@ const getState = ({ getStore, getActions, setStore }) => {
           if (response.ok) {
             const data = await response.json();
             setStore({ newServicesCurrentMonth: data });
-            } else {
+          } else {
             console.error("Failed to get new services for the current month");
           }
         } catch (error) {
-          console.log("Error during getting new services for the current month", error);
+          console.log(
+            "Error during getting new services for the current month",
+            error
+          );
         }
       },
       getNewServicesPastMonth: async () => {
@@ -602,11 +605,14 @@ const getState = ({ getStore, getActions, setStore }) => {
           if (response.ok) {
             const data = await response.json();
             setStore({ newServicesLastMonth: data });
-            } else {
+          } else {
             console.error("Failed to get new services for the current month");
           }
         } catch (error) {
-          console.log("Error during getting new services for the current month", error);
+          console.log(
+            "Error during getting new services for the current month",
+            error
+          );
         }
       },
 
@@ -692,71 +698,107 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
       //Acciones generales
       // Document handling actions
-      uploadDocument: async (entityType, entityId, file) => {
+      uploadDocument: async (clientId, file, isClient = true) => {
+        const formData = new FormData();
+        formData.append("file", file);
+
         try {
-          const formData = new FormData();
-          formData.append('file', file);
-          
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/upload-document/${entityType}/${entityId}`,
+            `${process.env.REACT_APP_BACKEND_URL}/${
+              isClient ? "upload-client-document" : "upload-service-document"
+            }/${clientId}`,
             {
-              method: 'POST',
+              method: "POST",
               body: formData,
             }
           );
-          
-          if (!response.ok) {
-            throw new Error('Failed to upload document');
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log("Documento subido:", data);
+          } else {
+            console.error("Error al subir el documento");
           }
-          
-          return await response.json();
         } catch (error) {
-          console.error('Error uploading document:', error);
-          throw error;
+          console.error("Error durante la carga del documento:", error);
         }
       },
 
-      downloadDocument: async (entityType, entityId) => {
+      checkDocumentExists: async (entityType, entityId) => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/download-document/${entityType}/${entityId}`
-          );
-          
-          if (!response.ok) {
-            throw new Error('Failed to download document');
-          }
-          
-          const blob = await response.blob();
-          const url = window.URL.createObjectURL(blob);
-          return url;
-        } catch (error) {
-          console.error('Error downloading document:', error);
-          throw error;
-        }
-      },
-
-      deleteDocument: async (entityType, entityId) => {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/delete-document/${entityType}/${entityId}`,
+            `${process.env.REACT_APP_BACKEND_URL}/${entityType}/${entityId}/document-exists`,
             {
-              method: 'DELETE',
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
             }
           );
-          
-          if (!response.ok) {
-            throw new Error('Failed to delete document');
+      
+          if (response.ok) {
+            const data = await response.json();
+            return data.exists; // Devuelve true o false
+          } else {
+            throw new Error("Failed to check document existence");
           }
-          
-          return await response.json();
         } catch (error) {
-          console.error('Error deleting document:', error);
+          console.error("Error checking document existence:", error);
           throw error;
+        }
+      },
+
+      downloadDocument: async (id, isClient = true) => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/${
+              isClient
+                ? "download-client-document"
+                : "download-service-document"
+            }/${id}`
+          );
+
+          if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = isClient
+              ? "cliente_documento.pdf"
+              : "servicio_documento.pdf";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+          } else {
+            console.error("Error al descargar el documento");
+          }
+        } catch (error) {
+          console.error("Error durante la descarga del documento:", error);
+        }
+      },
+
+      deleteDocument: async (id, isClient = true) => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/${
+              isClient ? "delete-client-document" : "delete-service-document"
+            }/${id}`,
+            {
+              method: "DELETE",
+            }
+          );
+
+          if (response.ok) {
+            console.log("Documento eliminado con éxito");
+          } else {
+            console.error("Error al eliminar el documento");
+          }
+        } catch (error) {
+          console.error("Error durante la eliminación del documento:", error);
         }
       },
 
       uploadExcelData: async (data) => {
-
         try {
           const response = await fetch(
             `${process.env.REACT_APP_BACKEND_URL}/upload-excel`,
