@@ -12,6 +12,10 @@ from sqlalchemy import func
 api = Blueprint('api', __name__)
 CORS(api)
 
+# Carpeta donde se guardarán los archivos
+UPLOAD_FOLDER = './uploads/servicios'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 # ------------------------------
 # Acciones para Usuario
 # ------------------------------
