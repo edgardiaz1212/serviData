@@ -3,10 +3,19 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Context } from '../store/appContext';
 import ModalDocumentLoad from '../component/ModalDocumentLoad.jsx';
 
+
+
 const DetalleServicio = () => {
   const { serviceId } = useParams();
-  const { actions } = useContext(Context);
+  const { store, actions } = useContext(Context);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!store.isAuthenticated) {
+      navigate('/login', { replace: true });
+    }
+  }, [store.isAuthenticated, navigate]);
+
   const [serviceData, setServiceData] = useState(null);
   const [showDocumentModal, setShowDocumentModal] = useState(false);
 
