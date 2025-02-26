@@ -21,7 +21,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       newServicesLastMonth: [],
       aprovisionados: [],
       activeServiceCount: 0,
-      document: null, // Add document state
+      documentName: null, // Add document state
       documentLoading: false, // Add document loading state
       documentError: null, // Add document error state
     },
@@ -739,8 +739,8 @@ const getState = ({ getStore, getActions, setStore }) => {
       
           if (response.ok) {
             const data = await response.json();
-            return data.exists;
-             
+            setStore({ documentName: data.document_name });
+            return data;
             // Devuelve true o false
           } else {
             throw new Error("Failed to check document existence");

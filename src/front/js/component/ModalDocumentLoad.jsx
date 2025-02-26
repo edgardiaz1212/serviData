@@ -117,7 +117,7 @@ const ModalDocumentLoad = ({ entityType, entityId, show, onClose }) => {
             {/* Mostrar opciones según si hay un documento cargado */}
             {hasDocument ? (
               <div>
-                <p>Documento disponible:</p>
+                <p>Documento disponible: <strong>{store.documentName}</strong></p>
                 <div className="d-flex gap-2">
                   <button
                     className="btn btn-primary"

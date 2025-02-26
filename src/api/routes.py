@@ -15,10 +15,16 @@ logging.basicConfig(level=logging.DEBUG)
 
 api = Blueprint('api', __name__)
 CORS(api)
-#Direccion absouta del proyecto
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))  # Directorio base del proyecto
-UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads', 'servicios')
-CLIENT_UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads', 'clientes')
+#Para el guardado de documentos
+# Obtener la ruta absoluta del directorio raíz del proyecto 
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))  # Directorio donde está api.py
+PROJECT_ROOT = os.path.dirname(BASE_DIR)  # Subir un nivel para llegar a la raíz del proyecto
+
+# Definir la carpeta de subida en la raíz del proyecto
+UPLOAD_FOLDER = os.path.join(PROJECT_ROOT, 'uploads', 'servicios')
+CLIENT_UPLOAD_FOLDER = os.path.join(PROJECT_ROOT, 'uploads', 'clientes')
+
+# Crear las carpetas si no existen
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(CLIENT_UPLOAD_FOLDER, exist_ok=True)
 # ------------------------------
@@ -745,8 +751,10 @@ def check_document_exists(entity_type, entity_id):
 
         # Check if the 'document' field exists and is not null
         document_exists = bool(entity.documento)
+        # Extraer solo el nombre del archivo (sin la ruta completa)
+        document_name = os.path.basename(entity.documento) if document_exists else None
 
-        return jsonify({"exists": document_exists}), 200
+        return jsonify({"exists": document_exists, "document_name": document_name}), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
