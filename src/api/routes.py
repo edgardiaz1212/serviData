@@ -8,10 +8,19 @@ from flask_cors import CORS
 import pandas as pd
 from datetime import datetime, timedelta
 from sqlalchemy import func
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
 
 api = Blueprint('api', __name__)
 CORS(api)
-
+#Direccion absouta del proyecto
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))  # Directorio base del proyecto
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads', 'servicios')
+CLIENT_UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads', 'clientes')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(CLIENT_UPLOAD_FOLDER, exist_ok=True)
 # ------------------------------
 # Acciones para Usuario
 # ------------------------------
@@ -645,9 +654,6 @@ def download_document(entity_type, entity_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Carpeta donde se guardarán los archivos
-UPLOAD_FOLDER = '../uploads/servicios'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @api.route('/upload-service-document/<int:servicio_id>', methods=['POST'])
 def upload_service_document(servicio_id):
@@ -661,7 +667,7 @@ def upload_service_document(servicio_id):
     # Validate the file type
     allowed_extensions = {'pdf', 'xlsx', 'docx','xls', 'doc'}
     if '.' not in file.filename or file.filename.rsplit('.', 1)[1].lower() not in allowed_extensions:
-        return jsonify({"message": "Invalid file type. Allowed types: pdf, xlsx, docx"}), 400
+        return jsonify({"message": "Invalid file type. Allowed types: pdf, xlsx, docx, doc, xls"}), 400
 
     # Save the file to the filesystem
     filename = secure_filename(file.filename)
@@ -679,22 +685,23 @@ def upload_service_document(servicio_id):
 
     return jsonify({"message": "File uploaded successfully", "file_path": file_path}), 200
 
-CLIENT_UPLOAD_FOLDER = '../uploads/clientes'
-os.makedirs(CLIENT_UPLOAD_FOLDER, exist_ok=True)
 
 @api.route('/upload-client-document/<int:cliente_id>', methods=['POST'])
 def upload_client_document(cliente_id):
     if 'file' not in request.files:
+        logging.error("No file part in the request")
         return jsonify({"message": "No file part in the request"}), 400
 
     file = request.files['file']
     if file.filename == '':
+        logging.error("No selected file")
         return jsonify({"message": "No selected file"}), 400
 
     # Validate the file type
-    allowed_extensions = {'pdf', 'xlsx', 'docx'}
+    allowed_extensions = {'pdf', 'xlsx', 'docx', 'doc', 'xls'}
     if '.' not in file.filename or file.filename.rsplit('.', 1)[1].lower() not in allowed_extensions:
-        return jsonify({"message": "Invalid file type. Allowed types: pdf, xlsx, docx"}), 400
+        logging.error("Invalid file type. Allowed types: pdf, xlsx, docx, 'doc', 'xls'")
+        return jsonify({"message": "Invalid file type. Allowed types: pdf, xlsx, docx, doc, xls"}), 400
 
     # Ensure the upload folder exists
     if not os.path.exists(CLIENT_UPLOAD_FOLDER):
@@ -704,17 +711,24 @@ def upload_client_document(cliente_id):
     filename = secure_filename(file.filename)
     file_path = os.path.join(CLIENT_UPLOAD_FOLDER, filename).replace("\\", "/")
 
-    file.save(file_path)
+    try:
+        file.save(file_path)
+        logging.info(f"File saved successfully at {file_path}")
+    except Exception as e:
+        logging.error(f"Error saving file: {str(e)}")
+        return jsonify({"message": "Error saving file"}), 500
 
     # Update the client record with the file path
     cliente = Cliente.query.get(cliente_id)
     if not cliente:
+        logging.error("Client not found")
         return jsonify({"message": "Client not found"}), 404
 
     cliente.documento = file_path
     db.session.commit()
 
     return jsonify({"message": "File uploaded successfully", "file_path": file_path}), 200
+
 
 @api.route('/<string:entity_type>/<int:entity_id>/document-exists', methods=['GET'])
 def check_document_exists(entity_type, entity_id):
