@@ -15,13 +15,11 @@ const ModalDocumentLoad = ({ entityType, entityId, show, onClose }) => {
       try {
         const exists = await actions.checkDocumentExists(entityType, entityId);
         setHasDocument(exists);
-
       } catch (err) {
         setError("Failed to check document status");
         console.error(err);
       }
     };
-
     if (show) {
       checkDocumentExists();
     }
@@ -38,10 +36,10 @@ const ModalDocumentLoad = ({ entityType, entityId, show, onClose }) => {
       setError("Please select a file to upload");
       return;
     }
-  
+
     setLoading(true);
     setError(null);
-  
+
     try {
       await actions.uploadDocument(entityType, entityId, file);
       setFile(null);
@@ -61,15 +59,8 @@ const ModalDocumentLoad = ({ entityType, entityId, show, onClose }) => {
     setError(null);
 
     try {
-      const url = await actions.downloadDocument(entityType, entityId);
-
-      // Crear un enlace temporal para descargar el archivo
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `document_${entityId}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      await actions.downloadDocument(entityId, entityType === "client");
+      console.log("Document downloaded successfully");
     } catch (err) {
       setError("Failed to download document");
       console.error(err);
@@ -84,7 +75,7 @@ const ModalDocumentLoad = ({ entityType, entityId, show, onClose }) => {
     setError(null);
 
     try {
-      await actions.deleteDocument(entityType, entityId);
+      await actions.deleteDocument(entityId, entityType === "client");
       setHasDocument(false); // Actualizar el estado para indicar que no hay un documento
       onClose(); // Cerrar el modal después de eliminar
     } catch (err) {
@@ -113,7 +104,6 @@ const ModalDocumentLoad = ({ entityType, entityId, show, onClose }) => {
           </div>
           <div className="modal-body">
             {error && <div className="alert alert-danger">{error}</div>}
-
             {/* Mostrar opciones según si hay un documento cargado */}
             {hasDocument ? (
               <div>

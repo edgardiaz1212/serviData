@@ -21,7 +21,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       newServicesLastMonth: [],
       aprovisionados: [],
       activeServiceCount: 0,
-      documentName: null, // Add document state
+      documentName: [], // Add document state
       documentLoading: false, // Add document loading state
       documentError: null, // Add document error state
     },
@@ -715,7 +715,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       
           if (response.ok) {
             const data = await response.json();
-            console.log("Documento subido:", data);
+            
           } else {
           console.error("Error al subir el documento:", response.statusText);
 
@@ -739,9 +739,9 @@ const getState = ({ getStore, getActions, setStore }) => {
       
           if (response.ok) {
             const data = await response.json();
-            setStore({ documentName: data.document_name });
-            return data;
-            // Devuelve true o false
+            setStore({ documentName: data.document_name }); // Actualizar el nombre del documento
+           
+            return data.exists; // Retornar si el documento existe
           } else {
             throw new Error("Failed to check document existence");
           }
@@ -753,32 +753,37 @@ const getState = ({ getStore, getActions, setStore }) => {
 
       downloadDocument: async (id, isClient = true) => {
         try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/${
-              isClient
-                ? "download-client-document"
-                : "download-service-document"
-            }/${id}`
-          );
-
-          if (response.ok) {
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = isClient
-              ? "cliente_documento.pdf"
-              : "servicio_documento.pdf";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-          } else {
-            console.error("Error al descargar el documento");
-          }
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/${
+                    isClient ? "download-client-document" : "download-service-document"
+                }/${id}`
+            );
+    
+            if (response.ok) {
+                const blob = await response.blob();
+                const contentDisposition = response.headers.get("content-disposition");
+                let fileName = "archivo_descargado"; // Nombre predeterminado si no se encuentra en los encabezados
+    
+                // Extraer el nombre del archivo de los encabezados
+                if (contentDisposition && contentDisposition.includes("filename=")) {
+                    fileName = contentDisposition.split("filename=")[1].split(";")[0];
+                }
+    
+                // Crear un enlace temporal para descargar el archivo
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = fileName; // Usar el nombre del archivo extraído
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            } else {
+                console.error("Error al descargar el documento");
+            }
         } catch (error) {
-          console.error("Error durante la descarga del documento:", error);
+            console.error("Error durante la descarga del documento:", error);
         }
-      },
+    },
 
       deleteDocument: async (id, isClient = true) => {
         try {
@@ -790,7 +795,6 @@ const getState = ({ getStore, getActions, setStore }) => {
               method: "DELETE",
             }
           );
-
           if (response.ok) {
             console.log("Documento eliminado con éxito");
           } else {

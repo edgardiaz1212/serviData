@@ -735,10 +735,10 @@ def upload_client_document(cliente_id):
 
     return jsonify({"message": "File uploaded successfully", "file_path": file_path}), 200
 
-
 @api.route('/<string:entity_type>/<int:entity_id>/document-exists', methods=['GET'])
 def check_document_exists(entity_type, entity_id):
     try:
+        # Obtener la entidad según el tipo
         if entity_type == "client":
             entity = Cliente.query.get(entity_id)
         elif entity_type == "service":
@@ -749,16 +749,21 @@ def check_document_exists(entity_type, entity_id):
         if not entity:
             return jsonify({"error": f"{entity_type.capitalize()} not found"}), 404
 
-        # Check if the 'document' field exists and is not null
-        document_exists = bool(entity.documento)
-        # Extraer solo el nombre del archivo (sin la ruta completa)
-        document_name = os.path.basename(entity.documento) if document_exists else None
+        # Verificar si el campo 'documento' existe y no está vacío
+        document_path = entity.documento
+        document_exists = bool(document_path) and isinstance(document_path, str) and document_path.strip() != ""
+        document_name = os.path.basename(document_path) if document_exists else None
 
-        return jsonify({"exists": document_exists, "document_name": document_name}), 200
+        # Retornar la respuesta
+        return jsonify({
+            "exists": document_exists,
+            "document_name": document_name
+        }), 200
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
+        # Manejar errores generales
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+    
 @api.route('/download-client-document/<int:cliente_id>', methods=['GET'])
 def download_client_document(cliente_id):
     cliente = Cliente.query.get(cliente_id)
@@ -769,7 +774,16 @@ def download_client_document(cliente_id):
     if not os.path.exists(file_path):
         return jsonify({"message": "File not found on server"}), 404
 
-    return send_file(file_path, as_attachment=True)
+    # Extraer el nombre del archivo
+    file_name = os.path.basename(file_path)
+
+    # Enviar el archivo con el nombre original
+    return send_file(
+        file_path,
+        as_attachment=True,
+        download_name=file_name,  # Usar el nombre original del archivo
+        mimetype='application/octet-stream'
+    )
 
 @api.route('/download-service-document/<int:servicio_id>', methods=['GET'])
 def download_service_document(servicio_id):
@@ -781,7 +795,16 @@ def download_service_document(servicio_id):
     if not os.path.exists(file_path):
         return jsonify({"message": "File not found on server"}), 404
 
-    return send_file(file_path, as_attachment=True)
+    # Extraer el nombre del archivo
+    file_name = os.path.basename(file_path)
+
+    # Enviar el archivo con el nombre original
+    return send_file(
+        file_path,
+        as_attachment=True,
+        download_name=file_name,  # Usar el nombre original del archivo
+        mimetype='application/octet-stream'
+    )
 
 @api.route('/delete-client-document/<int:cliente_id>', methods=['DELETE'])
 def delete_client_document(cliente_id):
