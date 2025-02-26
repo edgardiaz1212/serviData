@@ -753,38 +753,59 @@ const getState = ({ getStore, getActions, setStore }) => {
 
       downloadDocument: async (id, isClient = true) => {
         try {
-            const response = await fetch(
-                `${process.env.REACT_APP_BACKEND_URL}/${
-                    isClient ? "download-client-document" : "download-service-document"
-                }/${id}`
-            );
-    
-            if (response.ok) {
-                const blob = await response.blob();
-                const contentDisposition = response.headers.get("content-disposition");
-                let fileName = "archivo_descargado"; // Nombre predeterminado si no se encuentra en los encabezados
-    
-                // Extraer el nombre del archivo de los encabezados
-                if (contentDisposition && contentDisposition.includes("filename=")) {
-                    fileName = contentDisposition.split("filename=")[1].split(";")[0];
-                }
-    
-                // Crear un enlace temporal para descargar el archivo
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = fileName; // Usar el nombre del archivo extraído
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/api/${
+              isClient ? "download-client-document" : "download-service-document"
+            }/${id}`
+          );
+      
+          if (response.ok) {
+            const blob = await response.blob();
+            
+            // Intentar obtener el nombre del archivo de los encabezados Content-Disposition
+            const contentDisposition = response.headers.get("content-disposition");
+            let fileName = "documento_descargado.pdf"; // Nombre predeterminado
+            
+            // Extraer el nombre del archivo de los encabezados
+            if (contentDisposition && contentDisposition.includes("filename=")) {
+              const filenameMatch = contentDisposition.match(/filename="([^"]*)"/) || 
+                                    contentDisposition.match(/filename=([^;]*)/);
+              if (filenameMatch && filenameMatch[1]) {
+                fileName = filenameMatch[1].trim();
+              }
             } else {
-                console.error("Error al descargar el documento");
+              // Intentar obtener el nombre del encabezado personalizado
+              const customFileName = response.headers.get("X-File-Name");
+              if (customFileName) {
+                fileName = customFileName;
+              }
             }
+            
+            // Crear un enlace temporal para descargar el archivo
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            
+            // Limpiar después de la descarga
+            setTimeout(() => {
+              window.URL.revokeObjectURL(url);
+              a.remove();
+            }, 0);
+            
+            return true;
+          } else {
+            const errorData = await response.json();
+            console.error("Error al descargar el documento:", errorData);
+            return false;
+          }
         } catch (error) {
-            console.error("Error durante la descarga del documento:", error);
+          console.error("Error durante la descarga del documento:", error);
+          return false;
         }
-    },
-
+      }, 
       deleteDocument: async (id, isClient = true) => {
         try {
           const response = await fetch(

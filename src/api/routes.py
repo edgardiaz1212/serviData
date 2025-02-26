@@ -634,33 +634,6 @@ def upload_document(entity_type, entity_id):
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
-@api.route('/download-document/<entity_type>/<entity_id>', methods=['GET'])
-def download_document(entity_type, entity_id):
-    """Download a document for a client or service"""
-    try:
-        # Get the appropriate model based on entity type
-        if entity_type == 'client':
-            entity = Cliente.query.get(entity_id)
-        elif entity_type == 'service':
-            entity = Servicio.query.get(entity_id)
-        else:
-            return jsonify({"error": "Invalid entity type"}), 400
-            
-        if not entity or not entity.documento:
-            return jsonify({"error": "Document not found"}), 404
-            
-        # Return the file as a download
-        return send_file(
-            io.BytesIO(entity.documento),
-            mimetype='application/octet-stream',
-            as_attachment=True,
-            download_name=f'document_{entity_id}.pdf'
-        )
-        
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
 @api.route('/upload-service-document/<int:servicio_id>', methods=['POST'])
 def upload_service_document(servicio_id):
     if 'file' not in request.files:
@@ -766,10 +739,12 @@ def check_document_exists(entity_type, entity_id):
     
 @api.route('/download-client-document/<int:cliente_id>', methods=['GET'])
 def download_client_document(cliente_id):
+    # Obtener el cliente por ID
     cliente = Cliente.query.get(cliente_id)
     if not cliente or not cliente.documento:
         return jsonify({"message": "Document not found"}), 404
 
+    # Obtener la ruta del archivo
     file_path = cliente.documento
     if not os.path.exists(file_path):
         return jsonify({"message": "File not found on server"}), 404
@@ -777,13 +752,18 @@ def download_client_document(cliente_id):
     # Extraer el nombre del archivo
     file_name = os.path.basename(file_path)
 
-    # Enviar el archivo con el nombre original
-    return send_file(
+    # Devolver el archivo como descarga
+    response = send_file(
         file_path,
         as_attachment=True,
-        download_name=file_name,  # Usar el nombre original del archivo
+        download_name=file_name,
         mimetype='application/octet-stream'
     )
+    
+    # Agregar encabezado personalizado para mayor compatibilidad
+    response.headers.set('X-File-Name', file_name)
+    
+    return response
 
 @api.route('/download-service-document/<int:servicio_id>', methods=['GET'])
 def download_service_document(servicio_id):
@@ -798,13 +778,14 @@ def download_service_document(servicio_id):
     # Extraer el nombre del archivo
     file_name = os.path.basename(file_path)
 
-    # Enviar el archivo con el nombre original
+    # Devolver el archivo como descarga
     return send_file(
         file_path,
         as_attachment=True,
-        download_name=file_name,  # Usar el nombre original del archivo
+        download_name=file_name,
         mimetype='application/octet-stream'
     )
+    
 
 @api.route('/delete-client-document/<int:cliente_id>', methods=['DELETE'])
 def delete_client_document(cliente_id):
