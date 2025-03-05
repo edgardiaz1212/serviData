@@ -12,7 +12,7 @@ class Cliente(db.Model):
     razon_social = db.Column(db.String)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))  # Fecha de creación
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))  # Fecha de actualización
-    documento = db.Column(db.String)
+    documento = db.Column(LargeBinary)  # Change to LargeBinary for file storage
 
     servicios = db.relationship("Servicio", back_populates="cliente")
 
@@ -59,8 +59,7 @@ class Servicio(db.Model):
     observaciones = db.Column(db.String)
     facturado = db.Column(db.String)
     comentarios = db.Column(db.String)
-    documento = db.Column(db.String)
-    # Nuevo campo para el estado del servicio
+    documento = db.Column(LargeBinary)  # Change to LargeBinary for file storage
     estado_servicio = db.Column(db.String, default="nuevo")  # Valores posibles: "nuevo", "aprovisionado", "reaprovisionado"
 
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))  # Fecha de creación
@@ -122,4 +121,3 @@ class User(db.Model):
             'username': self.username,
             'role': self.role,
         }
-

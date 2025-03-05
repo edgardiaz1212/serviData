@@ -47,44 +47,29 @@ const ModalDocumentLoad = ({ entityType, entityId, show, onClose }) => {
   // Manejar la carga del documento
   const handleUpload = async () => {
     if (!file) {
-      setError("Por favor seleccione un archivo para subir");
-      toast.warning("Por favor seleccione un archivo para subir");
+      setError("Please select a file to upload");
       return;
     }
 
     setLoading(true);
     setError(null);
-    // Mostrar toast de carga
-    const toastId = toast.info("Subiendo documento...", {
-      autoClose: false,
-      closeButton: false
-    });
-
 
     try {
-      await actions.uploadDocument(entityType, entityId, file);
-      
-      // Actualizar toast
-      toast.update(toastId, {
-        render: "Documento subido exitosamente",
-        type: toast.TYPE.SUCCESS,
-        autoClose: 3000
-      });
+      const formData = new FormData();
+      formData.append('file', file);
+      await actions.uploadDocument(entityType, entityId, formData);
 
       setFile(null);
       setHasDocument(true); // Actualizar el estado para indicar que hay un documento
-      toast.success("Documento subido exitosamente");
+      toast.success("Documento cargado exitosamente", {
+        autoClose: 3000
+      });
+
       onClose(); // Cerrar el modal después de cargar
+      
     } catch (err) {
-      setError("No se pudo subir el documento. Por favor intente nuevamente.");
-      toast.error("Error al subir el documento");
+      setError("Failed to upload document");
       console.error(err);
-    // Actualizar toast
-    toast.update(toastId, {
-      render: "Error al subir el documento",
-      type: toast.TYPE.ERROR,
-      autoClose: 3000
-    });
     } finally {
       setLoading(false);
     }
@@ -94,41 +79,20 @@ const ModalDocumentLoad = ({ entityType, entityId, show, onClose }) => {
   const handleDownload = async () => {
     setLoading(true);
     setError(null);
-// Mostrar toast de carga
-const toastId = toast.info("Preparando descarga...", {
-  autoClose: false,
-  closeButton: false
-});
 
     try {
-      const success = await actions.downloadDocument(entityId, entityType === "client");
-      if (success) {
-        toast.update(toastId, {
-          render: "Documento descargado exitosamente",
-          type: toast.TYPE.SUCCESS,
-          autoClose: 3000
+        await actions.downloadDocument(entityId, entityType === "client");
+        toast.success("Documento descargado exitosamente", {
+            autoClose: 3000
         });
-      } else {
-        toast.update(toastId, {
-          render: "Error al descargar el documento",
-          type: toast.TYPE.ERROR,
-          autoClose: 3000
-        });
-        setError("Error al descargar el documento");
-      }
-
     } catch (err) {
-      setError("Error al descargar el documento");
-      toast.update(toastId, {
-        render: "Error al descargar el documento",
-        type: toast.TYPE.ERROR,
-        autoClose: 3000
-      });
-      console.error(err);
+        setError("Error al descargar el documento");
+        toast.error("Error al descargar el documento");
+        console.error(err);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   // Manejar la eliminación del documento
   const handleDelete = async () => {

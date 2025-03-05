@@ -625,7 +625,7 @@ def upload_document(entity_type, entity_id):
             
         # Read file data
         file_data = file.read()
-        entity.documento = file_data
+        entity.documento = file_data  # Save the file data as BLOB or BYTEA
         db.session.commit()
         
         return jsonify({"message": "File uploaded successfully"}), 200
@@ -633,6 +633,7 @@ def upload_document(entity_type, entity_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+
 
 @api.route('/upload-service-document/<int:servicio_id>', methods=['POST'])
 def upload_service_document(servicio_id):
@@ -678,6 +679,12 @@ def upload_client_document(cliente_id):
 
     # Validate the file type
     allowed_extensions = {'pdf', 'xlsx', 'docx', 'doc', 'xls'}
+    if '.' not in file.filename or file.filename.rsplit('.', 1)[1].lower() not in allowed_extensions:
+        logging.error("Invalid file type. Allowed types: pdf, xlsx, docx, doc, xls")
+
+    if '.' not in file.filename or file.filename.rsplit('.', 1)[1].lower() not in allowed_extensions:
+        logging.error("Invalid file type. Allowed types: pdf, xlsx, docx, doc, xls")
+
     if '.' not in file.filename or file.filename.rsplit('.', 1)[1].lower() not in allowed_extensions:
         logging.error("Invalid file type. Allowed types: pdf, xlsx, docx, 'doc', 'xls'")
         return jsonify({"message": "Invalid file type. Allowed types: pdf, xlsx, docx, doc, xls"}), 400
@@ -737,33 +744,31 @@ def check_document_exists(entity_type, entity_id):
         # Manejar errores generales
         return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
     
+import logging
+
 @api.route('/download-client-document/<int:cliente_id>', methods=['GET'])
 def download_client_document(cliente_id):
-    # Obtener el cliente por ID
     cliente = Cliente.query.get(cliente_id)
     if not cliente or not cliente.documento:
         return jsonify({"message": "Document not found"}), 404
 
-    # Obtener la ruta del archivo
+    # La ruta del archivo está almacenada en cliente.documento
     file_path = cliente.documento
+
+    # Verificar si el archivo existe en el servidor
     if not os.path.exists(file_path):
         return jsonify({"message": "File not found on server"}), 404
 
-    # Extraer el nombre del archivo
+    # Obtener el nombre del archivo desde la ruta
     file_name = os.path.basename(file_path)
 
-    # Devolver el archivo como descarga
-    response = send_file(
+    # Enviar el archivo como respuesta
+    return send_file(
         file_path,
         as_attachment=True,
         download_name=file_name,
         mimetype='application/octet-stream'
     )
-    
-    # Agregar encabezado personalizado para mayor compatibilidad
-    response.headers.set('X-File-Name', file_name)
-    
-    return response
 
 @api.route('/download-service-document/<int:servicio_id>', methods=['GET'])
 def download_service_document(servicio_id):
@@ -771,14 +776,17 @@ def download_service_document(servicio_id):
     if not servicio or not servicio.documento:
         return jsonify({"message": "Document not found"}), 404
 
+    # La ruta del archivo está almacenada en servicio.documento
     file_path = servicio.documento
+
+    # Verificar si el archivo existe en el servidor
     if not os.path.exists(file_path):
         return jsonify({"message": "File not found on server"}), 404
 
-    # Extraer el nombre del archivo
+    # Obtener el nombre del archivo desde la ruta
     file_name = os.path.basename(file_path)
 
-    # Devolver el archivo como descarga
+    # Enviar el archivo como respuesta
     return send_file(
         file_path,
         as_attachment=True,
