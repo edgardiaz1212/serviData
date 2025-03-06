@@ -9,6 +9,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 from sqlalchemy import func
 import logging
+from sqlalchemy.exc import SQLAlchemyError
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -334,54 +335,56 @@ def get_services_by_client_type(client_type):
 
 @api.route('/servicios/<int:service_id>', methods=['PUT'])
 def update_service(service_id):
-    data = request.get_json()
-    service = Servicio.query.get(service_id)
-    if not service:
-        return jsonify({"message": "Service not found"}), 404
-    service.dominio = data.get('dominio', service.dominio)
-    service.estado = data.get('estado', service.estado)
-    service.tipo_servicio = data.get('tipo_servicio', service.tipo_servicio)
-    service.hostname = data.get('hostname', service.hostname)
-    service.cores = int(data.get('cores', service.cores))
-    service.contrato = data.get('contrato', service.contrato)
-    service.plan_aprovisionado = data.get('plan_aprovisionado', service.plan_aprovisionado)
-    service.plan_facturado = data.get('plan_facturado', service.plan_facturado)
-    service.detalle_plan = data.get('detalle_plan', service.detalle_plan)
-    service.sockets = int(data.get('sockets', service.sockets))
-    service.powerstate = data.get('powerstate', service.powerstate)
-    service.ip_privada = data.get('ip_privada', service.ip_privada)
-    service.vlan = data.get('vlan', service.vlan)
-    service.ipam = data.get('ipam', service.ipam)
-    service.datastore = data.get('datastore', service.datastore)
-    service.nombre_servidor = data.get('nombre_servidor', service.nombre_servidor)
-    service.marca_servidor = data.get('marca_servidor', service.marca_servidor)
-    service.modelo_servidor = data.get('modelo_servidor', service.modelo_servidor)
-    service.nombre_nodo = data.get('nombre_nodo', service.nombre_nodo)
-    service.nombre_plataforma = data.get('nombre_plataforma', service.nombre_plataforma)
-    service.ram = int(data.get('ram', service.ram))
-    service.hdd = int(data.get('hdd', service.hdd))
-    service.cpu = int(data.get('cpu', service.cpu))
-    service.tipo_servidor = data.get('tipo_servidor', service.tipo_servidor)
-    service.ubicacion = data.get('ubicacion', service.ubicacion)
-    service.observaciones = data.get('observaciones', service.observaciones)
-    service.facturado = data.get('facturado', service.facturado)
-    service.comentarios = data.get('comentarios', service.comentarios)
-    db.session.commit()
-    return jsonify({"message": "Service updated successfully", "service": service.serialize()}), 200
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+
+        service = Servicio.query.get(service_id)
+        if not service:
+            return jsonify({"error": "Service not found"}), 404
+
+        # Campos permitidos para actualización
+        allowed_fields = [
+            'dominio', 'estado', 'tipo_servicio', 'hostname', 'cores', 'contrato',
+            'plan_aprovisionado', 'plan_facturado', 'detalle_plan', 'sockets',
+            'powerstate', 'ip_privada', 'vlan', 'ipam', 'datastore', 'nombre_servidor',
+            'marca_servidor', 'modelo_servidor', 'nombre_nodo', 'nombre_plataforma',
+            'ram', 'hdd', 'cpu', 'tipo_servidor', 'ubicacion', 'observaciones',
+            'facturado', 'comentarios', 'estado_servicio'
+        ]
+
+        # Actualizar solo los campos permitidos
+        for field in allowed_fields:
+            if field in data:
+                setattr(service, field, data[field])
+
+        db.session.commit()
+        return jsonify({"message": "Service updated successfully", "service": service.serialize()}), 200
+
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": "Database error", "details": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
+
 
 @api.route('/services/<int:service_id>', methods=['DELETE'])
 def delete_service(service_id):
     try:
-        servicio = db.session.query(Servicio).get(service_id)
+        servicio = Servicio.query.filter_by(id=service_id).first()
         if not servicio:
             return jsonify({"error": "Servicio no encontrado"}), 404
+
         db.session.delete(servicio)
         db.session.commit()
         return jsonify({"message": "Servicio eliminado con éxito"}), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": "Error interno del servidor", "details": str(e)}), 500
 
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": "Database error", "details": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
 @api.route('/top-services', methods=['GET'])
 def get_top_services():
     try:
