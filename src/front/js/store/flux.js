@@ -532,20 +532,22 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
       getServiceCountsByClientType: async (clientType) => {
         try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/service-counts-by-client-type/${clientType}`
-          );
-          if (response.ok) {
-            const data = await response.json();
-            setStore({ serviceCountsByClientType: data });
-            return data;
-          } else {
-            console.error("Failed to fetch service counts by client type");
-          }
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/service-counts-by-client-type/${clientType}`
+            );
+            if (response.ok) {
+                const data = await response.json();
+                const currentCounts = getStore().serviceCountsByClientType || {}; // Obtener el estado actual
+                currentCounts[clientType] = data.total_count || 0; // Actualizar el conteo para el tipo de cliente
+                setStore({ serviceCountsByClientType: currentCounts }); // Guardar el estado actualizado
+                return data.total_count || 0;
+            } else {
+                console.error("Failed to fetch service counts by client type");
+            }
         } catch (error) {
-          console.log("Error fetching service counts by client type", error);
+            console.log("Error fetching service counts by client type", error);
         }
-      },
+    },
       getClientServiceCounts: async () => {
         try {
           const response = await fetch(
