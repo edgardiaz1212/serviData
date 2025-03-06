@@ -266,6 +266,15 @@ def get_services(cliente_id):
         return jsonify([service.serialize() for service in services]), 200
     except Exception as e:
         return jsonify({"message": "An error occurred", "error": str(e)}), 500
+@api.route('/servicios', methods=['GET'])
+def get_all_services():
+    try:
+        services = Servicio.query.all()
+        if not services:
+            return jsonify({"message": "No services found", "services": []}), 200
+        return jsonify([service.serialize() for service in services]), 200
+    except Exception as e:
+        return jsonify({"message": "An error occurred", "error": str(e)}), 500
 
 @api.route('/servicios/total', methods=['GET'])
 def get_total_services():
