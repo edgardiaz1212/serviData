@@ -120,4 +120,5 @@ class User(db.Model):
             'id': self.id,
             'username': self.username,
             'role': self.role,
+            
         }

@@ -73,7 +73,7 @@ const DataEntryPage = () => {
               </table>
             </div>
             <div className="form-group mt-3">
-              <label htmlFor="estado_servicio">Estado del Servicio</label>
+              <label htmlFor="estado_servicio"><strong>Estado del Servicio</strong></label>
               <select
                 className="form-control"
                 id="estado_servicio"

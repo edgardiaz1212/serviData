@@ -278,12 +278,24 @@ def service_post():
 @api.route('/servicios-by-cliente/<int:cliente_id>', methods=['GET'])
 def get_services(cliente_id):
     try:
+        # Verificar si el cliente existe
+        cliente = Cliente.query.get(cliente_id)
+        if not cliente:
+            return jsonify({"message": "Client not found"}), 404
+
+        # Obtener los servicios asociados al cliente
         services = Servicio.query.filter_by(cliente_id=cliente_id).all()
+
+        # Si no hay servicios, devolver una respuesta clara
         if not services:
-            return jsonify({"message": "No services found for this client", "services": []}), 200
-        return jsonify([service.serialize() for service in services]), 200
+            return jsonify({"message": "This client has no associated services", "services": []}), 200
+
+        # Devolver los servicios serializados
+        return jsonify({"message": "Services retrieved successfully", "services": [service.serialize() for service in services]}), 200
+
     except Exception as e:
-        return jsonify({"message": "An error occurred", "error": str(e)}), 500
+        # Manejar errores generales
+        return jsonify({"message": "An unexpected error occurred", "error": str(e)}), 500
 
 @api.route('/servicios/total', methods=['GET'])
 def get_total_services():
