@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, url_for, Blueprint, session, send_fil
 from werkzeug.utils import secure_filename
 import io
 import os
-from api.models import db, User, Cliente, Servicio
+from api.models import db, User, Cliente, Servicio, Documento
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 import pandas as pd
@@ -616,119 +616,44 @@ def add_client_and_service():
         return jsonify({"error": str(e)}), 500
 
 #acciones generales
-@api.route('/upload-document/<entity_type>/<entity_id>', methods=['POST'])
+@api.route('/upload-document/<entity_type>/<int:entity_id>', methods=['POST'])
 def upload_document(entity_type, entity_id):
-    """Upload a document for a client or service"""
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part"}), 400
-        
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
-        
     try:
-        # Get the appropriate model based on entity type
-        if entity_type == 'client':
-            entity = Cliente.query.get(entity_id)
-        elif entity_type == 'service':
-            entity = Servicio.query.get(entity_id)
-        else:
-            return jsonify({"error": "Invalid entity type"}), 400
-            
-        if not entity:
-            return jsonify({"error": f"{entity_type.capitalize()} not found"}), 404
-            
-        # Read file data
-        file_data = file.read()
-        entity.documento = file_data  # Save the file data as BLOB or BYTEA
+        if 'file' not in request.files:
+            return jsonify({"error": "No file provided"}), 400
+
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({"error": "No selected file"}), 400
+
+        # Validar el tamaño del archivo (menos de 10MB)
+        if file.content_length > 10 * 1024 * 1024:
+            return jsonify({"error": "File size exceeds 10MB limit"}), 400
+
+        # Leer el contenido del archivo
+        file_content = file.read()
+        file_name = secure_filename(file.filename)
+        file_type = file.mimetype
+        file_size = file.content_length
+
+        # Crear un nuevo documento en la base de datos
+        nuevo_documento = Documento(
+            nombre=file_name,
+            tipo=file_type,
+            tamaño=file_size,
+            contenido=file_content,
+            cliente_id=entity_id if entity_type == "client" else None,
+            servicio_id=entity_id if entity_type == "service" else None
+        )
+        db.session.add(nuevo_documento)
         db.session.commit()
-        
-        return jsonify({"message": "File uploaded successfully"}), 200
-        
+
+        return jsonify({"message": "Document uploaded successfully", "document_id": nuevo_documento.id}), 200
+
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
-
-@api.route('/upload-service-document/<int:servicio_id>', methods=['POST'])
-def upload_service_document(servicio_id):
-    if 'file' not in request.files:
-        return jsonify({"message": "No file part in the request"}), 400
-
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({"message": "No selected file"}), 400
-
-    # Validate the file type
-    allowed_extensions = {'pdf', 'xlsx', 'docx','xls', 'doc'}
-    if '.' not in file.filename or file.filename.rsplit('.', 1)[1].lower() not in allowed_extensions:
-        return jsonify({"message": "Invalid file type. Allowed types: pdf, xlsx, docx, doc, xls"}), 400
-
-    # Save the file to the filesystem
-    filename = secure_filename(file.filename)
-    file_path = os.path.join(UPLOAD_FOLDER, filename).replace("\\", "/")
-
-    file.save(file_path)
-
-    # Update the service record with the file path
-    servicio = Servicio.query.get(servicio_id)
-    if not servicio:
-        return jsonify({"message": "Service not found"}), 404
-
-    servicio.documento = file_path
-    db.session.commit()
-
-    return jsonify({"message": "File uploaded successfully", "file_path": file_path}), 200
-
-
-@api.route('/upload-client-document/<int:cliente_id>', methods=['POST'])
-def upload_client_document(cliente_id):
-    if 'file' not in request.files:
-        logging.error("No file part in the request")
-        return jsonify({"message": "No file part in the request"}), 400
-
-    file = request.files['file']
-    if file.filename == '':
-        logging.error("No selected file")
-        return jsonify({"message": "No selected file"}), 400
-
-    # Validate the file type
-    allowed_extensions = {'pdf', 'xlsx', 'docx', 'doc', 'xls'}
-    if '.' not in file.filename or file.filename.rsplit('.', 1)[1].lower() not in allowed_extensions:
-        logging.error("Invalid file type. Allowed types: pdf, xlsx, docx, doc, xls")
-
-    if '.' not in file.filename or file.filename.rsplit('.', 1)[1].lower() not in allowed_extensions:
-        logging.error("Invalid file type. Allowed types: pdf, xlsx, docx, doc, xls")
-
-    if '.' not in file.filename or file.filename.rsplit('.', 1)[1].lower() not in allowed_extensions:
-        logging.error("Invalid file type. Allowed types: pdf, xlsx, docx, 'doc', 'xls'")
-        return jsonify({"message": "Invalid file type. Allowed types: pdf, xlsx, docx, doc, xls"}), 400
-
-    # Ensure the upload folder exists
-    if not os.path.exists(CLIENT_UPLOAD_FOLDER):
-        os.makedirs(CLIENT_UPLOAD_FOLDER)
-
-    # Save the file to the filesystem
-    filename = secure_filename(file.filename)
-    file_path = os.path.join(CLIENT_UPLOAD_FOLDER, filename).replace("\\", "/")
-
-    try:
-        file.save(file_path)
-        logging.info(f"File saved successfully at {file_path}")
-    except Exception as e:
-        logging.error(f"Error saving file: {str(e)}")
-        return jsonify({"message": "Error saving file"}), 500
-
-    # Update the client record with the file path
-    cliente = Cliente.query.get(cliente_id)
-    if not cliente:
-        logging.error("Client not found")
-        return jsonify({"message": "Client not found"}), 404
-
-    cliente.documento = file_path
-    db.session.commit()
-
-    return jsonify({"message": "File uploaded successfully", "file_path": file_path}), 200
 
 @api.route('/<string:entity_type>/<int:entity_id>/document-exists', methods=['GET'])
 def check_document_exists(entity_type, entity_id):
@@ -761,85 +686,41 @@ def check_document_exists(entity_type, entity_id):
     
 import logging
 
-@api.route('/download-client-document/<int:cliente_id>', methods=['GET'])
-def download_client_document(cliente_id):
-    cliente = Cliente.query.get(cliente_id)
-    if not cliente or not cliente.documento:
-        return jsonify({"message": "Document not found"}), 404
+@api.route('/download-document/<int:document_id>', methods=['GET'])
+def download_document(document_id):
+    try:
+        documento = Documento.query.get(document_id)
+        if not documento:
+            return jsonify({"error": "Document not found"}), 404
 
-    # La ruta del archivo está almacenada en cliente.documento
-    file_path = cliente.documento
+        # Devolver el archivo como una respuesta de descarga
+        return send_file(
+            io.BytesIO(documento.contenido),
+            mimetype=documento.tipo,
+            as_attachment=True,
+            download_name=documento.nombre
+        )
 
-    # Verificar si el archivo existe en el servidor
-    if not os.path.exists(file_path):
-        return jsonify({"message": "File not found on server"}), 404
-
-    # Obtener el nombre del archivo desde la ruta
-    file_name = os.path.basename(file_path)
-
-    # Enviar el archivo como respuesta
-    return send_file(
-        file_path,
-        as_attachment=True,
-        download_name=file_name,
-        mimetype='application/octet-stream'
-    )
-
-@api.route('/download-service-document/<int:servicio_id>', methods=['GET'])
-def download_service_document(servicio_id):
-    servicio = Servicio.query.get(servicio_id)
-    if not servicio or not servicio.documento:
-        return jsonify({"message": "Document not found"}), 404
-
-    # La ruta del archivo está almacenada en servicio.documento
-    file_path = servicio.documento
-
-    # Verificar si el archivo existe en el servidor
-    if not os.path.exists(file_path):
-        return jsonify({"message": "File not found on server"}), 404
-
-    # Obtener el nombre del archivo desde la ruta
-    file_name = os.path.basename(file_path)
-
-    # Enviar el archivo como respuesta
-    return send_file(
-        file_path,
-        as_attachment=True,
-        download_name=file_name,
-        mimetype='application/octet-stream'
-    )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     
 
-@api.route('/delete-client-document/<int:cliente_id>', methods=['DELETE'])
-def delete_client_document(cliente_id):
-    cliente = Cliente.query.get(cliente_id)
-    if not cliente or not cliente.documento:
-        return jsonify({"message": "Document not found"}), 404
+@api.route('/delete-document/<int:document_id>', methods=['DELETE'])
+def delete_document(document_id):
+    try:
+        documento = Documento.query.get(document_id)
+        if not documento:
+            return jsonify({"error": "Document not found"}), 404
 
-    file_path = cliente.documento
-    if os.path.exists(file_path):
-        os.remove(file_path)
+        db.session.delete(documento)
+        db.session.commit()
 
-    cliente.documento = None
-    db.session.commit()
+        return jsonify({"message": "Document deleted successfully"}), 200
 
-    return jsonify({"message": "Document deleted successfully"}), 200
-
-@api.route('/delete-service-document/<int:servicio_id>', methods=['DELETE'])
-def delete_service_document(servicio_id):
-    servicio = Servicio.query.get(servicio_id)
-    if not servicio or not servicio.documento:
-        return jsonify({"message": "Document not found"}), 404
-
-    file_path = servicio.documento
-    if os.path.exists(file_path):
-        os.remove(file_path)
-
-    servicio.documento = None
-    db.session.commit()
-
-    return jsonify({"message": "Document deleted successfully"}), 200
-
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    
 # Carga DE Informacion excel
 @api.route('/upload-excel', methods=['POST'])
 def upload_excel():

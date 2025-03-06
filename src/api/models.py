@@ -12,8 +12,8 @@ class Cliente(db.Model):
     razon_social = db.Column(db.String)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))  # Fecha de creación
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))  # Fecha de actualización
-    documento = db.Column(LargeBinary)  # Change to LargeBinary for file storage
 
+    documentos = db.relationship("Documento", back_populates="cliente")    
     servicios = db.relationship("Servicio", back_populates="cliente")
 
     def serialize(self):
@@ -22,7 +22,7 @@ class Cliente(db.Model):
             'tipo': self.tipo,
             'rif': self.rif,
             'razon_social': self.razon_social,
-            'documento': self.documento,
+            'documentos': [doc.serialize() for doc in self.documentos],  # Serializar documentos
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),
         }
@@ -59,12 +59,12 @@ class Servicio(db.Model):
     observaciones = db.Column(db.String)
     facturado = db.Column(db.String)
     comentarios = db.Column(db.String)
-    documento = db.Column(LargeBinary)  # Change to LargeBinary for file storage
     estado_servicio = db.Column(db.String, default="Nuevo")  # Valores posibles: "Nuevo", "Aprovisionado", "Reaprovisionado"
 
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))  # Fecha de creación
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))  # Fecha de actualización
-
+    
+    documentos = db.relationship("Documento", back_populates="servicio")
     cliente = db.relationship("Cliente", back_populates="servicios")
 
     def serialize(self):
@@ -100,7 +100,7 @@ class Servicio(db.Model):
             'facturado': self.facturado,
             'comentarios': self.comentarios,
             'estado_servicio': self.estado_servicio,
-            'documento': self.documento,
+            'documentos': [doc.serialize() for doc in self.documentos],
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),
         }
@@ -121,4 +121,38 @@ class User(db.Model):
             'username': self.username,
             'role': self.role,
             
+        }
+    
+class Documento(db.Model):
+    __tablename__ = 'documentos'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String, nullable=False)  # Nombre del archivo
+    tipo = db.Column(db.String, nullable=False)   # Tipo de archivo (PDF, DOCX, etc.)
+    tamaño = db.Column(db.Integer, nullable=False) # Tamaño en bytes
+    contenido = db.Column(LargeBinary, nullable=False) # Contenido del archivo
+    cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'), nullable=True) # Relación con cliente
+    servicio_id = db.Column(db.Integer, db.ForeignKey('servicios.id'), nullable=True) # Relación con servicio
+    created_at = db.Column(db.DateTime, default=datetime.utcnow) # Fecha de creación
+
+    # Relaciones
+    cliente = db.relationship("Cliente", back_populates="documentos")
+    servicio = db.relationship("Servicio", back_populates="documentos")
+
+    # Validación: Un documento debe estar relacionado con un cliente o un servicio, pero no con ambos
+    def __init__(self, **kwargs):
+        super(Documento, self).__init__(**kwargs)
+        if self.cliente_id is None and self.servicio_id is None:
+            raise ValueError("Un documento debe estar relacionado con un cliente o un servicio.")
+        if self.cliente_id is not None and self.servicio_id is not None:
+            raise ValueError("Un documento no puede estar relacionado con un cliente y un servicio al mismo tiempo.")
+        
+        def serialize(self):
+            return {
+            'id': self.id,
+            'nombre': self.nombre,
+            'tipo': self.tipo,
+            'tamaño': self.tamaño,
+            'cliente_id': self.cliente_id,
+            'servicio_id': self.servicio_id,
+            'created_at': self.created_at.isoformat(),
         }

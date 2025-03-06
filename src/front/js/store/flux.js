@@ -691,32 +691,28 @@ const getState = ({ getStore, getActions, setStore }) => {
   },
       //Acciones generales
       // Document handling actions
-      uploadDocument: async (entityType, entityId, file) => {
-        const formData = new FormData();
-        formData.append("file", file);
-      
+      uploadDocument: async (entityType, entityId, formData) => {
         try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/${
-              entityType === "client" ? "upload-client-document" : "upload-service-document"
-            }/${entityId}`,
-            {
-              method: "POST",
-              body: formData,
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/upload-document/${entityType}/${entityId}`,
+                {
+                    method: "POST",
+                    body: formData,
+                }
+            );
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to upload document");
             }
-          );
-      
-          if (response.ok) {
+    
             const data = await response.json();
-            
-          } else {
-          console.error("Error al subir el documento:", response.statusText);
-
-          }
+            return data;
         } catch (error) {
-          console.error("Error durante la carga del documento:", error);
+            console.error("Error uploading document:", error);
+            throw error;
         }
-      },
+    },
 
       checkDocumentExists: async (entityType, entityId) => {
         try {
@@ -744,73 +740,55 @@ const getState = ({ getStore, getActions, setStore }) => {
         }
       },
 
-      downloadDocument: async (id, isClient = true) => {
+      downloadDocument: async (documentId) => {
         try {
-            const endpoint = isClient
-                ? `${process.env.REACT_APP_BACKEND_URL}/api/download-client-document/${id}`
-                : `${process.env.REACT_APP_BACKEND_URL}/api/download-service-document/${id}`;
-    
-            const response = await fetch(endpoint);
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/download-document/${documentId}`,
+                {
+                    method: "GET",
+                }
+            );
     
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || "Error al descargar el documento");
+                throw new Error(errorData.error || "Failed to download document");
             }
     
-            // Obtener el nombre del archivo desde los encabezados
-            const contentDisposition = response.headers.get("content-disposition");
-            let fileName = "documento_descargado.pdf"; // Nombre predeterminado
-    
-            if (contentDisposition && contentDisposition.includes("filename=")) {
-                const filenameMatch = contentDisposition.match(/filename="([^"]*)"/) || 
-                                    contentDisposition.match(/filename=([^;]*)/);
-                if (filenameMatch && filenameMatch[1]) {
-                    fileName = filenameMatch[1].trim();
-                }
-            }
-    
-            // Convertir la respuesta a un blob
             const blob = await response.blob();
-    
-            // Crear un enlace temporal para descargar el archivo
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = fileName;
+            a.download = "documento_descargado"; // Puedes personalizar el nombre del archivo
             document.body.appendChild(a);
             a.click();
-    
-            // Limpiar después de la descarga
-            setTimeout(() => {
-                window.URL.revokeObjectURL(url);
-                a.remove();
-            }, 0);
-    
-            return true;
+            a.remove();
+            window.URL.revokeObjectURL(url);
         } catch (error) {
-            console.error("Error durante la descarga del documento:", error);
+            console.error("Error downloading document:", error);
             throw error;
         }
     },
-      deleteDocument: async (id, isClient = true) => {
-        try {
+    deleteDocument: async (documentId) => {
+      try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/${
-              isClient ? "delete-client-document" : "delete-service-document"
-            }/${id}`,
-            {
-              method: "DELETE",
-            }
+              `${process.env.REACT_APP_BACKEND_URL}/delete-document/${documentId}`,
+              {
+                  method: "DELETE",
+              }
           );
-          if (response.ok) {
-            console.log("Documento eliminado con éxito");
-          } else {
-            console.error("Error al eliminar el documento");
+  
+          if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || "Failed to delete document");
           }
-        } catch (error) {
-          console.error("Error durante la eliminación del documento:", error);
-        }
-      },
+  
+          const data = await response.json();
+          return data;
+      } catch (error) {
+          console.error("Error deleting document:", error);
+          throw error;
+      }
+  },
 
       uploadExcelData: async (data, estadoServicio) => {
         try {

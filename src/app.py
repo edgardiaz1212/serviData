@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_cors import CORS
 from api.utils import APIException, generate_sitemap
-from api.models import db, User, Cliente, Servicio
+from api.models import db, User, Cliente, Servicio, Documento
 from api.routes import api
 from api.admin import setup_admin
 from dotenv import load_dotenv

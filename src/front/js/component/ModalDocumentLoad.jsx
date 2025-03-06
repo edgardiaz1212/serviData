@@ -47,33 +47,32 @@ const ModalDocumentLoad = ({ entityType, entityId, show, onClose }) => {
   // Manejar la carga del documento
   const handleUpload = async () => {
     if (!file) {
-      setError("Please select a file to upload");
-      return;
+        setError("Please select a file to upload");
+        return;
     }
 
     setLoading(true);
     setError(null);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      await actions.uploadDocument(entityType, entityId, formData);
+        const formData = new FormData();
+        formData.append('file', file);
+        await actions.uploadDocument(entityType, entityId, formData);
 
-      setFile(null);
-      setHasDocument(true); // Actualizar el estado para indicar que hay un documento
-      toast.success("Documento cargado exitosamente", {
-        autoClose: 3000
-      });
+        setFile(null);
+        setHasDocument(true); // Actualizar el estado para indicar que hay un documento
+        toast.success("Documento cargado exitosamente", {
+            autoClose: 3000
+        });
 
-      onClose(); // Cerrar el modal después de cargar
-      
+        onClose(); // Cerrar el modal después de cargar
     } catch (err) {
-      setError("Failed to upload document");
-      console.error(err);
+        setError("Failed to upload document");
+        console.error(err);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   // Manejar la descarga del documento
   const handleDownload = async () => {
