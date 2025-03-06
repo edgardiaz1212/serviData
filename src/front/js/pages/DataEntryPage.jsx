@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 const DataEntryPage = () => {
   const { actions } = useContext(Context);
   const [excelData, setExcelData] = useState([]);
-  const [estadoServicio, setEstadoServicio] = useState('nuevo'); // Estado inicial
+  const [estadoServicio, setEstadoServicio] = useState('Nuevo'); // Estado inicial
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
@@ -33,7 +33,7 @@ const DataEntryPage = () => {
     try {
       // Enviar los datos procesados al backend
       await actions.uploadExcelData(excelData, estadoServicio);
-      toast.success('Datos cargados correctamente');
+      toast.success('Datos cargados correctamente', estadoServicio);
       // Limpiar el estado para borrar la tabla de vista previa
       setExcelData([]);
     } catch (error) {
@@ -81,9 +81,9 @@ const DataEntryPage = () => {
                 value={estadoServicio}
                 onChange={(e) => setEstadoServicio(e.target.value)}
               >
-                <option value="nuevo">Nuevo Aprovisionamiento</option>
-                <option value="aprovisionado">Aprovisionado</option>
-                <option value="reaprovisionado">Reaprovisionado</option>
+                <option value="Nuevo">Nuevo Aprovisionamiento</option>
+                <option value="Aprovisionado">Aprovisionado</option>
+                <option value="Reaprovisionado">Reaprovisionado</option>
               </select>
             </div>
             <button className="btn btn-success mt-3 me-2" onClick={handleConfirmUpload}>

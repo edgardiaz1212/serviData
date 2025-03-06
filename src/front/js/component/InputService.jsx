@@ -36,7 +36,7 @@ function InputService({ clientData }) {
     ubicacion: '',
     powerstate: '',
     comentarios: '',
-    estado_servicio: 'nuevo', // Estado inicial
+    estado_servicio: 'Nuevo', // Estado inicial
   });
 
     const handleChange = (e) => {

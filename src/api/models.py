@@ -60,7 +60,7 @@ class Servicio(db.Model):
     facturado = db.Column(db.String)
     comentarios = db.Column(db.String)
     documento = db.Column(LargeBinary)  # Change to LargeBinary for file storage
-    estado_servicio = db.Column(db.String, default="nuevo")  # Valores posibles: "nuevo", "aprovisionado", "reaprovisionado"
+    estado_servicio = db.Column(db.String, default="Nuevo")  # Valores posibles: "Nuevo", "Aprovisionado", "Reaprovisionado"
 
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))  # Fecha de creación
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))  # Fecha de actualización

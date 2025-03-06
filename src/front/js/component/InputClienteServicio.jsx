@@ -43,7 +43,7 @@ function InputClienteServicio({ onSubmit }) {
     ubicacion: "",
     powerstate: "",
     comentarios: "",
-    estado_servicio: 'nuevo',
+    estado_servicio: 'Nuevo',
   });
 
 

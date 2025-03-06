@@ -236,7 +236,7 @@ def service_post():
         facturado = data.get('facturado')
         comentarios = data.get('comentarios')
         cliente_id = data.get('cliente_id')
-        estado_servicio = data.get('estado_servicio', 'nuevo')  # Obtener el estado del servicio
+        estado_servicio = data.get('estado_servicio', 'Nuevo')  # Obtener el estado del servicio
 
         new_service = Servicio(
             dominio=dominio,
@@ -296,6 +296,12 @@ def get_services(cliente_id):
     except Exception as e:
         # Manejar errores generales
         return jsonify({"message": "An unexpected error occurred", "error": str(e)}), 500
+
+@api.route('/servicios', methods=['GET'])
+def get_all_services():
+    services = Servicio.query.all()
+    return jsonify([service.serialize() for service in services]), 200
+
 
 @api.route('/servicios/total', methods=['GET'])
 def get_total_services():
@@ -562,7 +568,7 @@ def add_client_and_service():
         tipo = data.get('tipo')
         rif = data.get('rif')
         razon_social = data.get('razon_social')
-        estado_servicio = data.get('estado_servicio', 'nuevo')
+        estado_servicio = data.get('estado_servicio', 'Nuevo')
 
         # Crear o obtener el cliente
         cliente = Cliente.query.filter_by(rif=rif).first()
@@ -842,7 +848,7 @@ def delete_service_document(servicio_id):
 def upload_excel():
     data = request.get_json()
     df = pd.DataFrame(data)
-    estado_servicio = request.form.get('estado_servicio', 'nuevo')
+    estado_servicio = request.form.get('estado_servicio', 'Nuevo')
 
     column_mapping = {
         'tipo': 'tipo',
@@ -917,8 +923,11 @@ def upload_excel():
             tipo_servidor=row.get('tipo_servidor', ''),
             ubicacion=row.get('ubicacion', ''),
             observaciones=row.get('observaciones', ''),
+            facturado=row.get('facturado', ''),
+            comentarios=row.get('comentarios', ''),
+            cliente_id=cliente.id,
+            estado_servicio=estado_servicio, 
         )
         db.session.add(servicio)
-        db.session.commit()
-
-    return jsonify({"message": "Excel data uploaded successfully!"})
+    db.session.commit()
+    return jsonify({"message": "Data uploaded successfully"}), 201
