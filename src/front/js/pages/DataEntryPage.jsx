@@ -33,7 +33,7 @@ const DataEntryPage = () => {
     try {
       // Enviar los datos procesados al backend
       await actions.uploadExcelData(excelData, estadoServicio);
-      toast.success('Datos cargados correctamente', estadoServicio);
+      toast.success('Datos cargados correctamente');
       // Limpiar el estado para borrar la tabla de vista previa
       setExcelData([]);
     } catch (error) {

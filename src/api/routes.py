@@ -846,88 +846,109 @@ def delete_service_document(servicio_id):
 # Carga DE Informacion excel
 @api.route('/upload-excel', methods=['POST'])
 def upload_excel():
-    data = request.get_json()
-    df = pd.DataFrame(data)
-    estado_servicio = request.form.get('estado_servicio', 'Nuevo')
+    try:
+        # Obtener datos del cuerpo JSON
+        data = request.get_json()
+        estado_servicio = data.get('estado_servicio', 'Nuevo')
 
-    column_mapping = {
-        'tipo': 'tipo',
-        'rif': 'rif',
-        'razon_social': 'razon_social',
-        'dominio': 'dominio',
-        'estado': 'estado',
-        'tipo_servicio': 'tipo_servicio',
-        'hostname': 'hostname',
-        'cores': 'cores',
-        'contrato': 'contrato',
-        'plan_aprovisionado': 'plan_aprovisionado',
-        'plan_facturado': 'plan_facturado',
-        'detalle_plan': 'detalle_plan',
-        'sockets': 'sockets',
-        'powerstate': 'powerstate',
-        'ip_privada': 'ip_privada',
-        'vlan': 'vlan',
-        'ipam': 'ipam',
-        'datastore': 'datastore',
-        'nombre_servidor': 'nombre_servidor',
-        'marca_servidor': 'marca_servidor',
-        'modelo_servidor': 'modelo_servidor',
-        'nombre_nodo': 'nombre_nodo',
-        'nombre_plataforma': 'nombre_plataforma',
-        'ram': 'ram',
-        'hdd': 'hdd',
-        'cpu': 'cpu',
-        'tipo_servidor': 'tipo_servidor',
-        'ubicacion': 'ubicacion',
-        'observaciones': 'observaciones',
-        'facturado': 'facturado',
-        'comentarios': 'comentarios'
-    }
-    df.rename(columns=column_mapping, inplace=True)
-    for index, row in df.iterrows():
-        if pd.isna(row['rif']):
-            continue
-        cliente = Cliente.query.filter_by(rif=row['rif']).first()
-        if not cliente:
-            cliente = Cliente(
-                tipo=row.get('tipo', ''),
-                rif=row.get('rif', ''),
-                razon_social=row.get('razon_social', '')
+        # Validar formato de los datos
+        if not isinstance(data.get('data'), list):
+            return jsonify({"error": "Invalid data format. Expected a list of records."}), 400
+
+        # Convertir datos a DataFrame
+        df = pd.DataFrame(data['data'])
+
+        # Mapear columnas si es necesario
+        column_mapping = {
+            'tipo': 'tipo',
+            'rif': 'rif',
+            'razon_social': 'razon_social',
+            'dominio': 'dominio',
+            'estado': 'estado',
+            'tipo_servicio': 'tipo_servicio',
+            'hostname': 'hostname',
+            'cores': 'cores',
+            'contrato': 'contrato',
+            'plan_aprovisionado': 'plan_aprovisionado',
+            'plan_facturado': 'plan_facturado',
+            'detalle_plan': 'detalle_plan',
+            'sockets': 'sockets',
+            'powerstate': 'powerstate',
+            'ip_privada': 'ip_privada',
+            'vlan': 'vlan',
+            'ipam': 'ipam',
+            'datastore': 'datastore',
+            'nombre_servidor': 'nombre_servidor',
+            'marca_servidor': 'marca_servidor',
+            'modelo_servidor': 'modelo_servidor',
+            'nombre_nodo': 'nombre_nodo',
+            'nombre_plataforma': 'nombre_plataforma',
+            'ram': 'ram',
+            'hdd': 'hdd',
+            'cpu': 'cpu',
+            'tipo_servidor': 'tipo_servidor',
+            'ubicacion': 'ubicacion',
+            'observaciones': 'observaciones',
+            'facturado': 'facturado',
+            'comentarios': 'comentarios'
+        }
+        df.rename(columns=column_mapping, inplace=True)
+
+        # Procesar filas
+        for index, row in df.iterrows():
+            if pd.isna(row['rif']):
+                continue
+
+            # Crear/obtener cliente
+            cliente = Cliente.query.filter_by(rif=row['rif']).first()
+            if not cliente:
+                cliente = Cliente(
+                    tipo=row.get('tipo', ''),
+                    rif=row.get('rif', ''),
+                    razon_social=row.get('razon_social', '')
+                )
+                db.session.add(cliente)
+                db.session.commit()
+
+            # Crear servicio
+            servicio = Servicio(
+                dominio=row.get('dominio', ''),
+                estado=row.get('estado', ''),
+                tipo_servicio=row.get('tipo_servicio', ''),
+                hostname=row.get('hostname', ''),
+                cores=int(row['cores']) if 'cores' in row and pd.notna(row['cores']) else 0,
+                contrato=row.get('contrato', ''),
+                plan_aprovisionado=row.get('plan_aprovisionado', ''),
+                plan_facturado=row.get('plan_facturado', ''),
+                detalle_plan=row.get('detalle_plan', ''),
+                sockets=int(row['sockets']) if 'sockets' in row and pd.notna(row['sockets']) else 0,
+                powerstate=row.get('powerstate', ''),
+                ip_privada=row.get('ip_privada', ''),
+                vlan=row.get('vlan', ''),
+                ipam=row.get('ipam', ''),
+                datastore=row.get('datastore', ''),
+                nombre_servidor=row.get('nombre_servidor', ''),
+                marca_servidor=row.get('marca_servidor', ''),
+                modelo_servidor=row.get('modelo_servidor', ''),
+                nombre_nodo=row.get('nombre_nodo', ''),
+                nombre_plataforma=row.get('nombre_plataforma', ''),
+                ram=int(row['ram']) if 'ram' in row and pd.notna(row['ram']) else 0,
+                hdd=int(row['hdd']) if 'hdd' in row and pd.notna(row['hdd']) else 0,
+                cpu=int(row['cpu']) if 'cpu' in row and pd.notna(row['cpu']) else 0,
+                tipo_servidor=row.get('tipo_servidor', ''),
+                ubicacion=row.get('ubicacion', ''),
+                observaciones=row.get('observaciones', ''),
+                facturado=row.get('facturado', ''),
+                comentarios=row.get('comentarios', ''),
+                cliente_id=cliente.id,
+                estado_servicio=estado_servicio,
             )
-            db.session.add(cliente)
-            db.session.commit()
-        servicio = Servicio(
-            dominio=row.get('dominio', ''),
-            estado=row.get('estado', ''),
-            tipo_servicio=row.get('tipo_servicio', ''),
-            hostname=row.get('hostname', ''),
-            cores=int(row['cores']) if 'cores' in row and pd.notna(row['cores']) else 0,
-            contrato=row.get('contrato', ''),
-            plan_aprovisionado=row.get('plan_aprovisionado', ''),
-            plan_facturado=row.get('plan_facturado', ''),
-            detalle_plan=row.get('detalle_plan', ''),
-            sockets=int(row['sockets']) if 'sockets' in row and pd.notna(row['sockets']) else 0,
-            powerstate=row.get('powerstate', ''),
-            ip_privada=row.get('ip_privada', ''),
-            vlan=row.get('vlan', ''),
-            ipam=row.get('ipam', ''),
-            datastore=row.get('datastore', ''),
-            nombre_servidor=row.get('nombre_servidor', ''),
-            marca_servidor=row.get('marca_servidor', ''),
-            modelo_servidor=row.get('modelo_servidor', ''),
-            nombre_nodo=row.get('nombre_nodo', ''),
-            nombre_plataforma=row.get('nombre_plataforma', ''),
-            ram=int(row['ram']) if 'ram' in row and pd.notna(row['ram']) else 0,
-            hdd=int(row['hdd']) if 'hdd' in row and pd.notna(row['hdd']) else 0,
-            cpu=int(row['cpu']) if 'cpu' in row and pd.notna(row['cpu']) else 0,
-            tipo_servidor=row.get('tipo_servidor', ''),
-            ubicacion=row.get('ubicacion', ''),
-            observaciones=row.get('observaciones', ''),
-            facturado=row.get('facturado', ''),
-            comentarios=row.get('comentarios', ''),
-            cliente_id=cliente.id,
-            estado_servicio=estado_servicio, 
-        )
-        db.session.add(servicio)
-    db.session.commit()
-    return jsonify({"message": "Data uploaded successfully"}), 201
+            db.session.add(servicio)
+
+        # Confirmar transacción
+        db.session.commit()
+        return jsonify({"message": "Excel data uploaded successfully!"}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500

@@ -819,27 +819,27 @@ const getState = ({ getStore, getActions, setStore }) => {
         }
       },
 
-      uploadExcelData: async (data) => {
+      uploadExcelData: async (data, estadoServicio) => {
         try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/upload-excel`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(data),
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/upload-excel`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ data, estado_servicio: estadoServicio }),
+                }
+            );
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
             }
-          );
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          const result = await response.json();
-          console.log("Data uploaded successfully:", result);
+            const result = await response.json();
+            console.log("Data uploaded successfully:", result);
         } catch (error) {
-          console.error("Error uploading data:", error);
+            console.error("Error uploading data:", error);
         }
-      },
+    },
     },
   };
 };
