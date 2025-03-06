@@ -428,29 +428,31 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
       getServicebyClient: async (clientId) => {
         try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/servicios-by-cliente/${clientId}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          if (response.ok) {
-            const data = await response.json();
-            const activeServices = data.filter(
-              (service) => service.estado_servicio !== "Retirado"
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/servicios-by-cliente/${clientId}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
             );
-            setStore({ activeServiceCount: activeServices.length });
-            return data;
-          } else {
-            console.error("Failed to get service data");
-          }
+            if (response.ok) {
+                const data = await response.json();
+                const activeServices = data.services.filter(
+                    (service) => service.estado_servicio !== "Retirado"
+                );
+                setStore({ activeServiceCount: activeServices.length });
+                return data.services; // Retorna los servicios directamente
+            } else {
+                console.error("Failed to get service data");
+                throw new Error("Failed to fetch services");
+            }
         } catch (error) {
-          console.log("Error during getting service data", error);
+            console.error("Error during getting service data", error);
+            throw error; // Propaga el error para manejarlo en el componente
         }
-      },
+    },
       getServicesByClientType: async (clientType) => {
         try {
           const response = await fetch(
