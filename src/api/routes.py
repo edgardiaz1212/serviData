@@ -10,24 +10,13 @@ from datetime import datetime, timedelta
 from sqlalchemy import func
 import logging
 from sqlalchemy.exc import SQLAlchemyError
-
+import logging
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 
 api = Blueprint('api', __name__)
 CORS(api)
-#Para el guardado de documentos
-# Obtener la ruta absoluta del directorio raíz del proyecto 
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))  # Directorio donde está api.py
-PROJECT_ROOT = os.path.dirname(BASE_DIR)  # Subir un nivel para llegar a la raíz del proyecto
 
-# Definir la carpeta de subida en la raíz del proyecto
-UPLOAD_FOLDER = os.path.join(PROJECT_ROOT, 'uploads', 'servicios')
-CLIENT_UPLOAD_FOLDER = os.path.join(PROJECT_ROOT, 'uploads', 'clientes')
-
-# Crear las carpetas si no existen
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(CLIENT_UPLOAD_FOLDER, exist_ok=True)
 # ------------------------------
 # Acciones para Usuario
 # ------------------------------
@@ -654,38 +643,58 @@ def upload_document(entity_type, entity_id):
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
-
-@api.route('/<string:entity_type>/<int:entity_id>/document-exists', methods=['GET'])
+@api.route('/list-all-documents', methods=['GET'])
+def list_all_documents():
+    try:
+        documentos = Documento.query.all()
+        documentos_list = [{"id": doc.id, "nombre": doc.nombre, "tipo": doc.tipo, "tamaño": doc.tamaño, "cliente_id": doc.cliente_id, "servicio_id": doc.servicio_id} for doc in documentos]
+        return jsonify(documentos_list), 200    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+        
+@api.route('/<entity_type>/<int:entity_id>/document-exists', methods=['GET'])
 def check_document_exists(entity_type, entity_id):
     try:
-        # Obtener la entidad según el tipo
         if entity_type == "client":
-            entity = Cliente.query.get(entity_id)
+            documento = Documento.query.filter_by(cliente_id=entity_id).first()
         elif entity_type == "service":
-            entity = Servicio.query.get(entity_id)
+            documento = Documento.query.filter_by(servicio_id=entity_id).first()
         else:
             return jsonify({"error": "Invalid entity type"}), 400
 
-        if not entity:
-            return jsonify({"error": f"{entity_type.capitalize()} not found"}), 404
-
-        # Verificar si el campo 'documento' existe y no está vacío
-        document_path = entity.documento
-        document_exists = bool(document_path) and isinstance(document_path, str) and document_path.strip() != ""
-        document_name = os.path.basename(document_path) if document_exists else None
-
-        # Retornar la respuesta
-        return jsonify({
-            "exists": document_exists,
-            "document_name": document_name
-        }), 200
+        if documento:
+            return jsonify({
+                "exists": True,
+                "document_name": documento.nombre,
+                "document_id": documento.id  # Devolver el ID del documento
+            }), 200
+        else:
+            return jsonify({
+                "exists": False,
+                "document_name": None,
+                "document_id": None
+            }), 200
 
     except Exception as e:
-        # Manejar errores generales
-        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
-    
-import logging
+        return jsonify({"error": str(e)}), 500
+# Ruta para eliminar un documento por su ID
+@api.route('/delete-document/<int:document_id>', methods=['DELETE'])
+def delete_document(document_id):
+    try:
+        documento = Documento.query.filter_by(id=document_id).first()
+        if not documento:
+            return jsonify({"error": "Document not found"}), 404
 
+        db.session.delete(documento)
+        db.session.commit()
+
+        return jsonify({"message": "Document deleted successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+# Ruta para descargar un documento por su ID
 @api.route('/download-document/<int:document_id>', methods=['GET'])
 def download_document(document_id):
     try:
@@ -700,26 +709,8 @@ def download_document(document_id):
             as_attachment=True,
             download_name=documento.nombre
         )
-
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
-
-@api.route('/delete-document/<int:document_id>', methods=['DELETE'])
-def delete_document(document_id):
-    try:
-        documento = Documento.query.get(document_id)
-        if not documento:
-            return jsonify({"error": "Document not found"}), 404
-
-        db.session.delete(documento)
-        db.session.commit()
-
-        return jsonify({"message": "Document deleted successfully"}), 200
-
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e)}), 500    
     
 # Carga DE Informacion excel
 @api.route('/upload-excel', methods=['POST'])

@@ -112,15 +112,14 @@ class User(db.Model):
     password = db.Column(db.String)  # do not serialize the password, it's a security breach
     role = db.Column(db.String)
     
-    def __repr__(self):
-        return f'<User {self.username}>'
+    # def __repr__(self):
+    #     return f'<User {self.username}>'
 
     def serialize(self):
         return {
             'id': self.id,
             'username': self.username,
             'role': self.role,
-            
         }
     
 class Documento(db.Model):
@@ -132,21 +131,24 @@ class Documento(db.Model):
     contenido = db.Column(LargeBinary, nullable=False) # Contenido del archivo
     cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'), nullable=True) # Relación con cliente
     servicio_id = db.Column(db.Integer, db.ForeignKey('servicios.id'), nullable=True) # Relación con servicio
-    created_at = db.Column(db.DateTime, default=datetime.utcnow) # Fecha de creación
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     # Relaciones
     cliente = db.relationship("Cliente", back_populates="documentos")
     servicio = db.relationship("Servicio", back_populates="documentos")
 
     # Validación: Un documento debe estar relacionado con un cliente o un servicio, pero no con ambos
-    def __init__(self, **kwargs):
-        super(Documento, self).__init__(**kwargs)
+    def validate_relationships(self):
         if self.cliente_id is None and self.servicio_id is None:
             raise ValueError("Un documento debe estar relacionado con un cliente o un servicio.")
         if self.cliente_id is not None and self.servicio_id is not None:
             raise ValueError("Un documento no puede estar relacionado con un cliente y un servicio al mismo tiempo.")
-        
-        def serialize(self):
+
+    def __init__(self, **kwargs):
+        super(Documento, self).__init__(**kwargs)
+        self.validate_relationships()
+
+    def serialize(self):
             return {
             'id': self.id,
             'nombre': self.nombre,

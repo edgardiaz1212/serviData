@@ -22,6 +22,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       aprovisionados: [],
       activeServiceCount: 0,
       documentName: [], // Add document state
+      documentId: null, // Add document ID state
       documentLoading: false, // Add document loading state
       documentError: null, // Add document error state
     },
@@ -714,31 +715,34 @@ const getState = ({ getStore, getActions, setStore }) => {
         }
     },
 
-      checkDocumentExists: async (entityType, entityId) => {
-        try {
+    checkDocumentExists: async (entityType, entityId) => {
+      try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/${entityType}/${entityId}/document-exists`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
+              `${process.env.REACT_APP_BACKEND_URL}/${entityType}/${entityId}/document-exists`,
+              {
+                  method: "GET",
+                  headers: {
+                      "Content-Type": "application/json",
+                  },
+              }
           );
-      
-          if (response.ok) {
-            const data = await response.json();
-            setStore({ documentName: data.document_name }); // Actualizar el nombre del documento
-           
-            return data.exists; // Retornar si el documento existe
-          } else {
-            throw new Error("Failed to check document existence");
+  
+          if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || "Failed to check document existence");
           }
-        } catch (error) {
+  
+          const data = await response.json();
+          setStore({ 
+              documentName: data.document_name,
+              documentId: data.document_id  // Almacenar el ID del documento
+          });
+          return data.exists; // Retornar si el documento existe
+      } catch (error) {
           console.error("Error checking document existence:", error);
           throw error;
-        }
-      },
+      }
+  },
 
       downloadDocument: async (documentId) => {
         try {
@@ -768,6 +772,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             throw error;
         }
     },
+    
     deleteDocument: async (documentId) => {
       try {
           const response = await fetch(
