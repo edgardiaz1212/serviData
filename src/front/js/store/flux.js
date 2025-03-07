@@ -23,8 +23,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       activeServiceCount: 0,
       documentName: [], // Add document state
       documentId: null, // Add document ID state
-      documentLoading: false, // Add document loading state
-      documentError: null, // Add document error state
+     
     },
 
     actions: {

@@ -81,7 +81,7 @@ const ModalDocumentLoad = ({ entityType, entityId, show, onClose }) => {
     setError(null);
 
     try {
-        await actions.downloadDocument(entityId, entityType === "client");
+        await actions.downloadDocument(store.documentId, entityType === "client");
         toast.success("Documento descargado exitosamente", {
             autoClose: 3000
         });
