@@ -63,12 +63,17 @@ const ModalDocumentLoad = ({ entityType, entityId, show, onClose }) => {
         setFile(null);
         setHasDocument(true); // Actualizar el estado para indicar que hay un documento
         toast.success("Documento cargado exitosamente", {
-            autoClose: 3000
+            autoClose: 3000,
         });
 
-        onClose(); // Cerrar el modal después de cargar
+        setTimeout(() => {
+          onClose();
+      }, 500) // Cerrar el modal después de cargar
     } catch (err) {
         setError("Failed to upload document");
+        toast.error("Error al cargar el documento", {
+            autoClose: 3000,
+        });
         console.error(err);
     } finally {
         setLoading(false);
@@ -102,8 +107,10 @@ const ModalDocumentLoad = ({ entityType, entityId, show, onClose }) => {
     try {
         await actions.deleteDocument(store.documentId, entityType === "client");
         setHasDocument(false); // Actualizar el estado para indicar que no hay un documento
-        toast.success("Documento eliminado exitosamente");
-        onClose(); // Cerrar el modal después de eliminar
+        toast.success("Documento eliminado exitosamente" , { autoClose: 3000 });
+        setTimeout(() => {
+          onClose();
+      }, 500)
     } catch (err) {
         setError("Error al eliminar el documento");
         toast.error("Error al eliminar el documento");
@@ -118,7 +125,17 @@ const ModalDocumentLoad = ({ entityType, entityId, show, onClose }) => {
 
   return (
     <>
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+            />
       <div className="modal" tabIndex="-1" style={{ display: "block" }}>
         <div className="modal-dialog">
           <div className="modal-content">

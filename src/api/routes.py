@@ -643,16 +643,7 @@ def upload_document(entity_type, entity_id):
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
-@api.route('/list-all-documents', methods=['GET'])
-def list_all_documents():
-    try:
-        documentos = Documento.query.all()
-        documentos_list = [{"id": doc.id, "nombre": doc.nombre, "tipo": doc.tipo, "tamaño": doc.tamaño, "cliente_id": doc.cliente_id, "servicio_id": doc.servicio_id} for doc in documentos]
-        return jsonify(documentos_list), 200    
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
-        
+       
 @api.route('/<entity_type>/<int:entity_id>/document-exists', methods=['GET'])
 def check_document_exists(entity_type, entity_id):
     try:
@@ -702,16 +693,18 @@ def download_document(document_id):
         if not documento:
             return jsonify({"error": "Document not found"}), 404
 
-        # Devolver el archivo como una respuesta de descarga
-        return send_file(
+        # Configurar el encabezado Content-Disposition con el nombre del archivo
+        response = send_file(
             io.BytesIO(documento.contenido),
             mimetype=documento.tipo,
             as_attachment=True,
-            download_name=documento.nombre
+            download_name=documento.nombre  # Usar download_name para el nombre del archivo
         )
+        return response
+
     except Exception as e:
-        return jsonify({"error": str(e)}), 500    
-    
+        return jsonify({"error": str(e)}), 500
+        
 # Carga DE Informacion excel
 @api.route('/upload-excel', methods=['POST'])
 def upload_excel():

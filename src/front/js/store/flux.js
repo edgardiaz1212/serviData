@@ -743,34 +743,44 @@ const getState = ({ getStore, getActions, setStore }) => {
       }
   },
 
-      downloadDocument: async (documentId) => {
-        try {
-            const response = await fetch(
-                `${process.env.REACT_APP_BACKEND_URL}/download-document/${documentId}`,
-                {
-                    method: "GET",
-                }
-            );
-    
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || "Failed to download document");
+  downloadDocument: async (documentId) => {
+    try {
+        const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/download-document/${documentId}`,
+            {
+                method: "GET",
             }
-    
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "documento_descargado"; // Puedes personalizar el nombre del archivo
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-        } catch (error) {
-            console.error("Error downloading document:", error);
-            throw error;
+        );
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to download document");
         }
-    },
+
+        // Obtener el nombre del archivo del encabezado Content-Disposition
+        const contentDisposition = response.headers.get("content-disposition");
+        let fileName = "documento_descargado"; // Valor predeterminado
+        if (contentDisposition && contentDisposition.includes("filename=")) {
+            fileName = contentDisposition.split("filename=")[1].split(";")[0].replace(/['"]/g, ''); // Eliminar comillas
+        }
+
+        // Convertir la respuesta a un blob
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+
+        // Crear un enlace temporal para descargar el archivo
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName; // Usar el nombre del archivo obtenido
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error("Error downloading document:", error);
+        throw error;
+    }
+},
     
     deleteDocument: async (documentId) => {
       try {
