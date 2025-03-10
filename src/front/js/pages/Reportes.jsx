@@ -11,6 +11,7 @@ function Reportes() {
     const { isAuthenticated } = store;
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [pdfData, setPdfData] = useState(null);
 
     useEffect(() => {
         if (!isAuthenticated) {
@@ -18,19 +19,31 @@ function Reportes() {
         }
     }, [isAuthenticated, navigate]);
 
-    const generateClientesActivosPDF = async () => {
+    // Función para generar el PDF
+    const generatePDF = async (tipoCliente) => {
         setLoading(true);
         try {
-            // Obtener datos de clientes públicos y privados
-            const publicos = await actions.getClientbyTipo('Pública');
-            const privados = await actions.getClientbyTipo('Privada');
+            let publicos = [];
+            let privados = [];
+
+            // Obtener datos según el tipo de cliente
+            if (tipoCliente === "activos") {
+                publicos = await actions.getClientbyTipo('Pública');
+                privados = await actions.getClientbyTipo('Privada');
+            } else if (tipoCliente === "publica") {
+                publicos = await actions.getClientbyTipo('Pública');
+            } else if (tipoCliente === "privada") {
+                privados = await actions.getClientbyTipo('Privada');
+            }
 
             // Generar y descargar el PDF automáticamente
-            const blob = await pdf(<PdfDocument publicos={publicos} privados={privados} />).toBlob();
+            const blob = await pdf(
+                <PdfDocument publicos={publicos} privados={privados} tipoCliente={tipoCliente} />
+            ).toBlob();
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `clientes-activos-${new Date().toLocaleDateString()}.pdf`;
+            link.download = `clientes-${tipoCliente}-${new Date().toLocaleDateString()}.pdf`;
             link.click();
             window.URL.revokeObjectURL(url); // Liberar memoria
         } catch (error) {
@@ -85,59 +98,63 @@ function Reportes() {
     });
 
     // Componente PDF
-    const PdfDocument = ({ publicos, privados }) => (
+    const PdfDocument = ({ publicos, privados, tipoCliente }) => (
         <Document>
             {/* Página 1: Clientes Públicos */}
-            <Page style={styles.page}>
-                {/* Encabezado con logo y título */}
-                <View style={styles.header}>
-                    <Image src={logo} style={styles.logo} />
-                    <Text style={styles.title}>Clientes Activos DCCE</Text>
-                </View>
-
-                {/* Tabla Clientes Públicos */}
-                <View style={styles.section}>
-                    <Text style={styles.title}>Clientes Públicos:</Text>
-                    <View style={styles.table}>
-                        <View style={styles.tableRow}>
-                            <Text style={[styles.tableCol, { fontWeight: 'bold' }]}>Razón Social</Text>
-                            <Text style={[styles.tableCol, { fontWeight: 'bold' }]}>RIF</Text>
-                        </View>
-                        {publicos.map((cliente, index) => (
-                            <View key={index} style={styles.tableRow}>
-                                <Text style={styles.tableCol}>{cliente.razon_social}</Text>
-                                <Text style={styles.tableCol}>{cliente.rif}</Text>
-                            </View>
-                        ))}
+            {tipoCliente === "activos" || tipoCliente === "publica" ? (
+                <Page style={styles.page}>
+                    {/* Encabezado con logo y título */}
+                    <View style={styles.header}>
+                        <Image src={logo} style={styles.logo} />
+                        <Text style={styles.title}>Clientes Públicos DCCE</Text>
                     </View>
-                </View>
-            </Page>
+
+                    {/* Tabla Clientes Públicos */}
+                    <View style={styles.section}>
+                        <Text style={styles.title}>Clientes Públicos:</Text>
+                        <View style={styles.table}>
+                            <View style={styles.tableRow}>
+                                <Text style={[styles.tableCol, { fontWeight: 'bold' }]}>Razón Social</Text>
+                                <Text style={[styles.tableCol, { fontWeight: 'bold' }]}>RIF</Text>
+                            </View>
+                            {publicos.map((cliente, index) => (
+                                <View key={index} style={styles.tableRow}>
+                                    <Text style={styles.tableCol}>{cliente.razon_social}</Text>
+                                    <Text style={styles.tableCol}>{cliente.rif}</Text>
+                                </View>
+                            ))}
+                        </View>
+                    </View>
+                </Page>
+            ) : null}
 
             {/* Página 2: Clientes Privados */}
-            <Page style={styles.page}>
-                {/* Encabezado con logo y título */}
-                <View style={styles.header}>
-                    <Image src={logo} style={styles.logo} />
-                    <Text style={styles.title}>Clientes Activos DCCE</Text>
-                </View>
-
-                {/* Tabla Clientes Privados */}
-                <View style={styles.section}>
-                    <Text style={styles.title}>Clientes Privados:</Text>
-                    <View style={styles.table}>
-                        <View style={styles.tableRow}>
-                            <Text style={[styles.tableCol, { fontWeight: 'bold' }]}>Razón Social</Text>
-                            <Text style={[styles.tableCol, { fontWeight: 'bold' }]}>RIF</Text>
-                        </View>
-                        {privados.map((cliente, index) => (
-                            <View key={index} style={styles.tableRow}>
-                                <Text style={styles.tableCol}>{cliente.razon_social}</Text>
-                                <Text style={styles.tableCol}>{cliente.rif}</Text>
-                            </View>
-                        ))}
+            {tipoCliente === "activos" || tipoCliente === "privada" ? (
+                <Page style={styles.page}>
+                    {/* Encabezado con logo y título */}
+                    <View style={styles.header}>
+                        <Image src={logo} style={styles.logo} />
+                        <Text style={styles.title}>Clientes Privados DCCE</Text>
                     </View>
-                </View>
-            </Page>
+
+                    {/* Tabla Clientes Privados */}
+                    <View style={styles.section}>
+                        <Text style={styles.title}>Clientes Privados:</Text>
+                        <View style={styles.table}>
+                            <View style={styles.tableRow}>
+                                <Text style={[styles.tableCol, { fontWeight: 'bold' }]}>Razón Social</Text>
+                                <Text style={[styles.tableCol, { fontWeight: 'bold' }]}>RIF</Text>
+                            </View>
+                            {privados.map((cliente, index) => (
+                                <View key={index} style={styles.tableRow}>
+                                    <Text style={styles.tableCol}>{cliente.razon_social}</Text>
+                                    <Text style={styles.tableCol}>{cliente.rif}</Text>
+                                </View>
+                            ))}
+                        </View>
+                    </View>
+                </Page>
+            ) : null}
         </Document>
     );
 
@@ -150,15 +167,32 @@ function Reportes() {
                     <div className="col-auto">
                         <h3>Clientes</h3>
                         <div className="col-auto">
+                            {/* Botón para Clientes Activos */}
                             <p
                                 className="pdf-link"
-                                onClick={generateClientesActivosPDF}
+                                onClick={() => generatePDF("activos")}
                                 style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
                             >
                                 Listado Clientes activos (pdf)
                             </p>
-                            <p>Listado Clientes Pública (pdf)</p>
-                            <p>Listado Clientes Privada (pdf)</p>
+
+                            {/* Botón para Clientes Públicos */}
+                            <p
+                                className="pdf-link"
+                                onClick={() => generatePDF("publica")}
+                                style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+                            >
+                                Listado Clientes Pública (pdf)
+                            </p>
+
+                            {/* Botón para Clientes Privados */}
+                            <p
+                                className="pdf-link"
+                                onClick={() => generatePDF("privada")}
+                                style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+                            >
+                                Listado Clientes Privada (pdf)
+                            </p>
                         </div>
                         <div className="col-auto">
                             <h3>Servicios</h3>
