@@ -1,17 +1,16 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Context } from '../store/appContext';
-import { pdf, Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import logo from '../../img/CDHLogo.png';
+import { generatePDF } from './PDFGenerator';
+import { generateExcelServiciosActivos, generateExcelServiciosPublica, generateExcelServiciosPrivada } from './ExcelGenerator';
 
 function Reportes() {
     const { actions, store } = useContext(Context);
     const { isAuthenticated } = store;
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const [pdfData, setPdfData] = useState(null);
 
     useEffect(() => {
         if (!isAuthenticated) {
@@ -20,7 +19,7 @@ function Reportes() {
     }, [isAuthenticated, navigate]);
 
     // Función para generar el PDF
-    const generatePDF = async (tipoCliente) => {
+    const handleGeneratePDF = async (tipoCliente) => {
         setLoading(true);
         try {
             let publicos = [];
@@ -36,16 +35,8 @@ function Reportes() {
                 privados = await actions.getClientbyTipo('Privada');
             }
 
-            // Generar y descargar el PDF automáticamente
-            const blob = await pdf(
-                <PdfDocument publicos={publicos} privados={privados} tipoCliente={tipoCliente} />
-            ).toBlob();
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `clientes-${tipoCliente}-${new Date().toLocaleDateString()}.pdf`;
-            link.click();
-            window.URL.revokeObjectURL(url); // Liberar memoria
+            // Generar y descargar el PDF
+            await generatePDF(publicos, privados, tipoCliente);
         } catch (error) {
             toast.error('Error obteniendo datos de clientes: ' + error.message);
         } finally {
@@ -53,110 +44,48 @@ function Reportes() {
         }
     };
 
-    // Definir estilos para el PDF
-    const styles = StyleSheet.create({
-        page: {
-            padding: 30,
-            fontSize: 12,
-        },
-        section: {
-            marginBottom: 20,
-        },
-        title: {
-            fontSize: 16,
-            fontWeight: 'bold',
-            marginBottom: 10,
-        },
-        header: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginBottom: 20,
-        },
-        logo: {
-            width: 50,
-            height: 25,
-            marginRight: 10,
-        },
-        table: {
-            display: 'table',
-            width: 'auto',
-            borderStyle: 'solid',
-            borderWidth: 1,
-            borderColor: '#000',
-        },
-        tableRow: {
-            margin: 'auto',
-            flexDirection: 'row',
-        },
-        tableCol: {
-            width: '50%',
-            borderStyle: 'solid',
-            borderWidth: 1,
-            borderColor: '#000',
-            padding: 5,
-        },
-    });
+    // Función para generar el Excel de Servicios Activos
+    const handleGenerateExcelServiciosActivos = async () => {
+        setLoading(true);
+        try {
+            const clientesPublicos = await actions.getClientbyTipo('Pública');
+            const clientesPrivados = await actions.getClientbyTipo('Privada');
+            const servicios = await actions.getServiceCountsByType();
+            await generateExcelServiciosActivos(clientesPublicos, clientesPrivados, servicios);
+        } catch (error) {
+            toast.error('Error generando Excel: ' + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    // Componente PDF
-    const PdfDocument = ({ publicos, privados, tipoCliente }) => (
-        <Document>
-            {/* Página 1: Clientes Públicos */}
-            {tipoCliente === "activos" || tipoCliente === "publica" ? (
-                <Page style={styles.page}>
-                    {/* Encabezado con logo y título */}
-                    <View style={styles.header}>
-                        <Image src={logo} style={styles.logo} />
-                        <Text style={styles.title}>Clientes Públicos DCCE</Text>
-                    </View>
+    // Función para generar el Excel de Servicios Pública
+    const handleGenerateExcelServiciosPublica = async () => {
+        setLoading(true);
+        try {
+            const clientesPublicos = await actions.getClientbyTipo('Pública');
+            const servicios = await actions.getServiceCountsByType();
+            await generateExcelServiciosPublica(clientesPublicos, servicios);
+        } catch (error) {
+            toast.error('Error generando Excel: ' + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-                    {/* Tabla Clientes Públicos */}
-                    <View style={styles.section}>
-                        <Text style={styles.title}>Clientes Públicos:</Text>
-                        <View style={styles.table}>
-                            <View style={styles.tableRow}>
-                                <Text style={[styles.tableCol, { fontWeight: 'bold' }]}>Razón Social</Text>
-                                <Text style={[styles.tableCol, { fontWeight: 'bold' }]}>RIF</Text>
-                            </View>
-                            {publicos.map((cliente, index) => (
-                                <View key={index} style={styles.tableRow}>
-                                    <Text style={styles.tableCol}>{cliente.razon_social}</Text>
-                                    <Text style={styles.tableCol}>{cliente.rif}</Text>
-                                </View>
-                            ))}
-                        </View>
-                    </View>
-                </Page>
-            ) : null}
-
-            {/* Página 2: Clientes Privados */}
-            {tipoCliente === "activos" || tipoCliente === "privada" ? (
-                <Page style={styles.page}>
-                    {/* Encabezado con logo y título */}
-                    <View style={styles.header}>
-                        <Image src={logo} style={styles.logo} />
-                        <Text style={styles.title}>Clientes Privados DCCE</Text>
-                    </View>
-
-                    {/* Tabla Clientes Privados */}
-                    <View style={styles.section}>
-                        <Text style={styles.title}>Clientes Privados:</Text>
-                        <View style={styles.table}>
-                            <View style={styles.tableRow}>
-                                <Text style={[styles.tableCol, { fontWeight: 'bold' }]}>Razón Social</Text>
-                                <Text style={[styles.tableCol, { fontWeight: 'bold' }]}>RIF</Text>
-                            </View>
-                            {privados.map((cliente, index) => (
-                                <View key={index} style={styles.tableRow}>
-                                    <Text style={styles.tableCol}>{cliente.razon_social}</Text>
-                                    <Text style={styles.tableCol}>{cliente.rif}</Text>
-                                </View>
-                            ))}
-                        </View>
-                    </View>
-                </Page>
-            ) : null}
-        </Document>
-    );
+    // Función para generar el Excel de Servicios Privada
+    const handleGenerateExcelServiciosPrivada = async () => {
+        setLoading(true);
+        try {
+            const clientesPrivados = await actions.getClientbyTipo('Privada');
+            const servicios = await actions.getServiceCountsByType();
+            await generateExcelServiciosPrivada(clientesPrivados, servicios);
+        } catch (error) {
+            toast.error('Error generando Excel: ' + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <>
@@ -170,7 +99,7 @@ function Reportes() {
                             {/* Botón para Clientes Activos */}
                             <p
                                 className="pdf-link"
-                                onClick={() => generatePDF("activos")}
+                                onClick={() => handleGeneratePDF("activos")}
                                 style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
                             >
                                 Listado Clientes activos (pdf)
@@ -179,7 +108,7 @@ function Reportes() {
                             {/* Botón para Clientes Públicos */}
                             <p
                                 className="pdf-link"
-                                onClick={() => generatePDF("publica")}
+                                onClick={() => handleGeneratePDF("publica")}
                                 style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
                             >
                                 Listado Clientes Pública (pdf)
@@ -188,7 +117,7 @@ function Reportes() {
                             {/* Botón para Clientes Privados */}
                             <p
                                 className="pdf-link"
-                                onClick={() => generatePDF("privada")}
+                                onClick={() => handleGeneratePDF("privada")}
                                 style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
                             >
                                 Listado Clientes Privada (pdf)
@@ -196,13 +125,31 @@ function Reportes() {
                         </div>
                         <div className="col-auto">
                             <h3>Servicios</h3>
-                            <p>Servicios activos</p>
-                            <p>Servicios Pública</p>
-                            <p>Servicios Privada</p>
-                            <p>Servicios retirados por mes</p>
-                            <p>Servicios aprovisionados por mes en curso</p>
-                            <p>Servicios aprovisionados por mes</p>
-                            <p>Servicios aprovisionados por año</p>
+                            <p
+                                className="pdf-link"
+                                onClick={handleGenerateExcelServiciosActivos}
+                                style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+                            >
+                                Servicios activos (xls)
+                            </p>
+                            <p
+                                className="pdf-link"
+                                onClick={handleGenerateExcelServiciosPublica}
+                                style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+                            >
+                                Servicios Pública (xls)
+                            </p>
+                            <p
+                                className="pdf-link"
+                                onClick={handleGenerateExcelServiciosPrivada}
+                                style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+                            >
+                                Servicios Privada (xls)
+                            </p>
+                            <p>Servicios retirados por mes (xls)</p>
+                            <p>Servicios aprovisionados por mes en curso (xls)</p>
+                            <p>Servicios aprovisionados por mes (xls)</p>
+                            <p>Servicios aprovisionados por año (xls)</p>
                         </div>
                     </div>
                 </div>
