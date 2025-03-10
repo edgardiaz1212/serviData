@@ -1,16 +1,16 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Context } from '../store/appContext';
+import { pdf, Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer';
 import { useNavigate } from 'react-router-dom';
-import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import logo from '../../img/CDHLogo.png';
 
 function Reportes() {
     const { actions, store } = useContext(Context);
     const { isAuthenticated } = store;
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const [pdfData, setPdfData] = useState(null);
 
     useEffect(() => {
         if (!isAuthenticated) {
@@ -25,8 +25,14 @@ function Reportes() {
             const publicos = await actions.getClientbyTipo('Pública');
             const privados = await actions.getClientbyTipo('Privada');
 
-            // Preparar los datos para el PDF
-            setPdfData({ publicos, privados });
+            // Generar y descargar el PDF automáticamente
+            const blob = await pdf(<PdfDocument publicos={publicos} privados={privados} />).toBlob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `clientes-activos-${new Date().toLocaleDateString()}.pdf`;
+            link.click();
+            window.URL.revokeObjectURL(url); // Liberar memoria
         } catch (error) {
             toast.error('Error obteniendo datos de clientes: ' + error.message);
         } finally {
@@ -47,6 +53,16 @@ function Reportes() {
             fontSize: 16,
             fontWeight: 'bold',
             marginBottom: 10,
+        },
+        header: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: 20,
+        },
+        logo: {
+            width: 50,
+            height: 25,
+            marginRight: 10,
         },
         table: {
             display: 'table',
@@ -71,9 +87,11 @@ function Reportes() {
     // Componente PDF
     const PdfDocument = ({ publicos, privados }) => (
         <Document>
+            {/* Página 1: Clientes Públicos */}
             <Page style={styles.page}>
-                {/* Título */}
-                <View style={styles.section}>
+                {/* Encabezado con logo y título */}
+                <View style={styles.header}>
+                    <Image src={logo} style={styles.logo} />
                     <Text style={styles.title}>Clientes Activos DCCE</Text>
                 </View>
 
@@ -92,6 +110,15 @@ function Reportes() {
                             </View>
                         ))}
                     </View>
+                </View>
+            </Page>
+
+            {/* Página 2: Clientes Privados */}
+            <Page style={styles.page}>
+                {/* Encabezado con logo y título */}
+                <View style={styles.header}>
+                    <Image src={logo} style={styles.logo} />
+                    <Text style={styles.title}>Clientes Activos DCCE</Text>
                 </View>
 
                 {/* Tabla Clientes Privados */}
@@ -123,24 +150,13 @@ function Reportes() {
                     <div className="col-auto">
                         <h3>Clientes</h3>
                         <div className="col-auto">
-                            {pdfData ? (
-                                <PDFDownloadLink
-                                    document={<PdfDocument publicos={pdfData.publicos} privados={pdfData.privados} />}
-                                    fileName={`clientes-activos-${new Date().toLocaleDateString()}.pdf`}
-                                >
-                                    {({ blob, url, loading, error }) =>
-                                        loading ? 'Generando PDF...' : 'Descargar PDF'
-                                    }
-                                </PDFDownloadLink>
-                            ) : (
-                                <p
-                                    className="pdf-link"
-                                    onClick={generateClientesActivosPDF}
-                                    style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
-                                >
-                                    Listado Clientes activos (pdf)
-                                </p>
-                            )}
+                            <p
+                                className="pdf-link"
+                                onClick={generateClientesActivosPDF}
+                                style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+                            >
+                                Listado Clientes activos (pdf)
+                            </p>
                             <p>Listado Clientes Pública (pdf)</p>
                             <p>Listado Clientes Privada (pdf)</p>
                         </div>
