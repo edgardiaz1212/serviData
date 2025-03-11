@@ -1,16 +1,19 @@
 import * as XLSX from 'xlsx';
 
 
-// Función para contar servicios por tipo
+// Función para contar servicios por tipo, excluyendo los retirados
 const countServicesByType = (servicios) => {
     const counts = {};
 
     servicios.forEach(servicio => {
-        const tipoServicio = servicio.tipo_servicio;
-        if (!counts[tipoServicio]) {
-            counts[tipoServicio] = 0;
+        // Filtrar servicios que no estén retirados
+        if (servicio.estado_servicio !== "Retirado") {
+            const tipoServicio = servicio.tipo_servicio;
+            if (!counts[tipoServicio]) {
+                counts[tipoServicio] = 0;
+            }
+            counts[tipoServicio]++;
         }
-        counts[tipoServicio]++;
     });
 
     return counts;

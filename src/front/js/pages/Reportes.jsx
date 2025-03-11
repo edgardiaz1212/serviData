@@ -6,7 +6,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import { generatePDF } from '../component/PDFGenerator.jsx';
 import { generateExcelServiciosActivos, generateExcelServiciosPublica, generateExcelServiciosPrivada } from '../component/ExcelGenerator.jsx';
 
-
 function Reportes() {
     const { actions, store } = useContext(Context);
     const { isAuthenticated } = store;
@@ -17,14 +16,8 @@ function Reportes() {
         if (!isAuthenticated) {
             navigate('/login', { replace: true });
         }
-        else {
-            actions.getClientbyTipo('Pública');
-            actions.getClientbyTipo('Privada');
-            actions.getServicebyClient();
-        }
     }, [isAuthenticated, navigate]);
 
-   
     // Función para generar el PDF
     const handleGeneratePDF = async (tipoCliente) => {
         setLoading(true);
@@ -32,14 +25,17 @@ function Reportes() {
             let publicos = [];
             let privados = [];
 
-            // Obtener datos según el tipo de cliente
+            // Obtener todos los clientes
+            const allClients = await actions.fetchClientData('');
+
+            // Filtrar clientes según el tipo
             if (tipoCliente === "activos") {
-                publicos = await actions.getClientbyTipo('Pública');
-                privados = await actions.getClientbyTipo('Privada');
+                publicos = allClients.filter(cliente => cliente.tipo === "Pública");
+                privados = allClients.filter(cliente => cliente.tipo === "Privada");
             } else if (tipoCliente === "publica") {
-                publicos = await actions.getClientbyTipo('Pública');
+                publicos = allClients.filter(cliente => cliente.tipo === "Pública");
             } else if (tipoCliente === "privada") {
-                privados = await actions.getClientbyTipo('Privada');
+                privados = allClients.filter(cliente => cliente.tipo === "Privada");
             }
 
             // Generar y descargar el PDF
@@ -52,77 +48,77 @@ function Reportes() {
     };
 
     // Función para generar el Excel de Servicios Activos
-const handleGenerateExcelServiciosActivos = async () => {
-    setLoading(true);
-    try {
-        // Obtener datos del store
-        const { clientData } = store;
+    const handleGenerateExcelServiciosActivos = async () => {
+        setLoading(true);
+        try {
+            // Obtener todos los clientes
+            const allClients = await actions.fetchClientData('');
 
-        // Filtrar clientes públicos y privados
-        const clientesPublicos = clientData.filter(cliente => cliente.tipo === "Pública");
-        const clientesPrivados = clientData.filter(cliente => cliente.tipo === "Privada");
+            // Filtrar clientes públicos y privados
+            const clientesPublicos = allClients.filter(cliente => cliente.tipo === "Pública");
+            const clientesPrivados = allClients.filter(cliente => cliente.tipo === "Privada");
 
-        // Validar datos
-        if (!Array.isArray(clientesPublicos) || !Array.isArray(clientesPrivados)) {
-            throw new Error("Los datos de clientes deben ser arrays válidos");
+            // Validar datos
+            if (!Array.isArray(clientesPublicos) || !Array.isArray(clientesPrivados)) {
+                throw new Error("Los datos de clientes deben ser arrays válidos");
+            }
+
+            // Generar el Excel
+            await generateExcelServiciosActivos(clientesPublicos, clientesPrivados, actions);
+        } catch (error) {
+            toast.error('Error generando Excel: ' + error.message);
+        } finally {
+            setLoading(false);
         }
+    };
 
-        // Generar el Excel
-        await generateExcelServiciosActivos(clientesPublicos, clientesPrivados, actions);
-    } catch (error) {
-        toast.error('Error generando Excel: ' + error.message);
-    } finally {
-        setLoading(false);
-    }
-};
+    // Función para generar el Excel de Servicios Pública
+    const handleGenerateExcelServiciosPublica = async () => {
+        setLoading(true);
+        try {
+            // Obtener todos los clientes
+            const allClients = await actions.fetchClientData('');
 
-// Función para generar el Excel de Servicios Pública
-const handleGenerateExcelServiciosPublica = async () => {
-    setLoading(true);
-    try {
-        // Obtener datos del store
-        const { clientData } = store;
+            // Filtrar clientes públicos
+            const clientesPublicos = allClients.filter(cliente => cliente.tipo === "Pública");
 
-        // Filtrar clientes públicos
-        const clientesPublicos = clientData.filter(cliente => cliente.tipo === "Pública");
+            // Validar datos
+            if (!Array.isArray(clientesPublicos)) {
+                throw new Error("Los datos de clientes deben ser arrays válidos");
+            }
 
-        // Validar datos
-        if (!Array.isArray(clientesPublicos)) {
-            throw new Error("Los datos de clientes deben ser arrays válidos");
+            // Generar el Excel
+            await generateExcelServiciosPublica(clientesPublicos, actions);
+        } catch (error) {
+            toast.error('Error generando Excel: ' + error.message);
+        } finally {
+            setLoading(false);
         }
+    };
 
-        // Generar el Excel
-        await generateExcelServiciosPublica(clientesPublicos, actions);
-    } catch (error) {
-        toast.error('Error generando Excel: ' + error.message);
-    } finally {
-        setLoading(false);
-    }
-};
+    // Función para generar el Excel de Servicios Privada
+    const handleGenerateExcelServiciosPrivada = async () => {
+        setLoading(true);
+        try {
+            // Obtener todos los clientes
+            const allClients = await actions.fetchClientData('');
 
-// Función para generar el Excel de Servicios Privada
-const handleGenerateExcelServiciosPrivada = async () => {
-    setLoading(true);
-    try {
-        // Obtener datos del store
-        const { clientData } = store;
+            // Filtrar clientes privados
+            const clientesPrivados = allClients.filter(cliente => cliente.tipo === "Privada");
 
-        // Filtrar clientes privados
-        const clientesPrivados = clientData.filter(cliente => cliente.tipo === "Privada");
+            // Validar datos
+            if (!Array.isArray(clientesPrivados)) {
+                throw new Error("Los datos de clientes deben ser arrays válidos");
+            }
 
-        // Validar datos
-        if (!Array.isArray(clientesPrivados)) {
-            throw new Error("Los datos de clientes deben ser arrays válidos");
+            // Generar el Excel
+            await generateExcelServiciosPrivada(clientesPrivados, actions);
+        } catch (error) {
+            toast.error('Error generando Excel: ' + error.message);
+        } finally {
+            setLoading(false);
         }
-
-        // Generar el Excel
-        await generateExcelServiciosPrivada(clientesPrivados, actions);
-    } catch (error) {
-        toast.error('Error generando Excel: ' + error.message);
-    } finally {
-        setLoading(false);
-    }
-};
+    };
 
     return (
         <>

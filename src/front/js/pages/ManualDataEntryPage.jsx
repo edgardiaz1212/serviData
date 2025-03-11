@@ -19,7 +19,7 @@ const ManualDataEntryPageFinal = () => {
       ) : (
         <InputClienteServicio /> // Render InputClienteServicio if no client data
       )}
-    d
+    
     <button className="btn btn-secondary mt-3" onClick={() => navigate(-1)}>Regresar</button></div>
     </>
   );
