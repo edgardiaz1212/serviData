@@ -7,7 +7,7 @@ from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 import pandas as pd
 from datetime import datetime, timedelta
-from sqlalchemy import func
+from sqlalchemy import func, extract
 import logging
 from sqlalchemy.exc import SQLAlchemyError
 import logging
@@ -697,8 +697,8 @@ def get_servicios_aprovisionados_por_mes():
         # Filtrar servicios aprovisionados en el mes actual
         servicios = Servicio.query.filter(
             Servicio.estado_servicio == "Nuevo",
-            Servicio.fecha_creacion >= start_date,
-            Servicio.fecha_creacion < end_date
+            Servicio.updated_at >= start_date,
+            Servicio.updated_at < end_date
         ).join(Cliente).all()
 
         # Serializar los datos
@@ -724,14 +724,14 @@ def get_servicios_aprovisionados_por_mes_anual():
 
         # Obtener todos los servicios aprovisionados en el año
         servicios = Servicio.query.filter(
-            Servicio.estado_servicio == "Nuevo",
-            extract('year', Servicio.fecha_creacion) == year
+            Servicio.estado_servicio == "Nuevo",  # Filtro por estado "Nuevo"
+            extract('year', Servicio.updated_at) == year  # Filtro por año
         ).join(Cliente).all()
 
         # Agrupar por mes
         servicios_por_mes = {}
         for servicio in servicios:
-            mes = servicio.fecha_creacion.month
+            mes = servicio.updated_at.month  # Obtener el mes de updated_at
             if mes not in servicios_por_mes:
                 servicios_por_mes[mes] = []
             servicios_por_mes[mes].append({
@@ -766,7 +766,7 @@ def get_servicios_aprovisionados_por_ano():
         # Agrupar por año
         servicios_por_ano = {}
         for servicio in servicios:
-            ano = servicio.fecha_creacion.year
+            ano = servicio.updated_at.year
             if ano not in servicios_por_ano:
                 servicios_por_ano[ano] = []
             servicios_por_ano[ano].append({

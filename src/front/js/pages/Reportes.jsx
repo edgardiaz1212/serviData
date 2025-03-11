@@ -244,21 +244,21 @@ function Reportes() {
                                 onClick={handleGenerateExcelServiciosAprovisionadosMesActual}
                                 style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
                             >
-                                Servicios aprovisionados por mes en curso (xls)
+                                Servicios Nuevos aprovisionados por mes en curso (xls)
                             </p>
                             <p
                                 className="pdf-link"
                                 onClick={handleGenerateExcelServiciosAprovisionadosPorMes}
                                 style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
                             >
-                                Servicios aprovisionados por mes (xls)
+                                Servicios Nuevos aprovisionados por mes (xls)
                             </p>
                             <p
                                 className="pdf-link"
                                 onClick={handleGenerateExcelServiciosAprovisionadosPorAno}
                                 style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
                             >
-                                Servicios aprovisionados por año (xls)
+                                Servicios Nuevos aprovisionados por año (xls)
                             </p>
                         </div>
                     </div>

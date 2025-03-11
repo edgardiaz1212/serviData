@@ -213,16 +213,19 @@ export const generateExcelServiciosAprovisionadosPorMes = async (actions) => {
     ];
 
     // Agregar datos
-    serviciosPorMes.forEach(servicio => {
-        wsData.push([
-            servicio.mes,
-            servicio.cliente.razon_social,
-            servicio.cliente.rif,
-            servicio.contrato,
-            servicio.dominio,
-            servicio.hostname,
-            servicio.tipo_servicio,
-        ]);
+    serviciosPorMes.forEach(grupo => {
+        const mes = grupo.mes;
+        grupo.servicios.forEach(servicio => {
+            wsData.push([
+                mes,
+                servicio.cliente.razon_social,
+                servicio.cliente.rif,
+                servicio.contrato,
+                servicio.dominio,
+                servicio.hostname,
+                servicio.tipo_servicio,
+            ]);
+        });
     });
 
     // Crear el libro de Excel
@@ -233,35 +236,47 @@ export const generateExcelServiciosAprovisionadosPorMes = async (actions) => {
     // Descargar el archivo
     XLSX.writeFile(wb, `servicios-aprovisionados-por-mes-${year}.xlsx`);
 };
-
 // Función para generar el Excel de Servicios Aprovisionados por Año
 export const generateExcelServiciosAprovisionadosPorAno = async (actions) => {
-    // Obtener servicios aprovisionados por año
-    const serviciosPorAno = await actions.getServiciosAprovisionadosPorAno();
+    try {
+        // Obtener servicios aprovisionados por año
+        const serviciosPorAno = await actions.getServiciosAprovisionadosPorAno();
 
-    // Crear la hoja de cálculo
-    const wsData = [
-        ["Año", "Razón Social", "RIF", "Contrato", "Dominio", "Hostname", "Tipo de Servicio"],
-    ];
+        // Crear la hoja de cálculo
+        const wsData = [
+            ["Año", "Razón Social", "RIF", "Contrato", "Dominio", "Hostname", "Tipo de Servicio"],
+        ];
 
-    // Agregar datos
-    serviciosPorAno.forEach(servicio => {
-        wsData.push([
-            servicio.ano,
-            servicio.cliente.razon_social,
-            servicio.cliente.rif,
-            servicio.contrato,
-            servicio.dominio,
-            servicio.hostname,
-            servicio.tipo_servicio,
-        ]);
-    });
+        // Agregar datos
+        serviciosPorAno.forEach(grupo => {
+            const ano = grupo.ano;  // Obtener el año
+            grupo.servicios.forEach(servicio => {
+                // Validar que servicio.cliente exista
+                if (servicio.cliente) {
+                    wsData.push([
+                        ano,
+                        servicio.cliente.razon_social,
+                        servicio.cliente.rif,
+                        servicio.contrato,
+                        servicio.dominio,
+                        servicio.hostname,
+                        servicio.tipo_servicio,
+                    ]);
+                } else {
+                    console.warn("Servicio sin cliente:", servicio);
+                }
+            });
+        });
 
-    // Crear el libro de Excel
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Servicios por Año");
+        // Crear el libro de Excel
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Servicios por Año");
 
-    // Descargar el archivo
-    XLSX.writeFile(wb, `servicios-aprovisionados-por-ano.xlsx`);
+        // Descargar el archivo
+        XLSX.writeFile(wb, `servicios-aprovisionados-por-ano.xlsx`);
+    } catch (error) {
+        console.error("Error generando Excel:", error);
+        throw error;
+    }
 };
