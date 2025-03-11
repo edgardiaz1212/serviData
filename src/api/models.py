@@ -31,36 +31,35 @@ class Servicio(db.Model):
     __tablename__ = 'servicios'
     id = db.Column(db.Integer, primary_key=True)
     cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'))
-    dominio = db.Column(db.String)
-    estado = db.Column(db.String)
     tipo_servicio = db.Column(db.String)
-    hostname = db.Column(db.String)
-    cores = db.Column(db.Integer)
     contrato = db.Column(db.String)
-    plan_aprovisionado = db.Column(db.String)
+    dominio = db.Column(db.String)
+    dns_dominio = db.Column(db.String)
+    plan_anterior = db.Column(db.String)
     plan_facturado = db.Column(db.String)
-    detalle_plan = db.Column(db.String)
-    sockets = db.Column(db.Integer)
-    powerstate = db.Column(db.String)
+    descripcion = db.Column(db.String)
+    estado_contrato = db.Column(db.String)
+    ubicacion = db.Column(db.String)
+    observaciones = db.Column(db.String)
+    facturado = db.Column(db.String)
+    comentarios = db.Column(db.String)
+    plan_aprovisionado = db.Column(db.String)
+    cantidad_ru = db.Column(db.Integer)
+    cantidad_m2 = db.Column(db.Integer)
+    cantidad_bastidores =db.Column(db.Integer)
+    hostname = db.Column(db.String)
+    ubicacion_sala = db.Column(db.String)
     ip_privada = db.Column(db.String)
     vlan = db.Column(db.String)
     ipam = db.Column(db.String)
     datastore = db.Column(db.String)
     nombre_servidor = db.Column(db.String)
-    marca_servidor = db.Column(db.String)
-    modelo_servidor = db.Column(db.String)
     nombre_nodo = db.Column(db.String)
     nombre_plataforma = db.Column(db.String)
     ram = db.Column(db.Integer)
     hdd = db.Column(db.Integer)
-    cpu = db.Column(db.Integer)
-    tipo_servidor = db.Column(db.String)
-    ubicacion = db.Column(db.String)
-    observaciones = db.Column(db.String)
-    facturado = db.Column(db.String)
-    comentarios = db.Column(db.String)
+    cpu = db.Column(db.Integer) 
     estado_servicio = db.Column(db.String, default="Nuevo")  # Valores posibles: "Nuevo", "Aprovisionado", "Reaprovisionado"
-
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))  # Fecha de creación
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))  # Fecha de actualización
     
@@ -72,33 +71,33 @@ class Servicio(db.Model):
             'id': self.id,
             'tipo_servicio': self.tipo_servicio,
             'cliente_id': self.cliente_id,
-            'dominio': self.dominio,
-            'estado': self.estado,
-            'hostname': self.hostname,
-            'cores': self.cores,
             'contrato': self.contrato,
-            'plan_aprovisionado': self.plan_aprovisionado,
+            'dominio': self.dominio,
+            'dns_dominio': self.dns_dominio,
+            'plan_anterior': self.plan_anterior,
             'plan_facturado': self.plan_facturado,
-            'detalle_plan': self.detalle_plan,
-            'sockets': self.sockets,
-            'powerstate': self.powerstate,
+            'descripcion': self.descripcion,
+            'estado_contrato': self.estado_contrato,
+            'ubicacion': self.ubicacion,
+            'observaciones': self.observaciones,
+            'facturado': self.facturado,
+            'comentarios': self.comentarios,
+            'plan_aprovisionado': self.plan_aprovisionado,
+            'cantidad_ru': self.cantidad_ru,
+            'cantidad_m2': self.cantidad_m2,
+            'cantidad_bastidores':self.cantidad_bastidores,
+            'hostname': self.hostname,
+            'ubicacion_sala': self.ubicacion_sala,
             'ip_privada': self.ip_privada,
             'vlan': self.vlan,
             'ipam': self.ipam,
             'datastore': self.datastore,
             'nombre_servidor': self.nombre_servidor,
-            'marca_servidor': self.marca_servidor,
-            'modelo_servidor': self.modelo_servidor,
             'nombre_nodo': self.nombre_nodo,
             'nombre_plataforma': self.nombre_plataforma,
             'ram': self.ram,
             'hdd': self.hdd,
             'cpu': self.cpu,
-            'tipo_servidor': self.tipo_servidor,
-            'ubicacion': self.ubicacion,
-            'observaciones': self.observaciones,
-            'facturado': self.facturado,
-            'comentarios': self.comentarios,
             'estado_servicio': self.estado_servicio,
             'documentos': [doc.serialize() for doc in self.documentos],
             'created_at': self.created_at.isoformat(),
