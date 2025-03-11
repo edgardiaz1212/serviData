@@ -44,6 +44,7 @@ class Servicio(db.Model):
     facturado = db.Column(db.String)
     comentarios = db.Column(db.String)
     plan_aprovisionado = db.Column(db.String)
+    plan_servicio = db.Column(db.String)
     cantidad_ru = db.Column(db.Integer)
     cantidad_m2 = db.Column(db.Integer)
     cantidad_bastidores =db.Column(db.Integer)
@@ -60,6 +61,8 @@ class Servicio(db.Model):
     hdd = db.Column(db.Integer)
     cpu = db.Column(db.Integer) 
     estado_servicio = db.Column(db.String, default="Nuevo")  # Valores posibles: "Nuevo", "Aprovisionado", "Reaprovisionado"
+    tipo_servicio = db.Column(db.String)  # New field added for service type
+
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))  # Fecha de creación
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))  # Fecha de actualización
     
@@ -83,6 +86,7 @@ class Servicio(db.Model):
             'facturado': self.facturado,
             'comentarios': self.comentarios,
             'plan_aprovisionado': self.plan_aprovisionado,
+            'plan_servicio': self.plan_servicio,
             'cantidad_ru': self.cantidad_ru,
             'cantidad_m2': self.cantidad_m2,
             'cantidad_bastidores':self.cantidad_bastidores,

@@ -4,18 +4,18 @@ import { servicios } from './TipoServicios';
 const DatosServicio = ({ serviceData, handleChange }) => {
   return (
     <div>
-      <h3>Datos de identificación del servicio</h3>
+      <h3>Datos de Identificación y Contrato</h3>
       <div className="row">
         <div className="col-md-6 mb-3">
-          <label htmlFor="dominio" className="form-label">Dominio</label>
+          <label htmlFor="contrato" className="form-label">Contrato</label>
           <input
             type="text"
-            name="dominio"
-            value={serviceData.dominio}
+            name="contrato"
+            value={serviceData.contrato}
             onChange={handleChange}
-            placeholder="Dominio"
+            placeholder="Contrato"
             className="form-control"
-            id="dominio"
+            id="contrato"
           />
         </div>
         <div className="col-md-6 mb-3">
@@ -36,79 +36,15 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           </select>
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="hostname" className="form-label">Hostname</label>
+          <label htmlFor="estado_contrato" className="form-label">Estado del Contrato</label>
           <input
             type="text"
-            name="hostname"
-            value={serviceData.hostname}
+            name="estado_contrato"
+            value={serviceData.estado_contrato}
             onChange={handleChange}
-            placeholder="Hostname"
+            placeholder="Estado del Contrato"
             className="form-control"
-            id="hostname"
-          />
-        </div>
-      </div>
-
-      <h3>Estado y contratación</h3>
-      <div className="row">
-        <div className="col-md-6 mb-3">
-          <label htmlFor="estado" className="form-label">Estado</label>
-          <input
-            type="text"
-            name="estado"
-            value={serviceData.estado}
-            onChange={handleChange}
-            placeholder="Estado"
-            className="form-control"
-            id="estado"
-          />
-        </div>
-        <div className="col-md-6 mb-3">
-          <label htmlFor="contrato" className="form-label">Contrato</label>
-          <input
-            type="text"
-            name="contrato"
-            value={serviceData.contrato}
-            onChange={handleChange}
-            placeholder="Contrato"
-            className="form-control"
-            id="contrato"
-          />
-        </div>
-        <div className="col-md-6 mb-3">
-          <label htmlFor="plan_aprovisionado" className="form-label">Plan Aprovisionado</label>
-          <input
-            type="text"
-            name="plan_aprovisionado"
-            value={serviceData.plan_aprovisionado}
-            onChange={handleChange}
-            placeholder="Plan Aprovisionado"
-            className="form-control"
-            id="plan_aprovisionado"
-          />
-        </div>
-        <div className="col-md-6 mb-3">
-          <label htmlFor="plan_facturado" className="form-label">Plan Facturado</label>
-          <input
-            type="text"
-            name="plan_facturado"
-            value={serviceData.plan_facturado}
-            onChange={handleChange}
-            placeholder="Plan Facturado"
-            className="form-control"
-            id="plan_facturado"
-          />
-        </div>
-        <div className="col-md-6 mb-3">
-          <label htmlFor="detalle_plan" className="form-label">Detalle del Plan</label>
-          <input
-            type="text"
-            name="detalle_plan"
-            value={serviceData.detalle_plan}
-            onChange={handleChange}
-            placeholder="Detalle del Plan"
-            className="form-control"
-            id="detalle_plan"
+            id="estado_contrato"
           />
         </div>
         <div className="col-md-6 mb-3">
@@ -125,30 +61,225 @@ const DatosServicio = ({ serviceData, handleChange }) => {
         </div>
       </div>
 
-      <h3>Recursos del servidor</h3>
+      <h3>Información del Servicio/Plan</h3>
       <div className="row">
         <div className="col-md-6 mb-3">
-          <label htmlFor="cores" className="form-label">Cores</label>
+          <label htmlFor="plan_anterior" className="form-label">Plan Anterior</label>
           <input
-            type="number"
-            name="cores"
-            value={serviceData.cores}
+            type="text"
+            name="plan_anterior"
+            value={serviceData.plan_anterior}
             onChange={handleChange}
-            placeholder="Cores"
+            placeholder="Plan Anterior"
             className="form-control"
-            id="cores"
+            id="plan_anterior"
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="sockets" className="form-label">Sockets</label>
+          <label htmlFor="plan_facturado" className="form-label">Plan Facturado</label>
+          <input
+            type="text"
+            name="plan_facturado"
+            value={serviceData.plan_facturado}
+            onChange={handleChange}
+            placeholder="Plan Facturado"
+            className="form-control"
+            id="plan_facturado"
+          />
+        </div>
+        <div className="col-md-6 mb-3">
+          <label htmlFor="plan_aprovisionado" className="form-label">Plan Aprovisionado</label>
+          <input
+            type="text"
+            name="plan_aprovisionado"
+            value={serviceData.plan_aprovisionado}
+            onChange={handleChange}
+            placeholder="Plan Aprovisionado"
+            className="form-control"
+            id="plan_aprovisionado"
+          />
+        </div>
+        <div className="col-md-6 mb-3">
+          <label htmlFor="plan_servicio" className="form-label">Plan de Servicio</label>
+          <input
+            type="text"
+            name="plan_servicio"
+            value={serviceData.plan_servicio}
+            onChange={handleChange}
+            placeholder="Plan de Servicio"
+            className="form-control"
+            id="plan_servicio"
+          />
+        </div>
+        <div className="col-md-6 mb-3">
+          <label htmlFor="descripcion" className="form-label">Descripción</label>
+          <input
+            type="text"
+            name="descripcion"
+            value={serviceData.descripcion}
+            onChange={handleChange}
+            placeholder="Descripción"
+            className="form-control"
+            id="descripcion"
+          />
+        </div>
+        <div className="form-group mt-3 col-md-6 mb-3">
+          <label htmlFor="estado_servicio">Estado del Servicio</label>
+          <select
+            className="form-control"
+            id="estado_servicio"
+            name="estado_servicio"
+            value={serviceData.estado_servicio}
+            onChange={handleChange}
+          >
+            <option value="Nuevo">Nuevo Aprovisionamiento</option>
+            <option value="Aprovisionado">Aprovisionado</option>
+            <option value="Reaprovisionado">Reaprovisionado</option>
+            <option value="Retirado">Retirado</option>
+          </select>
+        </div>
+      </div>
+
+      <h3>Información de Dominio y DNS</h3>
+      <div className="row">
+        <div className="col-md-6 mb-3">
+          <label htmlFor="dominio" className="form-label">Dominio</label>
+          <input
+            type="text"
+            name="dominio"
+            value={serviceData.dominio}
+            onChange={handleChange}
+            placeholder="Dominio"
+            className="form-control"
+            id="dominio"
+          />
+        </div>
+        <div className="col-md-6 mb-3">
+          <label htmlFor="dns_dominio" className="form-label">DNS del Dominio</label>
+          <input
+            type="text"
+            name="dns_dominio"
+            value={serviceData.dns_dominio}
+            onChange={handleChange}
+            placeholder="DNS del Dominio"
+            className="form-control"
+            id="dns_dominio"
+          />
+        </div>
+      </div>
+
+      <h3>Ubicación y Espacio Físico</h3>
+      <div className="row">
+        <div className="col-md-6 mb-3">
+          <label htmlFor="ubicacion" className="form-label">Ubicación</label>
+          <input
+            type="text"
+            name="ubicacion"
+            value={serviceData.ubicacion}
+            onChange={handleChange}
+            placeholder="Ubicación"
+            className="form-control"
+            id="ubicacion"
+          />
+        </div>
+        <div className="col-md-6 mb-3">
+          <label htmlFor="ubicacion_sala" className="form-label">Ubicación en la Sala</label>
+          <input
+            type="text"
+            name="ubicacion_sala"
+            value={serviceData.ubicacion_sala}
+            onChange={handleChange}
+            placeholder="Ubicación en la Sala"
+            className="form-control"
+            id="ubicacion_sala"
+          />
+        </div>
+        <div className="col-md-6 mb-3">
+          <label htmlFor="cantidad_ru" className="form-label">Cantidad de RU</label>
           <input
             type="number"
-            name="sockets"
-            value={serviceData.sockets}
+            name="cantidad_ru"
+            value={serviceData.cantidad_ru}
             onChange={handleChange}
-            placeholder="Sockets"
+            placeholder="Cantidad de RU"
             className="form-control"
-            id="sockets"
+            id="cantidad_ru"
+          />
+        </div>
+        <div className="col-md-6 mb-3">
+          <label htmlFor="cantidad_m2" className="form-label">Cantidad de m2</label>
+          <input
+            type="number"
+            name="cantidad_m2"
+            value={serviceData.cantidad_m2}
+            onChange={handleChange}
+            placeholder="Cantidad de m2"
+            className="form-control"
+            id="cantidad_m2"
+          />
+        </div>
+        <div className="col-md-6 mb-3">
+          <label htmlFor="cantidad_bastidores" className="form-label">Cantidad de Bastidores</label>
+          <input
+            type="number"
+            name="cantidad_bastidores"
+            value={serviceData.cantidad_bastidores}
+            onChange={handleChange}
+            placeholder="Cantidad de Bastidores"
+            className="form-control"
+            id="cantidad_bastidores"
+          />
+        </div>
+      </div>
+
+      <h3>Información de Hardware/Infraestructura</h3>
+      <div className="row">
+        <div className="col-md-6 mb-3">
+          <label htmlFor="hostname" className="form-label">Hostname</label>
+          <input
+            type="text"
+            name="hostname"
+            value={serviceData.hostname}
+            onChange={handleChange}
+            placeholder="Hostname"
+            className="form-control"
+            id="hostname"
+          />
+        </div>
+        <div className="col-md-6 mb-3">
+          <label htmlFor="nombre_servidor" className="form-label">Nombre del Servidor</label>
+          <input
+            type="text"
+            name="nombre_servidor"
+            value={serviceData.nombre_servidor}
+            onChange={handleChange}
+            placeholder="Nombre del Servidor"
+            className="form-control"
+            id="nombre_servidor"
+          />
+        </div>
+        <div className="col-md-6 mb-3">
+          <label htmlFor="nombre_nodo" className="form-label">Nombre del Nodo</label>
+          <input
+            type="text"
+            name="nombre_nodo"
+            value={serviceData.nombre_nodo}
+            onChange={handleChange}
+            placeholder="Nombre del Nodo"
+            className="form-control"
+            id="nombre_nodo"
+          />
+        </div>
+        <div className="col-md-6 mb-3">
+          <label htmlFor="nombre_plataforma" className="form-label">Nombre de la Plataforma</label>
+          <input
+            type="text"
+            name="nombre_plataforma"
+            value={serviceData.nombre_plataforma}
+            onChange={handleChange}
+            placeholder="Nombre de la Plataforma"
+            className="form-control"
+            id="nombre_plataforma"
           />
         </div>
         <div className="col-md-6 mb-3">
@@ -187,9 +318,21 @@ const DatosServicio = ({ serviceData, handleChange }) => {
             id="cpu"
           />
         </div>
+        <div className="col-md-6 mb-3">
+          <label htmlFor="datastore" className="form-label">Datastore</label>
+          <input
+            type="text"
+            name="datastore"
+            value={serviceData.datastore}
+            onChange={handleChange}
+            placeholder="Datastore"
+            className="form-control"
+            id="datastore"
+          />
+        </div>
       </div>
 
-      <h3>Datos de red</h3>
+      <h3>Red e IP</h3>
       <div className="row">
         <div className="col-md-6 mb-3">
           <label htmlFor="ip_privada" className="form-label">IP Privada</label>
@@ -229,121 +372,20 @@ const DatosServicio = ({ serviceData, handleChange }) => {
         </div>
       </div>
 
-      <h3>Infraestructura</h3>
+      <h3>Observaciones y Comentarios</h3>
       <div className="row">
-        <div className="col-md-6 mb-3">
-          <label htmlFor="datastore" className="form-label">Datastore</label>
-          <input
-            type="text"
-            name="datastore"
-            value={serviceData.datastore}
+        <div className="col-md-12 mb-3">
+          <label htmlFor="observaciones" className="form-label">Observaciones</label>
+          <textarea
+            name="observaciones"
+            value={serviceData.observaciones}
             onChange={handleChange}
-            placeholder="Datastore"
+            placeholder="Observaciones"
             className="form-control"
-            id="datastore"
+            id="observaciones"
           />
         </div>
-        <div className="col-md-6 mb-3">
-          <label htmlFor="nombre_servidor" className="form-label">Nombre del Servidor</label>
-          <input
-            type="text"
-            name="nombre_servidor"
-            value={serviceData.nombre_servidor}
-            onChange={handleChange}
-            placeholder="Nombre del Servidor"
-            className="form-control"
-            id="nombre_servidor"
-          />
-        </div>
-        <div className="col-md-6 mb-3">
-          <label htmlFor="marca_servidor" className="form-label">Marca del Servidor</label>
-          <input
-            type="text"
-            name="marca_servidor"
-            value={serviceData.marca_servidor}
-            onChange={handleChange}
-            placeholder="Marca del Servidor"
-            className="form-control"
-            id="marca_servidor"
-          />
-        </div>
-        <div className="col-md-6 mb-3">
-          <label htmlFor="modelo_servidor" className="form-label">Modelo del Servidor</label>
-          <input
-            type="text"
-            name="modelo_servidor"
-            value={serviceData.modelo_servidor}
-            onChange={handleChange}
-            placeholder="Modelo del Servidor"
-            className="form-control"
-            id="modelo_servidor"
-          />
-        </div>
-        <div className="col-md-6 mb-3">
-          <label htmlFor="nombre_nodo" className="form-label">Nombre del Nodo</label>
-          <input
-            type="text"
-            name="nombre_nodo"
-            value={serviceData.nombre_nodo}
-            onChange={handleChange}
-            placeholder="Nombre del Nodo"
-            className="form-control"
-            id="nombre_nodo"
-          />
-        </div>
-        <div className="col-md-6 mb-3">
-          <label htmlFor="nombre_plataforma" className="form-label">Nombre de la Plataforma</label>
-          <input
-            type="text"
-            name="nombre_plataforma"
-            value={serviceData.nombre_plataforma}
-            onChange={handleChange}
-            placeholder="Nombre de la Plataforma"
-            className="form-control"
-            id="nombre_plataforma"
-          />
-        </div>
-        <div className="col-md-6 mb-3">
-          <label htmlFor="tipo_servidor" className="form-label">Tipo de Servidor</label>
-          <input
-            type="text"
-            name="tipo_servidor"
-            value={serviceData.tipo_servidor}
-            onChange={handleChange}
-            placeholder="Tipo de Servidor"
-            className="form-control"
-            id="tipo_servidor"
-          />
-        </div>
-        <div className="col-md-6 mb-3">
-          <label htmlFor="ubicacion" className="form-label">Ubicación</label>
-          <input
-            type="text"
-            name="ubicacion"
-            value={serviceData.ubicacion}
-            onChange={handleChange}
-            placeholder="Ubicación"
-            className="form-control"
-            id="ubicacion"
-          />
-        </div>
-      </div>
-
-      <h3>Otros</h3>
-      <div className="row">
-        <div className="col-md-6 mb-3">
-          <label htmlFor="powerstate" className="form-label">Estado de Energía</label>
-          <input
-            type="text"
-            name="powerstate"
-            value={serviceData.powerstate}
-            onChange={handleChange}
-            placeholder="Estado de Energía"
-            className="form-control"
-            id="powerstate"
-          />
-        </div>
-        <div className="col-md-6 mb-3">
+        <div className="col-md-12 mb-3">
           <label htmlFor="comentarios" className="form-label">Comentarios</label>
           <textarea
             name="comentarios"
@@ -354,25 +396,8 @@ const DatosServicio = ({ serviceData, handleChange }) => {
             id="comentarios"
           />
         </div>
-
-
       </div>
 
-      <div className="form-group mt-3">
-          <label htmlFor="estado_servicio">Estado del Servicio</label>
-          <select
-            className="form-control"
-            id="estado_servicio"
-            name="estado_servicio"
-            value={serviceData.estado_servicio}
-            onChange={handleChange}
-          >
-            <option value="Nuevo">Nuevo Aprovisionamiento</option>
-            <option value="Aprovisionado">Aprovisionado</option>
-            <option value="Reaprovisionado">Reaprovisionado</option>
-            <option value="Retirado">Retirado</option>
-          </select>
-        </div>
     </div>
   );
 };
