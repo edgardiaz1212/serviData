@@ -21,8 +21,8 @@ const ServiceCard = ({ service, onClick }) => {
             <div className="d-flex justify-content-between">
                 {/* Renderizar detalles del servicio */}
                 {renderServiceDetail("Dominio", service.dominio)}
-                {renderServiceDetail("Estado", service.estado)}
-                {renderServiceDetail("RAM", service.ram)}
+                {renderServiceDetail("Contrato", service.contrato)}
+                {renderServiceDetail("Hostname", service.hostname)}
                 {/* Agrega más detalles según sea necesario */}
             </div>
         </div>

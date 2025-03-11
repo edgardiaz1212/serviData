@@ -31,7 +31,6 @@ class Servicio(db.Model):
     __tablename__ = 'servicios'
     id = db.Column(db.Integer, primary_key=True)
     cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'))
-    tipo_servicio = db.Column(db.String)
     contrato = db.Column(db.String)
     dominio = db.Column(db.String)
     dns_dominio = db.Column(db.String)

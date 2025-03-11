@@ -23,10 +23,10 @@ function ResumeTableClientServices({ clientData }) {
         <thead>
           <tr>
             <th>Dominio</th>
-            <th>Estado</th>
+            <th>hostname</th>
             <th>Tipo de Servicio</th>
             <th>Plan Facturado</th>
-            <th>Detalle del Plan</th>
+            <th>estado_servicio</th>
             <th>Contrato</th>
           </tr>
         </thead>
@@ -35,10 +35,10 @@ function ResumeTableClientServices({ clientData }) {
             servicesData.map((service, index) => (
               <tr key={index}>
                 <td>{service.dominio}</td>
-                <td>{service.estado}</td>
+                <td>{service.hostname}</td>
                 <td>{service.tipo_servicio}</td>
                 <td>{service.plan_facturado}</td>
-                <td>{service.detalle_plan}</td>
+               <td>{service.estado_servicio}</td>
                 <td>{service.contrato}</td>
               </tr>
             ))

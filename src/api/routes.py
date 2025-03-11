@@ -198,67 +198,87 @@ def delete_client_and_services(client_id):
 def service_post():
     if request.method == 'POST':
         data = request.get_json()
-        dominio = data.get('dominio')
-        estado = data.get('estado')
-        tipo_servicio = data.get('tipo_servicio')
-        hostname = data.get('hostname')
-        cores = int(data.get('cores', 0)) if data.get('cores') else 0
+
+        # Identificación y Contrato
         contrato = data.get('contrato')
-        plan_aprovisionado = data.get('plan_aprovisionado')
+        tipo_servicio = data.get('tipo_servicio')
+        estado_contrato = data.get('estado_contrato')
+        facturado = data.get('facturado')
+
+        # Información del Servicio/Plan
+        plan_anterior = data.get('plan_anterior')
         plan_facturado = data.get('plan_facturado')
-        detalle_plan = data.get('detalle_plan')
-        sockets = int(data.get('sockets', 0)) if data.get('sockets') else 0
-        powerstate = data.get('powerstate')
-        ip_privada = data.get('ip_privada')
-        vlan = data.get('vlan')
-        ipam = data.get('ipam')
-        datastore = data.get('datastore')
+        plan_aprovisionado = data.get('plan_aprovisionado')
+        plan_servicio = data.get('plan_servicio')
+        descripcion = data.get('descripcion')
+        estado_servicio = data.get('estado_servicio', 'Nuevo')
+
+        # Información de Dominio y DNS
+        dominio = data.get('dominio')
+        dns_dominio = data.get('dns_dominio')
+
+        # Ubicación y Espacio Físico
+        ubicacion = data.get('ubicacion')
+        ubicacion_sala = data.get('ubicacion_sala')
+        cantidad_ru = int(data.get('cantidad_ru', 0)) if data.get('cantidad_ru') else 0
+        cantidad_m2 = int(data.get('cantidad_m2', 0)) if data.get('cantidad_m2') else 0
+        cantidad_bastidores = int(data.get('cantidad_bastidores', 0)) if data.get('cantidad_bastidores') else 0
+
+        # Información de Hardware/Infraestructura
+        hostname = data.get('hostname')
         nombre_servidor = data.get('nombre_servidor')
-        marca_servidor = data.get('marca_servidor')
-        modelo_servidor = data.get('modelo_servidor')
         nombre_nodo = data.get('nombre_nodo')
         nombre_plataforma = data.get('nombre_plataforma')
         ram = int(data.get('ram', 0)) if data.get('ram') else 0
         hdd = int(data.get('hdd', 0)) if data.get('hdd') else 0
         cpu = int(data.get('cpu', 0)) if data.get('cpu') else 0
-        tipo_servidor = data.get('tipo_servidor')
-        ubicacion = data.get('ubicacion')
-        facturado = data.get('facturado')
+        datastore = data.get('datastore')
+
+        # Red e IP
+        ip_privada = data.get('ip_privada')
+        vlan = data.get('vlan')
+        ipam = data.get('ipam')
+
+        # Observaciones y Comentarios
+        observaciones = data.get('observaciones')
         comentarios = data.get('comentarios')
+
         cliente_id = data.get('cliente_id')
-        estado_servicio = data.get('estado_servicio', 'Nuevo')  # Obtener el estado del servicio
 
         new_service = Servicio(
-            dominio=dominio,
-            estado=estado,
-            tipo_servicio=tipo_servicio,
-            hostname=hostname,
-            cores=cores,
             contrato=contrato,
-            plan_aprovisionado=plan_aprovisionado,
+            tipo_servicio=tipo_servicio,
+            estado_contrato=estado_contrato,
+            facturado=facturado,
+            plan_anterior=plan_anterior,
             plan_facturado=plan_facturado,
-            detalle_plan=detalle_plan,
-            sockets=sockets,
-            powerstate=powerstate,
-            ip_privada=ip_privada,
-            vlan=vlan,
-            ipam=ipam,
-            datastore=datastore,
+            plan_aprovisionado=plan_aprovisionado,
+            plan_servicio=plan_servicio,
+            descripcion=descripcion,
+            estado_servicio=estado_servicio,
+            dominio=dominio,
+            dns_dominio=dns_dominio,
+            ubicacion=ubicacion,
+            ubicacion_sala=ubicacion_sala,
+            cantidad_ru=cantidad_ru,
+            cantidad_m2=cantidad_m2,
+            cantidad_bastidores=cantidad_bastidores,
+            hostname=hostname,
             nombre_servidor=nombre_servidor,
-            marca_servidor=marca_servidor,
-            modelo_servidor=modelo_servidor,
             nombre_nodo=nombre_nodo,
             nombre_plataforma=nombre_plataforma,
             ram=ram,
             hdd=hdd,
             cpu=cpu,
-            tipo_servidor=tipo_servidor,
-            ubicacion=ubicacion,
-            facturado=facturado,
+            datastore=datastore,
+            ip_privada=ip_privada,
+            vlan=vlan,
+            ipam=ipam,
+            observaciones=observaciones,
             comentarios=comentarios,
             cliente_id=cliente_id,
-            estado_servicio=estado_servicio,
         )
+
         db.session.add(new_service)
         db.session.commit()
         return jsonify({"message": "Service created successfully", "service": new_service.serialize()}), 201
@@ -291,7 +311,6 @@ def get_services(cliente_id):
 def get_all_services():
     services = Servicio.query.all()
     return jsonify([service.serialize() for service in services]), 200
-
 
 @api.route('/servicios/total', methods=['GET'])
 def get_total_services():
@@ -333,14 +352,22 @@ def update_service(service_id):
         if not service:
             return jsonify({"error": "Service not found"}), 404
 
-        # Campos permitidos para actualización
+        # Campos permitidos para actualización, organizados por categoría
         allowed_fields = [
-            'dominio', 'estado', 'tipo_servicio', 'hostname', 'cores', 'contrato',
-            'plan_aprovisionado', 'plan_facturado', 'detalle_plan', 'sockets',
-            'powerstate', 'ip_privada', 'vlan', 'ipam', 'datastore', 'nombre_servidor',
-            'marca_servidor', 'modelo_servidor', 'nombre_nodo', 'nombre_plataforma',
-            'ram', 'hdd', 'cpu', 'tipo_servidor', 'ubicacion', 'observaciones',
-            'facturado', 'comentarios', 'estado_servicio'
+            # Identificación y Contrato
+            'contrato', 'tipo_servicio', 'estado_contrato', 'facturado',
+            # Información del Servicio/Plan
+            'plan_anterior', 'plan_facturado', 'plan_aprovisionado', 'plan_servicio', 'descripcion', 'estado_servicio',
+            # Información de Dominio y DNS
+            'dominio', 'dns_dominio',
+            # Ubicación y Espacio Físico
+            'ubicacion', 'ubicacion_sala', 'cantidad_ru', 'cantidad_m2', 'cantidad_bastidores',
+            # Información de Hardware/Infraestructura
+            'hostname', 'nombre_servidor', 'nombre_nodo', 'nombre_plataforma', 'ram', 'hdd', 'cpu', 'datastore',
+            # Red e IP
+            'ip_privada', 'vlan', 'ipam',
+            # Observaciones y Comentarios
+            'observaciones', 'comentarios'
         ]
 
         # Actualizar solo los campos permitidos
@@ -356,7 +383,6 @@ def update_service(service_id):
         return jsonify({"error": "Database error", "details": str(e)}), 500
     except Exception as e:
         return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
-
 
 @api.route('/services/<int:service_id>', methods=['DELETE'])
 def delete_service(service_id):
@@ -563,38 +589,53 @@ def add_client_and_service():
             db.session.add(cliente)
             db.session.commit()
 
-        # Crear el servicio asociado
+        # Crear el servicio asociado, organizando los campos por categoría
         servicio = Servicio(
-            dominio=data.get('dominio', ''),
-            estado=data.get('estado', ''),
-            tipo_servicio=data.get('tipo_servicio', ''),
-            hostname=data.get('hostname', ''),
-            cores=int(data.get('cores', 0)) if data.get('cores') else 0,
+            # Identificación y Contrato
             contrato=data.get('contrato', ''),
-            plan_aprovisionado=data.get('plan_aprovisionado', ''),
+            tipo_servicio=data.get('tipo_servicio', ''),
+            estado_contrato=data.get('estado_contrato', ''),
+            facturado=data.get('facturado', ''),
+
+            # Información del Servicio/Plan
+            plan_anterior=data.get('plan_anterior', ''),
             plan_facturado=data.get('plan_facturado', ''),
-            detalle_plan=data.get('detalle_plan', ''),
-            sockets=int(data.get('sockets', 0)) if data.get('sockets') else 0,
-            powerstate=data.get('powerstate', ''),
-            ip_privada=data.get('ip_privada', ''),
-            vlan=data.get('vlan', ''),
-            ipam=data.get('ipam', ''),
-            datastore=data.get('datastore', ''),
+            plan_aprovisionado=data.get('plan_aprovisionado', ''),
+            plan_servicio=data.get('plan_servicio', ''),
+            descripcion=data.get('descripcion', ''),
+            estado_servicio=estado_servicio,
+
+            # Información de Dominio y DNS
+            dominio=data.get('dominio', ''),
+            dns_dominio=data.get('dns_dominio', ''),
+
+            # Ubicación y Espacio Físico
+            ubicacion=data.get('ubicacion', ''),
+            ubicacion_sala=data.get('ubicacion_sala', ''),
+            cantidad_ru=int(data.get('cantidad_ru', 0)) if data.get('cantidad_ru') else 0,
+            cantidad_m2=int(data.get('cantidad_m2', 0)) if data.get('cantidad_m2') else 0,
+            cantidad_bastidores=int(data.get('cantidad_bastidores', 0)) if data.get('cantidad_bastidores') else 0,
+
+            # Información de Hardware/Infraestructura
+            hostname=data.get('hostname', ''),
             nombre_servidor=data.get('nombre_servidor', ''),
-            marca_servidor=data.get('marca_servidor', ''),
-            modelo_servidor=data.get('modelo_servidor', ''),
             nombre_nodo=data.get('nombre_nodo', ''),
             nombre_plataforma=data.get('nombre_plataforma', ''),
             ram=int(data.get('ram', 0)) if data.get('ram') else 0,
             hdd=int(data.get('hdd', 0)) if data.get('hdd') else 0,
             cpu=int(data.get('cpu', 0)) if data.get('cpu') else 0,
-            tipo_servidor=data.get('tipo_servidor', ''),
-            ubicacion=data.get('ubicacion', ''),
+            datastore=data.get('datastore', ''),
+
+            # Red e IP
+            ip_privada=data.get('ip_privada', ''),
+            vlan=data.get('vlan', ''),
+            ipam=data.get('ipam', ''),
+
+            # Observaciones y Comentarios
             observaciones=data.get('observaciones', ''),
-            facturado=data.get('facturado', ''),
             comentarios=data.get('comentarios', ''),
+
             cliente_id=cliente.id,
-            estado_servicio=estado_servicio,
         )
         db.session.add(servicio)
         db.session.commit()
@@ -726,32 +767,33 @@ def upload_excel():
             'rif': 'rif',
             'razon_social': 'razon_social',
             'dominio': 'dominio',
-            'estado': 'estado',
-            'tipo_servicio': 'tipo_servicio',
-            'hostname': 'hostname',
-            'cores': 'cores',
+            'dns_dominio': 'dns_dominio',
             'contrato': 'contrato',
-            'plan_aprovisionado': 'plan_aprovisionado',
+            'tipo_servicio': 'tipo_servicio',
+            'estado_contrato': 'estado_contrato',
+            'facturado': 'facturado',
+            'plan_anterior': 'plan_anterior',
             'plan_facturado': 'plan_facturado',
-            'detalle_plan': 'detalle_plan',
-            'sockets': 'sockets',
-            'powerstate': 'powerstate',
-            'ip_privada': 'ip_privada',
-            'vlan': 'vlan',
-            'ipam': 'ipam',
-            'datastore': 'datastore',
+            'plan_aprovisionado': 'plan_aprovisionado',
+            'plan_servicio': 'plan_servicio',
+            'descripcion': 'descripcion',
+            'ubicacion': 'ubicacion',
+            'ubicacion_sala': 'ubicacion_sala',
+            'cantidad_ru': 'cantidad_ru',
+            'cantidad_m2': 'cantidad_m2',
+            'cantidad_bastidores': 'cantidad_bastidores',
+            'hostname': 'hostname',
             'nombre_servidor': 'nombre_servidor',
-            'marca_servidor': 'marca_servidor',
-            'modelo_servidor': 'modelo_servidor',
             'nombre_nodo': 'nombre_nodo',
             'nombre_plataforma': 'nombre_plataforma',
             'ram': 'ram',
             'hdd': 'hdd',
             'cpu': 'cpu',
-            'tipo_servidor': 'tipo_servidor',
-            'ubicacion': 'ubicacion',
+            'datastore': 'datastore',
+            'ip_privada': 'ip_privada',
+            'vlan': 'vlan',
+            'ipam': 'ipam',
             'observaciones': 'observaciones',
-            'facturado': 'facturado',
             'comentarios': 'comentarios'
         }
         df.rename(columns=column_mapping, inplace=True)
@@ -772,38 +814,53 @@ def upload_excel():
                 db.session.add(cliente)
                 db.session.commit()
 
-            # Crear servicio
+            # Crear servicio, organizando los campos por categoría
             servicio = Servicio(
-                dominio=row.get('dominio', ''),
-                estado=row.get('estado', ''),
-                tipo_servicio=row.get('tipo_servicio', ''),
-                hostname=row.get('hostname', ''),
-                cores=int(row['cores']) if 'cores' in row and pd.notna(row['cores']) else 0,
+                # Identificación y Contrato
                 contrato=row.get('contrato', ''),
-                plan_aprovisionado=row.get('plan_aprovisionado', ''),
+                tipo_servicio=row.get('tipo_servicio', ''),
+                estado_contrato=row.get('estado_contrato', ''),
+                facturado=row.get('facturado', ''),
+
+                # Información del Servicio/Plan
+                plan_anterior=row.get('plan_anterior', ''),
                 plan_facturado=row.get('plan_facturado', ''),
-                detalle_plan=row.get('detalle_plan', ''),
-                sockets=int(row['sockets']) if 'sockets' in row and pd.notna(row['sockets']) else 0,
-                powerstate=row.get('powerstate', ''),
-                ip_privada=row.get('ip_privada', ''),
-                vlan=row.get('vlan', ''),
-                ipam=row.get('ipam', ''),
-                datastore=row.get('datastore', ''),
+                plan_aprovisionado=row.get('plan_aprovisionado', ''),
+                plan_servicio=row.get('plan_servicio', ''),
+                descripcion=row.get('descripcion', ''),
+                estado_servicio=estado_servicio,
+
+                # Información de Dominio y DNS
+                dominio=row.get('dominio', ''),
+                dns_dominio=row.get('dns_dominio', ''),
+
+                # Ubicación y Espacio Físico
+                ubicacion=row.get('ubicacion', ''),
+                ubicacion_sala=row.get('ubicacion_sala', ''),
+                cantidad_ru=int(row['cantidad_ru']) if 'cantidad_ru' in row and pd.notna(row['cantidad_ru']) else 0,
+                cantidad_m2=int(row['cantidad_m2']) if 'cantidad_m2' in row and pd.notna(row['cantidad_m2']) else 0,
+                cantidad_bastidores=int(row['cantidad_bastidores']) if 'cantidad_bastidores' in row and pd.notna(row['cantidad_bastidores']) else 0,
+
+                # Información de Hardware/Infraestructura
+                hostname=row.get('hostname', ''),
                 nombre_servidor=row.get('nombre_servidor', ''),
-                marca_servidor=row.get('marca_servidor', ''),
-                modelo_servidor=row.get('modelo_servidor', ''),
                 nombre_nodo=row.get('nombre_nodo', ''),
                 nombre_plataforma=row.get('nombre_plataforma', ''),
                 ram=int(row['ram']) if 'ram' in row and pd.notna(row['ram']) else 0,
                 hdd=int(row['hdd']) if 'hdd' in row and pd.notna(row['hdd']) else 0,
                 cpu=int(row['cpu']) if 'cpu' in row and pd.notna(row['cpu']) else 0,
-                tipo_servidor=row.get('tipo_servidor', ''),
-                ubicacion=row.get('ubicacion', ''),
+                datastore=row.get('datastore', ''),
+
+                # Red e IP
+                ip_privada=row.get('ip_privada', ''),
+                vlan=row.get('vlan', ''),
+                ipam=row.get('ipam', ''),
+
+                # Observaciones y Comentarios
                 observaciones=row.get('observaciones', ''),
-                facturado=row.get('facturado', ''),
                 comentarios=row.get('comentarios', ''),
+
                 cliente_id=cliente.id,
-                estado_servicio=estado_servicio,
             )
             db.session.add(servicio)
 

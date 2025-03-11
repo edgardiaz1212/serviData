@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Context } from '../store/appContext';
-
 import { Search } from 'lucide-react'
 import TotalClient from '../component/TotalCLient.jsx'; // Asegúrate de que la ruta sea correcta
-import BB8Button from '../component/BB8Button.jsx';
 import "../../styles/clientes.css"
 const Clientes = () => {
   const { store } = useContext(Context);
@@ -31,7 +29,7 @@ const Clientes = () => {
     <div className='container'>
       <h1>Clientes</h1>
       <h5>Selecciona para detalles</h5>
-      {/* <BB8Button/> */}
+     
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div className="btn-group" role="group" aria-label="Basic radio toggle button group">
           <input type="radio" className="btn-check" name="btnradio" id="btnradio1" autoComplete="off" checked={clientType === 'Privada'} onChange={handleClientTypeChange} />
