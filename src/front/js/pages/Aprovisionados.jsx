@@ -38,7 +38,7 @@ const Aprovisionados = () => {
               <tr>
                 <th>Tipo de Servicio</th>
                 <th>Dominio</th>
-                <th>Estado</th>
+                
                 <th>Hostname</th>
                 <th>Razón Social</th>
                 <th>Rif</th>
@@ -49,7 +49,7 @@ const Aprovisionados = () => {
                 <tr key={index}>
                   <td>{service.tipo_servicio}</td>
                   <td>{service.dominio}</td>
-                  <td>{service.estado}</td>
+                 
                   <td>{service.hostname}</td>
                   <td>{service.cliente.razon_social}</td>
                   <td>{service.cliente.rif}</td>
@@ -72,7 +72,7 @@ const Aprovisionados = () => {
               <tr>
                 <th>Tipo de Servicio</th>
                 <th>Dominio</th>
-                <th>Estado</th>
+                
                 <th>Hostname</th>
                 <th>Razón Social</th>
                 <th>Rif</th>
@@ -83,7 +83,7 @@ const Aprovisionados = () => {
                 <tr key={index}>
                   <td>{service.tipo_servicio}</td>
                   <td>{service.dominio}</td>
-                  <td>{service.estado}</td>
+                  
                   <td>{service.hostname}</td>
                   <td>{service.razon_social}</td>
                   <td>{service.cliente.rif}</td>
@@ -104,7 +104,7 @@ const Aprovisionados = () => {
               <tr>
                 <th>Tipo de Servicio</th>
                 <th>Dominio</th>
-                <th>Estado</th>
+                
                 <th>Hostname</th>
                 <th>Razón Social</th>
                 <th>Rif</th>
@@ -115,7 +115,7 @@ const Aprovisionados = () => {
                 <tr key={index}>
                   <td>{service.tipo_servicio}</td>
                   <td>{service.dominio}</td>
-                  <td>{service.estado}</td>
+                  
                   <td>{service.hostname}</td>
                   <td>{service.razon_social}</td>
                   <td>{service.cliente.rif}</td>
