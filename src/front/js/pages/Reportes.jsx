@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { generatePDF } from '../component/PDFGenerator.jsx';
-import { generateExcelServiciosActivos, generateExcelServiciosPublica, generateExcelServiciosPrivada } from '../component/ExcelGenerator.jsx';
+import { generateExcelServiciosActivos, generateExcelServiciosPublica, generateExcelServiciosPrivada, generateExcelServiciosRetiradosMesActual, generateExcelServiciosAprovisionadosMesActual, generateExcelServiciosAprovisionadosPorMes, generateExcelServiciosAprovisionadosPorAno } from '../component/ExcelGenerator.jsx';
 
 function Reportes() {
     const { actions, store } = useContext(Context);
@@ -120,6 +120,54 @@ function Reportes() {
         }
     };
 
+    // Función para generar el Excel de Servicios Retirados por Mes en Curso
+const handleGenerateExcelServiciosRetiradosMesActual = async () => {
+    setLoading(true);
+    try {
+        await generateExcelServiciosRetiradosMesActual(actions);
+    } catch (error) {
+        toast.error('Error generando Excel: ' + error.message);
+    } finally {
+        setLoading(false);
+    }
+};
+
+// Función para generar el Excel de Servicios Aprovisionados por Mes en Curso
+const handleGenerateExcelServiciosAprovisionadosMesActual = async () => {
+    setLoading(true);
+    try {
+        await generateExcelServiciosAprovisionadosMesActual(actions);
+    } catch (error) {
+        toast.error('Error generando Excel: ' + error.message);
+    } finally {
+        setLoading(false);
+    }
+};
+
+// Función para generar el Excel de Servicios Aprovisionados por Mes (Año Actual)
+const handleGenerateExcelServiciosAprovisionadosPorMes = async () => {
+    setLoading(true);
+    try {
+        await generateExcelServiciosAprovisionadosPorMes(actions);
+    } catch (error) {
+        toast.error('Error generando Excel: ' + error.message);
+    } finally {
+        setLoading(false);
+    }
+};
+
+// Función para generar el Excel de Servicios Aprovisionados por Año
+const handleGenerateExcelServiciosAprovisionadosPorAno = async () => {
+    setLoading(true);
+    try {
+        await generateExcelServiciosAprovisionadosPorAno(actions);
+    } catch (error) {
+        toast.error('Error generando Excel: ' + error.message);
+    } finally {
+        setLoading(false);
+    }
+};
+
     return (
         <>
             <ToastContainer />
@@ -179,10 +227,83 @@ function Reportes() {
                             >
                                 Servicios Privada (xls)
                             </p>
-                            <p>Servicios retirados por mes (xls)</p>
-                            <p>Servicios aprovisionados por mes en curso (xls)</p>
-                            <p>Servicios aprovisionados por mes (xls)</p>
-                            <p>Servicios aprovisionados por año (xls)</p>
+                            <p
+                            className="pdf-link"
+                            onClick={() => handleGeneratePDF("activos")}
+                            style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+                        >
+                            Listado Clientes activos (pdf)
+                        </p>
+
+                        {/* Botón para Clientes Públicos */}
+                        <p
+                            className="pdf-link"
+                            onClick={() => handleGeneratePDF("publica")}
+                            style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+                        >
+                            Listado Clientes Pública (pdf)
+                        </p>
+
+                        {/* Botón para Clientes Privados */}
+                        <p
+                            className="pdf-link"
+                            onClick={() => handleGeneratePDF("privada")}
+                            style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+                        >
+                            Listado Clientes Privada (pdf)
+                        </p>
+                    </div>
+                    <div className="col-auto">
+                        <h3>Servicios</h3>
+                        <p
+                            className="pdf-link"
+                            onClick={handleGenerateExcelServiciosActivos}
+                            style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+                        >
+                            Servicios activos (xls)
+                        </p>
+                        <p
+                            className="pdf-link"
+                            onClick={handleGenerateExcelServiciosPublica}
+                            style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+                        >
+                            Servicios Pública (xls)
+                        </p>
+                        <p
+                            className="pdf-link"
+                            onClick={handleGenerateExcelServiciosPrivada}
+                            style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+                        >
+                            Servicios Privada (xls)
+                        </p>
+                        <p
+                            className="pdf-link"
+                            onClick={handleGenerateExcelServiciosRetiradosMesActual}
+                            style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+                        >
+                            Servicios retirados por mes en curso (xls)
+                        </p>
+                        <p
+                            className="pdf-link"
+                            onClick={handleGenerateExcelServiciosAprovisionadosMesActual}
+                            style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+                        >
+                            Servicios aprovisionados por mes en curso (xls)
+                        </p>
+                        <p
+                            className="pdf-link"
+                            onClick={handleGenerateExcelServiciosAprovisionadosPorMes}
+                            style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+                        >
+                            Servicios aprovisionados por mes (xls)
+                        </p>
+                        <p
+                            className="pdf-link"
+                            onClick={handleGenerateExcelServiciosAprovisionadosPorAno}
+                            style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+                        >
+                            Servicios aprovisionados por año (xls)
+                        </p>
                         </div>
                     </div>
                 </div>

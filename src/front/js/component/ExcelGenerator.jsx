@@ -124,3 +124,144 @@ export const generateExcelServiciosPrivada = async (clientesPrivados, actions) =
     // Descargar el archivo
     XLSX.writeFile(wb, `servicios-privada-${new Date().toLocaleDateString()}.xlsx`);
 };
+
+// Función para obtener el mes y año actual
+const getCurrentMonthAndYear = () => {
+    const now = new Date();
+    return {
+        month: now.getMonth() + 1, // Mes actual (1-12)
+        year: now.getFullYear(),   // Año actual
+    };
+};
+
+// Función para generar el Excel de Servicios Retirados por Mes en Curso
+export const generateExcelServiciosRetiradosMesActual = async (actions) => {
+    const { month, year } = getCurrentMonthAndYear();
+
+    // Obtener servicios retirados en el mes actual
+    const serviciosRetirados = await actions.getServiciosRetiradosPorMes(month, year);
+
+    // Crear la hoja de cálculo
+    const wsData = [
+        ["Razón Social", "RIF", "Contrato", "Dominio", "Hostname", "Tipo de Servicio"],
+    ];
+
+    // Agregar datos
+    serviciosRetirados.forEach(servicio => {
+        wsData.push([
+            servicio.cliente.razon_social,
+            servicio.cliente.rif,
+            servicio.contrato,
+            servicio.dominio,
+            servicio.hostname,
+            servicio.tipo_servicio,
+        ]);
+    });
+
+    // Crear el libro de Excel
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Servicios Retirados");
+
+    // Descargar el archivo
+    XLSX.writeFile(wb, `servicios-retirados-${month}-${year}.xlsx`);
+};
+
+// Función para generar el Excel de Servicios Aprovisionados por Mes en Curso
+export const generateExcelServiciosAprovisionadosMesActual = async (actions) => {
+    const { month, year } = getCurrentMonthAndYear();
+
+    // Obtener servicios aprovisionados en el mes actual
+    const serviciosAprovisionados = await actions.getServiciosAprovisionadosPorMes(month, year);
+
+    // Crear la hoja de cálculo
+    const wsData = [
+        ["Razón Social", "RIF", "Contrato", "Dominio", "Hostname", "Tipo de Servicio"],
+    ];
+
+    // Agregar datos
+    serviciosAprovisionados.forEach(servicio => {
+        wsData.push([
+            servicio.cliente.razon_social,
+            servicio.cliente.rif,
+            servicio.contrato,
+            servicio.dominio,
+            servicio.hostname,
+            servicio.tipo_servicio,
+        ]);
+    });
+
+    // Crear el libro de Excel
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Servicios Aprovisionados");
+
+    // Descargar el archivo
+    XLSX.writeFile(wb, `servicios-aprovisionados-${month}-${year}.xlsx`);
+};
+
+// Función para generar el Excel de Servicios Aprovisionados por Mes (Año Actual)
+export const generateExcelServiciosAprovisionadosPorMes = async (actions) => {
+    const year = new Date().getFullYear();
+
+    // Obtener servicios aprovisionados por mes en el año actual
+    const serviciosPorMes = await actions.getServiciosAprovisionadosPorMesAnual(year);
+
+    // Crear la hoja de cálculo
+    const wsData = [
+        ["Mes", "Razón Social", "RIF", "Contrato", "Dominio", "Hostname", "Tipo de Servicio"],
+    ];
+
+    // Agregar datos
+    serviciosPorMes.forEach(servicio => {
+        wsData.push([
+            servicio.mes,
+            servicio.cliente.razon_social,
+            servicio.cliente.rif,
+            servicio.contrato,
+            servicio.dominio,
+            servicio.hostname,
+            servicio.tipo_servicio,
+        ]);
+    });
+
+    // Crear el libro de Excel
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Servicios por Mes");
+
+    // Descargar el archivo
+    XLSX.writeFile(wb, `servicios-aprovisionados-por-mes-${year}.xlsx`);
+};
+
+// Función para generar el Excel de Servicios Aprovisionados por Año
+export const generateExcelServiciosAprovisionadosPorAno = async (actions) => {
+    // Obtener servicios aprovisionados por año
+    const serviciosPorAno = await actions.getServiciosAprovisionadosPorAno();
+
+    // Crear la hoja de cálculo
+    const wsData = [
+        ["Año", "Razón Social", "RIF", "Contrato", "Dominio", "Hostname", "Tipo de Servicio"],
+    ];
+
+    // Agregar datos
+    serviciosPorAno.forEach(servicio => {
+        wsData.push([
+            servicio.ano,
+            servicio.cliente.razon_social,
+            servicio.cliente.rif,
+            servicio.contrato,
+            servicio.dominio,
+            servicio.hostname,
+            servicio.tipo_servicio,
+        ]);
+    });
+
+    // Crear el libro de Excel
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Servicios por Año");
+
+    // Descargar el archivo
+    XLSX.writeFile(wb, `servicios-aprovisionados-por-ano.xlsx`);
+};

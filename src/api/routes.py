@@ -645,6 +645,151 @@ def add_client_and_service():
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
+@api.route('/servicios-retirados-por-mes', methods=['GET'])
+def get_servicios_retirados_por_mes():
+    try:
+        month = request.args.get('month', type=int)
+        year = request.args.get('year', type=int)
+
+        # Obtener la fecha de inicio y fin del mes
+        start_date = datetime(year, month, 1)
+        if month == 12:
+            end_date = datetime(year + 1, 1, 1)
+        else:
+            end_date = datetime(year, month + 1, 1)
+
+        # Filtrar servicios retirados en el mes actual
+        servicios = Servicio.query.filter(
+            Servicio.estado_servicio == "Retirado",
+            Servicio.fecha_retiro >= start_date,
+            Servicio.fecha_retiro < end_date
+        ).join(Cliente).all()
+
+        # Serializar los datos
+        result = [{
+            "cliente": {
+                "razon_social": servicio.cliente.razon_social,
+                "rif": servicio.cliente.rif,
+            },
+            "contrato": servicio.contrato,
+            "dominio": servicio.dominio,
+            "hostname": servicio.hostname,
+            "tipo_servicio": servicio.tipo_servicio,
+        } for servicio in servicios]
+
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@api.route('/servicios-aprovisionados-por-mes', methods=['GET'])
+def get_servicios_aprovisionados_por_mes():
+    try:
+        month = request.args.get('month', type=int)
+        year = request.args.get('year', type=int)
+
+        # Obtener la fecha de inicio y fin del mes
+        start_date = datetime(year, month, 1)
+        if month == 12:
+            end_date = datetime(year + 1, 1, 1)
+        else:
+            end_date = datetime(year, month + 1, 1)
+
+        # Filtrar servicios aprovisionados en el mes actual
+        servicios = Servicio.query.filter(
+            Servicio.estado_servicio == "Nuevo",
+            Servicio.fecha_creacion >= start_date,
+            Servicio.fecha_creacion < end_date
+        ).join(Cliente).all()
+
+        # Serializar los datos
+        result = [{
+            "cliente": {
+                "razon_social": servicio.cliente.razon_social,
+                "rif": servicio.cliente.rif,
+            },
+            "contrato": servicio.contrato,
+            "dominio": servicio.dominio,
+            "hostname": servicio.hostname,
+            "tipo_servicio": servicio.tipo_servicio,
+        } for servicio in servicios]
+
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@api.route('/servicios-aprovisionados-por-mes-anual', methods=['GET'])
+def get_servicios_aprovisionados_por_mes_anual():
+    try:
+        year = request.args.get('year', type=int)
+
+        # Obtener todos los servicios aprovisionados en el año
+        servicios = Servicio.query.filter(
+            Servicio.estado_servicio == "Nuevo",
+            extract('year', Servicio.fecha_creacion) == year
+        ).join(Cliente).all()
+
+        # Agrupar por mes
+        servicios_por_mes = {}
+        for servicio in servicios:
+            mes = servicio.fecha_creacion.month
+            if mes not in servicios_por_mes:
+                servicios_por_mes[mes] = []
+            servicios_por_mes[mes].append({
+                "cliente": {
+                    "razon_social": servicio.cliente.razon_social,
+                    "rif": servicio.cliente.rif,
+                },
+                "contrato": servicio.contrato,
+                "dominio": servicio.dominio,
+                "hostname": servicio.hostname,
+                "tipo_servicio": servicio.tipo_servicio,
+            })
+
+        # Serializar los datos
+        result = [{
+            "mes": mes,
+            "servicios": servicios_por_mes[mes]
+        } for mes in servicios_por_mes]
+
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@api.route('/servicios-aprovisionados-por-ano', methods=['GET'])
+def get_servicios_aprovisionados_por_ano():
+    try:
+        # Obtener todos los servicios aprovisionados
+        servicios = Servicio.query.filter(
+            Servicio.estado_servicio == "Nuevo"
+        ).join(Cliente).all()
+
+        # Agrupar por año
+        servicios_por_ano = {}
+        for servicio in servicios:
+            ano = servicio.fecha_creacion.year
+            if ano not in servicios_por_ano:
+                servicios_por_ano[ano] = []
+            servicios_por_ano[ano].append({
+                "cliente": {
+                    "razon_social": servicio.cliente.razon_social,
+                    "rif": servicio.cliente.rif,
+                },
+                "contrato": servicio.contrato,
+                "dominio": servicio.dominio,
+                "hostname": servicio.hostname,
+                "tipo_servicio": servicio.tipo_servicio,
+            })
+
+        # Serializar los datos
+        result = [{
+            "ano": ano,
+            "servicios": servicios_por_ano[ano]
+        } for ano in servicios_por_ano]
+
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 #acciones generales
 @api.route('/upload-document/<entity_type>/<int:entity_id>', methods=['POST'])
 def upload_document(entity_type, entity_id):

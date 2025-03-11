@@ -700,6 +700,63 @@ const getState = ({ getStore, getActions, setStore }) => {
           return { success: false, message: error.message };
         }
       },
+        getServiciosRetiradosPorMes : async (month, year) => {
+        try {
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/servicios-retirados-por-mes?month=${month}&year=${year}`
+            );
+            if (!response.ok) {
+                throw new Error("Error al obtener servicios retirados");
+            }
+            return await response.json();
+        } catch (error) {
+            console.error("Error fetching servicios retirados:", error);
+            return [];
+        }
+    },
+    
+    getServiciosAprovisionadosPorMes : async (month, year) => {
+        try {
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/servicios-aprovisionados-por-mes?month=${month}&year=${year}`
+            );
+            if (!response.ok) {
+                throw new Error("Error al obtener servicios aprovisionados");
+            }
+            return await response.json();
+        } catch (error) {
+            console.error("Error fetching servicios aprovisionados:", error);
+            return [];
+        }
+    },
+    getServiciosAprovisionadosPorMesAnual : async (year) => {
+        try {
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/servicios-aprovisionados-por-mes-anual?year=${year}`
+            );
+            if (!response.ok) {
+                throw new Error("Error al obtener servicios aprovisionados por mes");
+            }
+            return await response.json();
+        } catch (error) {
+            console.error("Error fetching servicios aprovisionados por mes:", error);
+            return [];
+        }
+    },
+    getServiciosAprovisionadosPorAno : async () => {
+        try {
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/servicios-aprovisionados-por-ano`
+            );
+            if (!response.ok) {
+                throw new Error("Error al obtener servicios aprovisionados por año");
+            }
+            return await response.json();
+        } catch (error) {
+            console.error("Error fetching servicios aprovisionados por año:", error);
+            return [];
+        }
+    },
       //Acciones generales
       // Document handling actions
       uploadDocument: async (entityType, entityId, formData) => {
