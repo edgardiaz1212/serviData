@@ -516,19 +516,24 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
       getServiceCountsByType: async () => {
         try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/service-counts-by-type`
-          );
-          if (response.ok) {
-            const data = await response.json();
-            setStore({ serviceCountsByType: data });
-          } else {
-            console.error("Failed to get service counts by type");
-          }
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/service-counts-by-type`
+            );
+            if (response.ok) {
+                const data = await response.json();
+                if (Object.keys(data).length === 0) {
+                    console.warn("No service counts data available");
+                    setStore({ serviceCountsByType: {} });
+                } else {
+                    setStore({ serviceCountsByType: data });
+                }
+            } else {
+                console.error("Failed to get service counts by type");
+            }
         } catch (error) {
-          console.log("Error during getting service counts by type", error);
+            console.log("Error during getting service counts by type", error);
         }
-      },
+    },
       getServiceCountsByClientType: async (clientType) => {
         try {
           const response = await fetch(
