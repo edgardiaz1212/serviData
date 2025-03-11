@@ -50,6 +50,7 @@ class Servicio(db.Model):
     hostname = db.Column(db.String)
     ubicacion_sala = db.Column(db.String)
     ip_privada = db.Column(db.String)
+    ip_publica = db.Column(db.String)
     vlan = db.Column(db.String)
     ipam = db.Column(db.String)
     datastore = db.Column(db.String)
@@ -92,6 +93,7 @@ class Servicio(db.Model):
             'hostname': self.hostname,
             'ubicacion_sala': self.ubicacion_sala,
             'ip_privada': self.ip_privada,
+            'ip_publica': self.ip_publica,
             'vlan': self.vlan,
             'ipam': self.ipam,
             'datastore': self.datastore,

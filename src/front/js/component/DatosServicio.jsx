@@ -347,6 +347,18 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
+          <label htmlFor="ip_publica" className="form-label">IP Publica</label>
+          <input
+            type="text"
+            name="ip_publica"
+            value={serviceData.ip_publica}
+            onChange={handleChange}
+            placeholder="IP Publica"
+            className="form-control"
+            id="ip_publica"
+          />
+        </div>
+        <div className="col-md-6 mb-3">
           <label htmlFor="vlan" className="form-label">VLAN</label>
           <input
             type="text"

@@ -19,6 +19,7 @@ const Aprovisionados = () => {
   }, []);
 
   const filteredNewServices = store.newServicesCurrentMonth.filter(service => service.estado_servicio === 'Nuevo');
+  
   const filteredReaprovServices = store.newServicesCurrentMonth.filter(service => service.estado_servicio === 'Reaprovisionado');
   const filteredRetiredServices = store.newServicesCurrentMonth.filter(service => service.estado_servicio === 'Retirado');
   

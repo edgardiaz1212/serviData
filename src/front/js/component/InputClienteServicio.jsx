@@ -42,6 +42,7 @@ function InputClienteServicio({ onSubmit }) {
     cpu: "",
     datastore: "",
     ip_privada: "",
+    ip_publica: "",
     vlan: "",
     ipam: "",
     observaciones: "",

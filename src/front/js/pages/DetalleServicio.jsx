@@ -161,6 +161,9 @@ const DetalleServicio = () => {
             <p><strong>IP Privada:</strong> {serviceData.ip_privada}</p>
           </div>
           <div className="col-md-6 mb-3">
+            <p><strong>IP Publica:</strong> {serviceData.ip_publica}</p>
+          </div>
+          <div className="col-md-6 mb-3">
             <p><strong>VLAN:</strong> {serviceData.vlan}</p>
           </div>
           <div className="col-md-6 mb-3">

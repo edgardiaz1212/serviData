@@ -236,6 +236,7 @@ def service_post():
 
         # Red e IP
         ip_privada = data.get('ip_privada')
+        ip_publica = data.get('ip_publica')
         vlan = data.get('vlan')
         ipam = data.get('ipam')
 
@@ -272,6 +273,7 @@ def service_post():
             cpu=cpu,
             datastore=datastore,
             ip_privada=ip_privada,
+            ip_publica=ip_publica,
             vlan=vlan,
             ipam=ipam,
             observaciones=observaciones,
@@ -365,7 +367,7 @@ def update_service(service_id):
             # Información de Hardware/Infraestructura
             'hostname', 'nombre_servidor', 'nombre_nodo', 'nombre_plataforma', 'ram', 'hdd', 'cpu', 'datastore',
             # Red e IP
-            'ip_privada', 'vlan', 'ipam',
+            'ip_privada','ip_publica' 'vlan', 'ipam',
             # Observaciones y Comentarios
             'observaciones', 'comentarios'
         ]
@@ -468,6 +470,10 @@ def get_service_counts_by_client_type(client_type):
         # Manejar errores generales
         return jsonify({"error": str(e)}), 500  
       
+from datetime import datetime
+from flask import jsonify
+from sqlalchemy.exc import SQLAlchemyError
+
 @api.route('/new-services-current-month', methods=['GET'])
 def get_new_services_current_month():
     try:
@@ -482,43 +488,13 @@ def get_new_services_current_month():
 
         # Consulta para obtener servicios nuevos en el mes actual junto con todos los datos del cliente
         new_services = db.session.query(Servicio, Cliente).join(Cliente).filter(
-            Servicio.updated_at >= start_of_month,
-            Servicio.updated_at < start_of_next_month
+            Servicio.created_at >= start_of_month,  # Usar created_at para filtrar por fecha de creación
+            Servicio.created_at < start_of_next_month
         ).all()
 
         result = [
             {
                 "id": service.id,
-                "dominio": service.dominio,
-                "estado": service.estado,
-                "tipo_servicio": service.tipo_servicio,
-                "hostname": service.hostname,
-                "contrato": service.contrato,
-                "plan_aprovisionado": service.plan_aprovisionado,
-                "plan_facturado": service.plan_facturado,
-                "detalle_plan": service.detalle_plan,
-                "facturado": service.facturado,
-                "cores": service.cores,
-                "sockets": service.sockets,
-                "ram": service.ram,
-                "hdd": service.hdd,
-                "cpu": service.cpu,
-                "ip_privada": service.ip_privada,
-                "vlan": service.vlan,
-                "ipam": service.ipam,
-                "datastore": service.datastore,
-                "nombre_servidor": service.nombre_servidor,
-                "marca_servidor": service.marca_servidor,
-                "modelo_servidor": service.modelo_servidor,
-                "nombre_nodo": service.nombre_nodo,
-                "nombre_plataforma": service.nombre_plataforma,
-                "tipo_servidor": service.tipo_servidor,
-                "ubicacion": service.ubicacion,
-                "powerstate": service.powerstate,
-                "comentarios": service.comentarios,
-                "estado_servicio": service.estado_servicio,
-                "created_at": service.created_at,
-                "updated_at": service.updated_at,
                 "cliente": {
                     "id": cliente.id,
                     "tipo": cliente.tipo,
@@ -526,13 +502,55 @@ def get_new_services_current_month():
                     "razon_social": cliente.razon_social,
                     "created_at": cliente.created_at,
                     "updated_at": cliente.updated_at
-                }
+                },
+                # Identificación y Contrato
+                "contrato": service.contrato,
+                "tipo_servicio": service.tipo_servicio,
+                "facturado": service.facturado,
+                "estado_contrato": service.estado_contrato,
+                # Información del Servicio/Plan
+                "plan_anterior": service.plan_anterior,
+                "plan_aprovisionado": service.plan_aprovisionado,
+                "plan_facturado": service.plan_facturado,
+                "plan_servicio": service.plan_servicio,
+                "descripcion": service.descripcion,  # Corregido a descripcion
+                "estado_servicio": service.estado_servicio,
+                # Información de Dominio y DNS
+                "dominio": service.dominio,
+                "dns_dominio": service.dns_dominio,
+                # Ubicación y Espacio Físico
+                "ubicacion": service.ubicacion,
+                "ubicacion_sala": service.ubicacion_sala,  # Corregido
+                "cantidad_ru": service.cantidad_ru,  # Corregido
+                "cantidad_m2": service.cantidad_m2,
+                "cantidad_bastidores": service.cantidad_bastidores,
+                # Información de Hardware/Infraestructura
+                "hostname": service.hostname,
+                "nombre_servidor": service.nombre_servidor,
+                "nombre_nodo": service.nombre_nodo,
+                "nombre_plataforma": service.nombre_plataforma,
+                "ram": service.ram,
+                "hdd": service.hdd,
+                "cpu": service.cpu,
+                "datastore": service.datastore,
+                # Red e IP
+                "ip_privada": service.ip_privada,
+                "vlan": service.vlan,
+                "ipam": service.ipam,
+                # Observaciones y Comentarios
+                "comentarios": service.comentarios,
+                "observaciones": service.observaciones,
+                # Información General
+                "created_at": service.created_at,
+                "updated_at": service.updated_at
             }
             for service, cliente in new_services
         ]
         return jsonify(result), 200
+    except SQLAlchemyError as e:
+        return jsonify({"error": f"Database error: {str(e)}"}), 500
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
 
 @api.route('/new-services-last-month', methods=['GET'])
 def get_new_services_last_month():
@@ -628,6 +646,7 @@ def add_client_and_service():
 
             # Red e IP
             ip_privada=data.get('ip_privada', ''),
+            ip_publica=data.get('ip_publica', ''),
             vlan=data.get('vlan', ''),
             ipam=data.get('ipam', ''),
 
@@ -936,6 +955,7 @@ def upload_excel():
             'cpu': 'cpu',
             'datastore': 'datastore',
             'ip_privada': 'ip_privada',
+            'ip_publica': 'ip_publica',
             'vlan': 'vlan',
             'ipam': 'ipam',
             'observaciones': 'observaciones',
@@ -998,7 +1018,7 @@ def upload_excel():
 
                 # Red e IP
                 ip_privada=row.get('ip_privada', ''),
-                vlan=row.get('vlan', ''),
+                ip_publica=row.get('ip_publica', ''),
                 ipam=row.get('ipam', ''),
 
                 # Observaciones y Comentarios
