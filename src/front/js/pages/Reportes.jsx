@@ -3,8 +3,8 @@ import { Context } from '../store/appContext';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { generatePDF } from './PDFGenerator';
-import { generateExcelServiciosActivos, generateExcelServiciosPublica, generateExcelServiciosPrivada } from './ExcelGenerator';
+import { generatePDF } from './PDFGenerator.jsx';
+import { generateExcelServiciosActivos, generateExcelServiciosPublica, generateExcelServiciosPrivada } from './ExcelGenerator.jsx';
 
 function Reportes() {
     const { actions, store } = useContext(Context);
