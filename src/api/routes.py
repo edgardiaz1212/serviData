@@ -660,9 +660,9 @@ def get_servicios_retirados_por_mes():
 
         # Filtrar servicios retirados en el mes actual
         servicios = Servicio.query.filter(
-            Servicio.estado_servicio == "Retirado",
-            Servicio.fecha_retiro >= start_date,
-            Servicio.fecha_retiro < end_date
+            Servicio.estado_servicio == "Retirado",  # Filtro por estado "Retirado"
+            Servicio.updated_at >= start_date,       # Filtro por updated_at dentro del mes
+            Servicio.updated_at < end_date
         ).join(Cliente).all()
 
         # Serializar los datos
