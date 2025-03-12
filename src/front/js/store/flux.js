@@ -442,7 +442,7 @@ const getState = ({ getStore, getActions, setStore }) => {
               (service) => service.estado_servicio !== "Retirado"
             );
             setStore({ activeServiceCount: activeServices.length });
-            console.log("Active services:", activeServices);
+
             return data.services; // Retorna los servicios directamente
           } else {
             console.error("Failed to get service data");
