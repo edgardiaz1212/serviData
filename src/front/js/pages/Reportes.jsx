@@ -53,78 +53,39 @@ function Reportes() {
         }
     };
 
-    // Función para generar el Excel de Servicios Activos
-    const handleGenerateExcelServiciosActivos = async () => {
+     // Función para generar el Excel de Servicios Activos
+     const handleGenerateExcelServiciosActivos = async () => {
         setLoading(true);
         try {
-            // Obtener datos del store
-            const { clientData } = store;
-
-            // Filtrar clientes públicos y privados
-            const clientesPublicos = clientData.filter(cliente => cliente.tipo === "Pública");
-            const clientesPrivados = clientData.filter(cliente => cliente.tipo === "Privada");
-
-            // Validar datos
-            if (!Array.isArray(clientesPublicos) || !Array.isArray(clientesPrivados)) {
-                throw new Error("Los datos de clientes deben ser arrays válidos");
-            }
-
-            // Generar el Excel
-            await generateExcelServiciosActivos(clientesPublicos, clientesPrivados, actions);
+          await generateExcelServiciosActivos(actions);
         } catch (error) {
-            toast.error('Error generando Excel: ' + error.message);
+          toast.error('Error generando Excel: ' + error.message);
         } finally {
-            setLoading(false);
+          setLoading(false);
         }
-    };
-
-    // Función para generar el Excel de Servicios Pública
-    const handleGenerateExcelServiciosPublica = async () => {
+      };
+      // Función para generar el Excel de Servicios Publica
+      const handleGenerateExcelServiciosPublica = async () => {
         setLoading(true);
         try {
-            // Obtener datos del store
-            const { clientData } = store;
-
-            // Filtrar clientes públicos
-            const clientesPublicos = clientData.filter(cliente => cliente.tipo === "Pública");
-
-            // Validar datos
-            if (!Array.isArray(clientesPublicos)) {
-                throw new Error("Los datos de clientes deben ser arrays válidos");
-            }
-
-            // Generar el Excel
-            await generateExcelServiciosPublica(clientesPublicos, actions);
+          await generateExcelServiciosPublica(actions);
         } catch (error) {
-            toast.error('Error generando Excel: ' + error.message);
+          toast.error('Error generando Excel: ' + error.message);
         } finally {
-            setLoading(false);
+          setLoading(false);
         }
-    };
-
-    // Función para generar el Excel de Servicios Privada
-    const handleGenerateExcelServiciosPrivada = async () => {
+      };
+      // Función para generar el Excel de Servicios Privada
+      const handleGenerateExcelServiciosPrivada = async () => {
         setLoading(true);
         try {
-            // Obtener datos del store
-            const { clientData } = store;
-
-            // Filtrar clientes privados
-            const clientesPrivados = clientData.filter(cliente => cliente.tipo === "Privada");
-
-            // Validar datos
-            if (!Array.isArray(clientesPrivados)) {
-                throw new Error("Los datos de clientes deben ser arrays válidos");
-            }
-
-            // Generar el Excel
-            await generateExcelServiciosPrivada(clientesPrivados, actions);
+          await generateExcelServiciosPrivada(actions);
         } catch (error) {
-            toast.error('Error generando Excel: ' + error.message);
+          toast.error('Error generando Excel: ' + error.message);
         } finally {
-            setLoading(false);
+          setLoading(false);
         }
-    };
+      };
 
     // Función para generar el Excel de Servicios Retirados por Mes en Curso
     const handleGenerateExcelServiciosRetiradosMesActual = async () => {

@@ -810,6 +810,17 @@ def get_servicios_aprovisionados_por_ano():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
+@api.route('/servicios-activos', methods=['GET'])
+def get_servicios_activos():
+    try:
+        # Filtrar servicios activos (excluyendo "Retirado")
+        servicios_activos = Servicio.query.filter(Servicio.estado_servicio != "Retirado").all()
+        # Serializar los resultados
+        result = [servicio.serialize() for servicio in servicios_activos]
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 @api.route('/exportar-datos-completos', methods=['GET'])
 def exportar_datos_completos():
     try:

@@ -442,6 +442,7 @@ const getState = ({ getStore, getActions, setStore }) => {
               (service) => service.estado_servicio !== "Retirado"
             );
             setStore({ activeServiceCount: activeServices.length });
+            console.log("Active services:", activeServices);
             return data.services; // Retorna los servicios directamente
           } else {
             console.error("Failed to get service data");
@@ -756,6 +757,30 @@ const getState = ({ getStore, getActions, setStore }) => {
             return [];
         }
     },
+    getServiciosActivos: async () => {
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/servicios-activos`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          return data;
+        } else {
+          console.error("Failed to get active services");
+          throw new Error("Failed to fetch active services");
+        }
+      } catch (error) {
+        console.error("Error during getting active services", error);
+        throw error;
+      }
+    },
+
     getCompleteClientServices: async () => {
         try {
             const response = await fetch(

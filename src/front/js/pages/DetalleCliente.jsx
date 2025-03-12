@@ -112,15 +112,19 @@ function DetalleCliente({ clientData: propClientData }) {
                         <option value="activos">Activos</option>
                         <option value="retirados">Retirados</option>
                     </select>
+                    <button>Descargar Informe</button>
                 </div>
                 <ul className="list-group">
                     {filteredServices.length > 0 ? (
                         filteredServices.map((service, index) => (
+                        <>
                             <ServiceCard
                                 key={index}
                                 service={service}
                                 onClick={() => handleServiceClick(service.id)}
                             />
+                            
+                            </>
                         ))
                     ) : (
                         <li className="list-group-item">

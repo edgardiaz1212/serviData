@@ -19,107 +19,159 @@ const countServicesByType = (servicios) => {
 };
 
 // Función para generar y descargar el Excel de Servicios Activos
-export const generateExcelServiciosActivos = async (
-  clientesPublicos,
-  clientesPrivados,
-  actions
-) => {
-  // Crear la hoja de cálculo
-  const wsData = [
-    ["Cliente", "Tipo de Cliente", "Tipo de Servicio", "Cantidad"],
-  ];
-
-  // Agregar datos de clientes públicos
-  for (const cliente of clientesPublicos) {
-    const servicios = await actions.getServicebyClient(cliente.id);
-    const counts = countServicesByType(servicios);
-
-    for (const [tipoServicio, count] of Object.entries(counts)) {
-      wsData.push([cliente.razon_social, "Pública", tipoServicio, count]);
+export const generateExcelServiciosActivos = async (actions) => {
+    try {
+      // Obtener todos los servicios activos
+      const serviciosActivos = await actions.getServiciosActivos();
+  
+      // Crear la hoja de cálculo
+      const wsData = [
+        ["Cliente", "Tipo de Cliente", "Tipo de Servicio", "Cantidad"],
+      ];
+  
+      // Agrupar servicios por cliente y tipo de cliente
+      const groupedServices = {};
+      serviciosActivos.forEach((servicio) => {
+        const cliente = servicio.cliente; // Asumiendo que el servicio tiene un campo `cliente`
+        if (!groupedServices[cliente.id]) {
+          groupedServices[cliente.id] = {
+            razon_social: cliente.razon_social,
+            tipo: cliente.tipo,
+            servicios: [],
+          };
+        }
+        groupedServices[cliente.id].servicios.push(servicio);
+      });
+  
+      // Agregar datos agrupados a la hoja de cálculo
+      for (const clienteId in groupedServices) {
+        const cliente = groupedServices[clienteId];
+        const counts = countServicesByType(cliente.servicios);
+        for (const [tipoServicio, count] of Object.entries(counts)) {
+          wsData.push([cliente.razon_social, cliente.tipo, tipoServicio, count]);
+        }
+      }
+  
+      // Crear el libro de Excel
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Servicios Activos");
+  
+      // Descargar el archivo
+      XLSX.writeFile(
+        wb,
+        `servicios-activos-${new Date().toLocaleDateString()}.xlsx`
+      );
+    } catch (error) {
+      console.error("Error generando Excel:", error);
+      throw error;
     }
-  }
-
-  // Agregar datos de clientes privados
-  for (const cliente of clientesPrivados) {
-    const servicios = await actions.getServicebyClient(cliente.id);
-    const counts = countServicesByType(servicios);
-
-    for (const [tipoServicio, count] of Object.entries(counts)) {
-      wsData.push([cliente.razon_social, "Privada", tipoServicio, count]);
-    }
-  }
-
-  // Crear el libro de Excel
-  const ws = XLSX.utils.aoa_to_sheet(wsData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Servicios Activos");
-
-  // Descargar el archivo
-  XLSX.writeFile(
-    wb,
-    `servicios-activos-${new Date().toLocaleDateString()}.xlsx`
-  );
-};
-
+  };
 // Función para generar y descargar el Excel de Servicios Pública
-export const generateExcelServiciosPublica = async (
-  clientesPublicos,
-  actions
-) => {
-  // Crear la hoja de cálculo
-  const wsData = [["Razón Social", "Tipo de Servicio", "Cantidad"]];
-
-  // Agregar datos de clientes públicos
-  for (const cliente of clientesPublicos) {
-    const servicios = await actions.getServicebyClient(cliente.id);
-    const counts = countServicesByType(servicios);
-
-    for (const [tipoServicio, count] of Object.entries(counts)) {
-      wsData.push([cliente.razon_social, tipoServicio, count]);
-    }
-  }
-
-  // Crear el libro de Excel
-  const ws = XLSX.utils.aoa_to_sheet(wsData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Servicios Pública");
-
-  // Descargar el archivo
-  XLSX.writeFile(
-    wb,
-    `servicios-publica-${new Date().toLocaleDateString()}.xlsx`
-  );
-};
+ 
+      // Filtrar servicios públicos
+      export const generateExcelServiciosPublica = async (actions) => {
+        try {
+          // Obtener todos los servicios activos
+          const serviciosActivos = await actions.getServiciosActivos();
+      
+          // Filtrar servicios privados
+          const serviciosPrivados = serviciosActivos.filter(
+            (servicio) => servicio.cliente.tipo === "Pública"
+          );
+      
+          // Crear la hoja de cálculo
+          const wsData = [["Razón Social", "Tipo de Servicio", "Cantidad"]];
+      
+          // Agrupar servicios por cliente
+          const groupedServices = {};
+          serviciosPrivados.forEach((servicio) => {
+            const cliente = servicio.cliente;
+            if (!groupedServices[cliente.id]) {
+              groupedServices[cliente.id] = {
+                razon_social: cliente.razon_social,
+                servicios: [],
+              };
+            }
+            groupedServices[cliente.id].servicios.push(servicio);
+          });
+      
+          // Contar servicios por tipo para cada cliente
+          for (const clienteId in groupedServices) {
+            const cliente = groupedServices[clienteId];
+            const counts = countServicesByType(cliente.servicios);
+            for (const [tipoServicio, count] of Object.entries(counts)) {
+              wsData.push([cliente.razon_social, tipoServicio, count]);
+            }
+          }
+      
+          // Crear el libro de Excel
+          const ws = XLSX.utils.aoa_to_sheet(wsData);
+          const wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, "Servicios Pública");
+      
+          // Descargar el archivo
+          XLSX.writeFile(
+            wb,
+            `servicios-publica-${new Date().toLocaleDateString()}.xlsx`
+          );
+        } catch (error) {
+          console.error("Error generando Excel:", error);
+          throw error;
+        }
+      };
 
 // Función para generar y descargar el Excel de Servicios Privada
-export const generateExcelServiciosPrivada = async (
-  clientesPrivados,
-  actions
-) => {
-  // Crear la hoja de cálculo
-  const wsData = [["Razón Social", "Tipo de Servicio", "Cantidad"]];
-
-  // Agregar datos de clientes privados
-  for (const cliente of clientesPrivados) {
-    const servicios = await actions.getServicebyClient(cliente.id);
-    const counts = countServicesByType(servicios);
-
-    for (const [tipoServicio, count] of Object.entries(counts)) {
-      wsData.push([cliente.razon_social, tipoServicio, count]);
+export const generateExcelServiciosPrivada = async (actions) => {
+    try {
+      // Obtener todos los servicios activos
+      const serviciosActivos = await actions.getServiciosActivos();
+  
+      // Filtrar servicios privados
+      const serviciosPrivados = serviciosActivos.filter(
+        (servicio) => servicio.cliente.tipo === "Privada"
+      );
+  
+      // Crear la hoja de cálculo
+      const wsData = [["Razón Social", "Tipo de Servicio", "Cantidad"]];
+  
+      // Agrupar servicios por cliente
+      const groupedServices = {};
+      serviciosPrivados.forEach((servicio) => {
+        const cliente = servicio.cliente;
+        if (!groupedServices[cliente.id]) {
+          groupedServices[cliente.id] = {
+            razon_social: cliente.razon_social,
+            servicios: [],
+          };
+        }
+        groupedServices[cliente.id].servicios.push(servicio);
+      });
+  
+      // Contar servicios por tipo para cada cliente
+      for (const clienteId in groupedServices) {
+        const cliente = groupedServices[clienteId];
+        const counts = countServicesByType(cliente.servicios);
+        for (const [tipoServicio, count] of Object.entries(counts)) {
+          wsData.push([cliente.razon_social, tipoServicio, count]);
+        }
+      }
+  
+      // Crear el libro de Excel
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Servicios Privada");
+  
+      // Descargar el archivo
+      XLSX.writeFile(
+        wb,
+        `servicios-privada-${new Date().toLocaleDateString()}.xlsx`
+      );
+    } catch (error) {
+      console.error("Error generando Excel:", error);
+      throw error;
     }
-  }
-
-  // Crear el libro de Excel
-  const ws = XLSX.utils.aoa_to_sheet(wsData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Servicios Privada");
-
-  // Descargar el archivo
-  XLSX.writeFile(
-    wb,
-    `servicios-privada-${new Date().toLocaleDateString()}.xlsx`
-  );
-};
+  };
 
 // Función para obtener el mes y año actual
 const getCurrentMonthAndYear = () => {
