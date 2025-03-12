@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Context } from '../store/appContext';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useEffect, useState, useContext } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Context } from "../store/appContext";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import ButtonDelete from "../component/ButtonDelete";
 
 const EditarCliente = () => {
   const { clientId } = useParams();
@@ -11,8 +12,8 @@ const EditarCliente = () => {
   const [clientData, setClientData] = useState(null);
 
   useEffect(() => {
-    if (store.user?.role !== 'Admin') {
-      navigate('/'); // Redirigir si el usuario no es admin
+    if (store.user?.role !== "Admin") {
+      navigate("/"); // Redirigir si el usuario no es admin
     } else {
       const fetchClientData = async () => {
         const client = await actions.getClientById(clientId);
@@ -33,14 +34,17 @@ const EditarCliente = () => {
       if (isNaN(numericClientId)) {
         throw new Error("Invalid client ID. It must be a number.");
       }
-      const result = await actions.updateClientData(numericClientId, clientData);
+      const result = await actions.updateClientData(
+        numericClientId,
+        clientData
+      );
       if (result.error) {
         throw new Error(result.message);
       }
-      toast.success('Cliente actualizado con éxito');
+      toast.success("Cliente actualizado con éxito");
       navigate(`/detalle-cliente/${clientId}`);
     } catch (error) {
-      toast.error('Error al actualizar el cliente');
+      toast.error("Error al actualizar el cliente");
       console.error(error);
     }
   };
@@ -55,10 +59,10 @@ const EditarCliente = () => {
       if (result.error) {
         throw new Error(result.message);
       }
-      toast.success('Cliente y servicios eliminados con éxito');
-      navigate('/clientes');
+      toast.success("Cliente y servicios eliminados con éxito");
+      navigate("/clientes");
     } catch (error) {
-      toast.error('Error al eliminar el cliente y servicios');
+      toast.error("Error al eliminar el cliente y servicios");
       console.error(error);
     }
   };
@@ -71,7 +75,9 @@ const EditarCliente = () => {
     <div className="container">
       <h2>Editar Cliente</h2>
       <div className="mb-3">
-        <label htmlFor="razon_social" className="form-label">Razón Social</label>
+        <label htmlFor="razon_social" className="form-label">
+          Razón Social
+        </label>
         <input
           type="text"
           className="form-control"
@@ -82,7 +88,9 @@ const EditarCliente = () => {
         />
       </div>
       <div className="mb-3">
-        <label htmlFor="rif" className="form-label">RIF</label>
+        <label htmlFor="rif" className="form-label">
+          RIF
+        </label>
         <input
           type="text"
           className="form-control"
@@ -92,24 +100,33 @@ const EditarCliente = () => {
           onChange={handleChange}
         />
       </div>
-      <div className="mb-3">
-        <label htmlFor="tipo" className="form-label">Tipo</label>
-        <input
-          type="text"
-          className="form-control"
-          id="tipo"
-          name="tipo"
-          value={clientData.tipo}
-          onChange={handleChange}
-        />
-      </div>
-      <button className="btn btn-primary mt-3" onClick={handleSave}>
-        Guardar
-      </button>
-      <button className="btn btn-danger mt-3 ms-2" onClick={handleDelete}>
+     <div className="mb-3">
+  <label htmlFor="validationTipo" className="form-label">Tipo</label>
+  <select
+    className="form-control"
+    name="tipo"
+    value={clientData.tipo}
+    onChange={handleChange} // Asegúrate que handleChange maneje los cambios correctamente
+    id="validationTipo"
+    required
+  >
+    <option value="" disabled>Seleccione Tipo</option>
+    <option value="Pública">Pública</option>
+    <option value="Privada">Privada</option>
+  </select>
+</div> {/* <button className="btn btn-danger mt-3 ms-2" onClick={handleDelete}>
         Eliminar Cliente y Servicios
-      </button>
-      <button className="btn btn-secondary mt-3 ms-2" onClick={() => navigate(`/detalle-cliente/${clientId}`)}>
+      </button> */}
+      <div className="d-flex gap-2"> {/* Agrega d-flex y gap-2 (o el valor de gap que prefieras) */}
+  <button className="btn btn-primary" onClick={handleSave}>
+    Guardar
+  </button>
+  <ButtonDelete handleDelete={handleDelete} />
+</div>
+      <button
+        className="btn btn-secondary mt-3 ms-2"
+        onClick={() => navigate(`/detalle-cliente/${clientId}`)}
+      >
         Regresar
       </button>
       <ToastContainer />

@@ -4,6 +4,7 @@ import { Context } from '../store/appContext';
 import { Search } from 'lucide-react'
 import TotalClient from '../component/TotalCLient.jsx'; // Asegúrate de que la ruta sea correcta
 import "../../styles/clientes.css"
+
 const Clientes = () => {
   const { store } = useContext(Context);
   const navigate = useNavigate();
