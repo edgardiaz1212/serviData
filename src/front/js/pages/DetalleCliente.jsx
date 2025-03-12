@@ -4,6 +4,7 @@ import { Context } from "../store/appContext";
 import ModalDocumentLoad from "../component/ModalDocumentLoad.jsx";
 import ServiceCard from "../component/ServiceCard.jsx";
 import GenerarInformePDF from "../component/GenerarInformePDF.jsx"; // Importa el nuevo componente
+import { FileText, Pencil } from "lucide-react";
 
 function DetalleCliente({ clientData: propClientData }) {
     const { clientId } = useParams();
@@ -71,6 +72,7 @@ function DetalleCliente({ clientData: propClientData }) {
                 <h3>Detalles del Cliente {clientData ? clientData.razon_social : ""}</h3>
                 {store.user?.role === "Admin" && (
                     <button className="btn btn-primary" onClick={handleEditUserClick}>
+                        <Pencil size={20} strokeWidth={1.75} />
                         Editar Usuario
                     </button>
                 )}
@@ -98,7 +100,10 @@ function DetalleCliente({ clientData: propClientData }) {
                     onClick={() => setShowDocumentModal(true)}
                 >
                     Gestionar Documentos
+                    <FileText />
                 </button>
+
+                
             </div>
             <div>
                 <h5>Servicios</h5>

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Context } from '../store/appContext';
 import ModalDocumentLoad from '../component/ModalDocumentLoad.jsx';
+import { FileText, Pencil } from 'lucide-react';
 
 const DetalleServicio = () => {
   const { serviceId } = useParams();
@@ -45,6 +46,8 @@ console.log(serviceData)
           <h2>Detalles del Servicio</h2>
           <div>
             <button className="btn btn-primary me-2" onClick={handleEditClick}>
+            
+            <Pencil size={20} strokeWidth={1.75} />
               Editar Datos
             </button>
             <button
@@ -52,6 +55,7 @@ console.log(serviceData)
               onClick={() => setShowDocumentModal(true)}
             >
               Gestionar Documentos
+              <FileText />
             </button>
           </div>
         </div>
@@ -187,7 +191,7 @@ console.log(serviceData)
           show={showDocumentModal}
           onClose={() => setShowDocumentModal(false)}
         />
-        <button className="btn btn-secondary" onClick={() => navigate(`/detalle-cliente/${serviceData.cliente.id}`)}>Volver</button>
+        <button className="btn btn-secondary" onClick={() => navigate(`/detalle-cliente/${serviceData.cliente.id}`)}>Regresar</button>
       </div>
     </>
   );
