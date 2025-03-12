@@ -4,6 +4,7 @@ import * as XLSX from 'xlsx';
 import { Context } from '../store/appContext';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { NotebookPen } from 'lucide-react';
 
 const DataEntryPage = () => {
   const { actions } = useContext(Context);
@@ -44,7 +45,7 @@ const DataEntryPage = () => {
   return (
     <>
       <div className="container text-center vh-100">
-        <h1>Registro de Clientes y Servicios</h1>
+        <h1><NotebookPen /> Registro de Clientes y Servicios</h1>
         <div className="drag-drop-area border border-success-emphasis rounded p-5">
           <p>Arrastra tu archivo Excel aquí o haz clic para seleccionar</p>
           <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />

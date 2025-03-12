@@ -4,7 +4,7 @@ import { Context } from '../store/appContext';
 import { Search } from 'lucide-react'
 import TotalClient from '../component/TotalCLient.jsx'; // Asegúrate de que la ruta sea correcta
 import "../../styles/clientes.css"
-
+import {UsersRound} from 'lucide-react';
 const Clientes = () => {
   const { store } = useContext(Context);
   const navigate = useNavigate();
@@ -28,7 +28,7 @@ const Clientes = () => {
 
   return (
     <div className='container'>
-      <h1>Clientes</h1>
+      <h1><UsersRound   />Clientes</h1> 
       <h5>Selecciona para detalles</h5>
      
       <div className="d-flex justify-content-between align-items-center mb-3">
