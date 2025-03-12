@@ -369,11 +369,7 @@ const getState = ({ getStore, getActions, setStore }) => {
               }`
             );
           }
-          // Actualizar el estado global con los clientes actualizados
-          const updatedClients = store.clientData.filter(
-            (cliente) => cliente.id !== clientId
-          );
-          setStore({ clientData: updatedClients });
+         
           // Si la respuesta es exitosa, devolver un objeto indicando el éxito
           return { success: true };
         } catch (error) {
