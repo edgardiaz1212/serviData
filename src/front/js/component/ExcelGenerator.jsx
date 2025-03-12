@@ -154,8 +154,6 @@ export const generateExcelServiciosRetiradosMesActual = async (actions) => {
       "Hostname",
       "IP Publica",
       "IP Privada",
-   
-     
     ],
   ];
 
@@ -166,8 +164,7 @@ export const generateExcelServiciosRetiradosMesActual = async (actions) => {
       servicio.cliente.rif,
       servicio.tipo_servicio,
       servicio.contrato,
-      servicio,
-      plan_facturado,
+      servicio.plan_facturado,
       servicio.dominio,
       servicio.hostname,
       servicio.ip_publica,
@@ -197,17 +194,17 @@ export const generateExcelServiciosAprovisionadosMesActual = async (
   // Crear la hoja de cálculo
   const wsData = [
     [
-        "Razón Social",
-        "RIF",
-        "Tipo de Servicio",
-        "Contrato",
-        "Dominio",
-        "Hostname",
-        "Plan Facturado",
-        "Dominio",
-        "Hostname",
-        "IP Publica",
-        "IP Privada",
+      "Razón Social",
+      "RIF",
+      "Tipo de Servicio",
+      "Contrato",
+      "Dominio",
+      "Hostname",
+      "Plan Facturado",
+      "Dominio",
+      "Hostname",
+      "IP Publica",
+      "IP Privada",
     ],
   ];
 
@@ -218,8 +215,7 @@ export const generateExcelServiciosAprovisionadosMesActual = async (
       servicio.cliente.rif,
       servicio.tipo_servicio,
       servicio.contrato,
-      servicio,
-      plan_facturado,
+      servicio.plan_facturado,
       servicio.dominio,
       servicio.hostname,
       servicio.ip_publica,
@@ -260,7 +256,7 @@ export const generateExcelServiciosAprovisionadosPorMes = async (actions) => {
       "Hostname",
       "IP Publica",
       "IP Privada",
-    ]
+    ],
   ];
 
   // Agregar datos
@@ -273,8 +269,7 @@ export const generateExcelServiciosAprovisionadosPorMes = async (actions) => {
         servicio.cliente.rif,
         servicio.tipo_servicio,
         servicio.contrato,
-        servicio,
-        plan_facturado,
+        servicio.plan_facturado,
         servicio.dominio,
         servicio.hostname,
         servicio.ip_publica,
@@ -327,8 +322,7 @@ export const generateExcelServiciosAprovisionadosPorAno = async (actions) => {
             servicio.cliente.rif,
             servicio.tipo_servicio,
             servicio.contrato,
-            servicio,
-            plan_facturado,
+            servicio.plan_facturado,
             servicio.dominio,
             servicio.hostname,
             servicio.ip_publica,
@@ -352,3 +346,97 @@ export const generateExcelServiciosAprovisionadosPorAno = async (actions) => {
     throw error;
   }
 };
+
+// Función para generar el Excel de Todos Servicios y clientes
+
+
+export const generarExcelDataCompleta = async (actions) => {
+    try {
+        // Obtener servicios y clientes
+        const dataCompleta = await actions.getCompleteClientServices();
+        const { clientes, servicios } = dataCompleta;
+
+        // Crear la hoja de clientes
+        const clientesWsData = [
+            ["Razón Social", "Tipo", "RIF", "Fecha de Creación", "Fecha de Actualización"],
+        ];
+        clientes.forEach(cliente => {
+            clientesWsData.push([
+                cliente.razon_social,
+                cliente.tipo,
+                cliente.rif,
+                cliente.created_at ? new Date(cliente.created_at).toLocaleString() : '',
+                cliente.updated_at ? new Date(cliente.updated_at).toLocaleString() : '',
+            ]);
+        });
+
+        // Crear la hoja de servicios
+        const serviciosWsData = [
+            [
+                "Razón Social", "Contrato", "Tipo de Servicio", "Estado del Contrato", "Facturado",
+                "Plan Anterior", "Plan Facturado", "Plan Aprovisionado", "Plan de Servicio", "Descripción", "Estado del Servicio",
+                "Dominio", "DNS del Dominio", "Ubicación", "Ubicación en la Sala", "Cantidad de RU", "Cantidad de m2", "Cantidad de Bastidores",
+                "Hostname", "Nombre del Servidor", "Nombre del Nodo", "Nombre de la Plataforma", "RAM (GB)", "HDD (GB)", "CPU (GHz)", "Datastore",
+                "IP Privada", "IP Pública", "VLAN", "IPAM", "Observaciones", "Comentarios", "Fecha de Creación", "Fecha de Actualización"
+            ],
+        ];
+        servicios.forEach(servicio => {
+            serviciosWsData.push([
+                servicio.cliente ? servicio.cliente.razon_social : '',
+                servicio.contrato,
+                servicio.tipo_servicio,
+                servicio.estado_contrato,
+                servicio.facturado,
+                servicio.plan_anterior,
+                servicio.plan_facturado,
+                servicio.plan_aprovisionado,
+                servicio.plan_servicio,
+                servicio.descripcion,
+                servicio.estado_servicio,
+                servicio.dominio,
+                servicio.dns_dominio,
+                servicio.ubicacion,
+                servicio.ubicacion_sala,
+                servicio.cantidad_ru,
+                servicio.cantidad_m2,
+                servicio.cantidad_bastidores,
+                servicio.hostname,
+                servicio.nombre_servidor,
+                servicio.nombre_nodo,
+                servicio.nombre_plataforma,
+                servicio.ram,
+                servicio.hdd,
+                servicio.cpu,
+                servicio.datastore,
+                servicio.ip_privada,
+                servicio.ip_publica,
+                servicio.vlan,
+                servicio.ipam,
+                servicio.observaciones,
+                servicio.comentarios,
+                servicio.created_at ? new Date(servicio.created_at).toLocaleString() : '',
+                servicio.updated_at ? new Date(servicio.updated_at).toLocaleString() : '',
+            ]);
+        });
+
+        // Crear las hojas de Excel
+        const clientesWs = XLSX.utils.aoa_to_sheet(clientesWsData);
+        const serviciosWs = XLSX.utils.aoa_to_sheet(serviciosWsData);
+
+        // Agregar filtros a la primera fila
+        clientesWs['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: 0, c: clientesWsData[0].length - 1 } }) };
+        serviciosWs['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: 0, c: serviciosWsData[0].length - 1 } }) };
+
+        // Crear el libro de Excel
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, clientesWs, "Clientes");
+        XLSX.utils.book_append_sheet(wb, serviciosWs, "Servicios");
+
+        // Descargar el archivo
+        XLSX.writeFile(wb, `datos-completos-${new Date().toLocaleDateString()}.xlsx`);
+    } catch (error) {
+        console.error("Error generando Excel:", error);
+        throw error;
+    }
+};
+

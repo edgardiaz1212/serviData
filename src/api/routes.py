@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, url_for, Blueprint, session, send_fil
 from werkzeug.utils import secure_filename
 import io
 import os
+from io import BytesIO
 from api.models import db, User, Cliente, Servicio, Documento
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
@@ -808,7 +809,29 @@ def get_servicios_aprovisionados_por_ano():
         return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@api.route('/exportar-datos-completos', methods=['GET'])
+def exportar_datos_completos():
+    try:
+        # Obtener todos los clientes con sus servicios
+        clientes = Cliente.query.options(db.joinedload(Cliente.servicios)).all()
 
+        # Serializar los datos
+        clientes_data = [cliente.serialize() for cliente in clientes]
+        servicios_data = []
+        for cliente in clientes:
+            for servicio in cliente.servicios:
+                servicio_data = servicio.serialize()
+                servicio_data["razon_social"] = cliente.razon_social  # Agregar razón social del cliente
+                servicios_data.append(servicio_data)
+
+        return jsonify({
+            "clientes": clientes_data,
+            "servicios": servicios_data
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 #acciones generales
 @api.route('/upload-document/<entity_type>/<int:entity_id>', methods=['POST'])
 def upload_document(entity_type, entity_id):

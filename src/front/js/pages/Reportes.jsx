@@ -12,6 +12,7 @@ import {
     generateExcelServiciosAprovisionadosMesActual,
     generateExcelServiciosAprovisionadosPorMes,
     generateExcelServiciosAprovisionadosPorAno,
+    generarExcelDataCompleta,
 } from '../component/ExcelGenerator.jsx';
 
 function Reportes() {
@@ -173,6 +174,18 @@ function Reportes() {
         }
     };
 
+    // Función para generar el Excel de Servicios Aprovisionados por Año
+    const handleGenerateExcelDataCompleta = async () => {
+        setLoading(true);
+        try {
+            await generarExcelDataCompleta(actions);
+        } catch (error) {
+            toast.error('Error generando Excel: ' + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <>
             <ToastContainer />
@@ -259,6 +272,15 @@ function Reportes() {
                                 style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
                             >
                                 Servicios Nuevos aprovisionados por año (xls)
+                            
+                            </p>
+                            <p
+                                className="pdf-link"
+                                onClick={handleGenerateExcelDataCompleta}
+                                style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+                            >
+                                Todos los servicios  (xls)
+                            
                             </p>
                         </div>
                     </div>

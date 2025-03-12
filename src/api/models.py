@@ -32,23 +32,18 @@ class Servicio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'))
     contrato = db.Column(db.String)
+    estado_contrato = db.Column(db.String)
+    estado_servicio = db.Column(db.String, default="Nuevo")  # Valores posibles: "Nuevo", "Aprovisionado", "Reaprovisionado"
     dominio = db.Column(db.String)
     dns_dominio = db.Column(db.String)
-    plan_anterior = db.Column(db.String)
-    plan_facturado = db.Column(db.String)
-    descripcion = db.Column(db.String)
-    estado_contrato = db.Column(db.String)
-    ubicacion = db.Column(db.String)
-    observaciones = db.Column(db.String)
-    facturado = db.Column(db.String)
-    comentarios = db.Column(db.String)
+    tipo_servicio = db.Column(db.String)  
     plan_aprovisionado = db.Column(db.String)
     plan_servicio = db.Column(db.String)
-    cantidad_ru = db.Column(db.Integer)
-    cantidad_m2 = db.Column(db.Integer)
-    cantidad_bastidores =db.Column(db.Integer)
+    plan_anterior = db.Column(db.String)
+    plan_facturado = db.Column(db.String)
+    facturado = db.Column(db.String)
+    descripcion = db.Column(db.String)
     hostname = db.Column(db.String)
-    ubicacion_sala = db.Column(db.String)
     ip_privada = db.Column(db.String)
     ip_publica = db.Column(db.String)
     vlan = db.Column(db.String)
@@ -60,53 +55,55 @@ class Servicio(db.Model):
     ram = db.Column(db.Integer)
     hdd = db.Column(db.Integer)
     cpu = db.Column(db.Integer) 
-    estado_servicio = db.Column(db.String, default="Nuevo")  # Valores posibles: "Nuevo", "Aprovisionado", "Reaprovisionado"
-    tipo_servicio = db.Column(db.String)  # New field added for service type
-
+    cantidad_ru = db.Column(db.Integer)
+    cantidad_m2 = db.Column(db.Integer)
+    cantidad_bastidores =db.Column(db.Integer)
+    ubicacion = db.Column(db.String)
+    ubicacion_sala = db.Column(db.String)
+    observaciones = db.Column(db.String)
+    comentarios = db.Column(db.String)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))  # Fecha de creación
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))  # Fecha de actualización
-    
     documentos = db.relationship("Documento", back_populates="servicio")
     cliente = db.relationship("Cliente", back_populates="servicios")
 
     def serialize(self):
         return {
-            'id': self.id,
-            'tipo_servicio': self.tipo_servicio,
-            'cliente_id': self.cliente_id,
-            'contrato': self.contrato,
-            'dominio': self.dominio,
-            'dns_dominio': self.dns_dominio,
-            'plan_anterior': self.plan_anterior,
-            'plan_facturado': self.plan_facturado,
-            'descripcion': self.descripcion,
-            'estado_contrato': self.estado_contrato,
-            'ubicacion': self.ubicacion,
-            'observaciones': self.observaciones,
-            'facturado': self.facturado,
-            'comentarios': self.comentarios,
-            'plan_aprovisionado': self.plan_aprovisionado,
-            'plan_servicio': self.plan_servicio,
-            'cantidad_ru': self.cantidad_ru,
-            'cantidad_m2': self.cantidad_m2,
-            'cantidad_bastidores':self.cantidad_bastidores,
-            'hostname': self.hostname,
-            'ubicacion_sala': self.ubicacion_sala,
-            'ip_privada': self.ip_privada,
-            'ip_publica': self.ip_publica,
-            'vlan': self.vlan,
-            'ipam': self.ipam,
-            'datastore': self.datastore,
-            'nombre_servidor': self.nombre_servidor,
-            'nombre_nodo': self.nombre_nodo,
-            'nombre_plataforma': self.nombre_plataforma,
-            'ram': self.ram,
-            'hdd': self.hdd,
-            'cpu': self.cpu,
-            'estado_servicio': self.estado_servicio,
-            'documentos': [doc.serialize() for doc in self.documentos],
-            'created_at': self.created_at.isoformat(),
-            'updated_at': self.updated_at.isoformat(),
+            "id": self.id,
+            "cliente": self.cliente.serialize() if self.cliente else None,
+            "contrato": self.contrato,
+            "estado_contrato": self.estado_contrato,
+            "estado_servicio": self.estado_servicio,
+            "dominio": self.dominio,
+            "dns_dominio": self.dns_dominio,
+            "tipo_servicio": self.tipo_servicio,
+            "plan_aprovisionado": self.plan_aprovisionado,
+            "plan_servicio": self.plan_servicio,
+            "plan_anterior": self.plan_anterior,
+            "plan_facturado": self.plan_facturado,
+            "facturado": self.facturado,
+            "descripcion": self.descripcion,
+            "hostname": self.hostname,
+            "ip_privada": self.ip_privada,
+            "ip_publica": self.ip_publica,
+            "vlan": self.vlan,
+            "ipam": self.ipam,
+            "datastore": self.datastore,
+            "nombre_servidor": self.nombre_servidor,
+            "nombre_nodo": self.nombre_nodo,
+            "nombre_plataforma": self.nombre_plataforma,
+            "ram": self.ram,
+            "hdd": self.hdd,
+            "cpu": self.cpu,
+            "cantidad_ru": self.cantidad_ru,
+            "cantidad_m2": self.cantidad_m2,
+            "cantidad_bastidores": self.cantidad_bastidores,
+            "ubicacion": self.ubicacion,
+            "ubicacion_sala": self.ubicacion_sala,
+            "observaciones": self.observaciones,
+            "comentarios": self.comentarios,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
 class User(db.Model):

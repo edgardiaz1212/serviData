@@ -756,6 +756,20 @@ const getState = ({ getStore, getActions, setStore }) => {
             return [];
         }
     },
+    getCompleteClientServices: async () => {
+        try {
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/exportar-datos-completos`
+            );
+            if (!response.ok) {
+                throw new Error("Error al obtener el datos completos");
+            }
+            return await response.json();
+        } catch (error) {
+            console.error("Error fetching datos completos:", error);
+            return [];
+        }
+    },
       //Acciones generales
       // Document handling actions
       uploadDocument: async (entityType, entityId, formData) => {
