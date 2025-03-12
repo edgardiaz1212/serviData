@@ -12,7 +12,7 @@ const ButtonDelete = ({handleDelete}) => {
 const StyledWrapper = styled.div`
   button {
    width: 210px;
-   height: 40px;
+   height: 50px;
    cursor: pointer;
    display: flex;
    align-items: center;

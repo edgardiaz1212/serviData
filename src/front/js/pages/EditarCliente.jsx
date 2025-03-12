@@ -4,6 +4,7 @@ import { Context } from "../store/appContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ButtonDelete from "../component/ButtonDelete";
+import ButtonSave from "../component/ButtonSave";
 
 const EditarCliente = () => {
   const { clientId } = useParams();
@@ -100,29 +101,31 @@ const EditarCliente = () => {
           onChange={handleChange}
         />
       </div>
-     <div className="mb-3">
-  <label htmlFor="validationTipo" className="form-label">Tipo</label>
-  <select
-    className="form-control"
-    name="tipo"
-    value={clientData.tipo}
-    onChange={handleChange} // Asegúrate que handleChange maneje los cambios correctamente
-    id="validationTipo"
-    required
-  >
-    <option value="" disabled>Seleccione Tipo</option>
-    <option value="Pública">Pública</option>
-    <option value="Privada">Privada</option>
-  </select>
-</div> {/* <button className="btn btn-danger mt-3 ms-2" onClick={handleDelete}>
-        Eliminar Cliente y Servicios
-      </button> */}
-      <div className="d-flex gap-2"> {/* Agrega d-flex y gap-2 (o el valor de gap que prefieras) */}
-  <button className="btn btn-primary" onClick={handleSave}>
-    Guardar
-  </button>
-  <ButtonDelete handleDelete={handleDelete} />
-</div>
+      <div className="mb-3">
+        <label htmlFor="validationTipo" className="form-label">
+          Tipo
+        </label>
+        <select
+          className="form-control"
+          name="tipo"
+          value={clientData.tipo}
+          onChange={handleChange} // Asegúrate que handleChange maneje los cambios correctamente
+          id="validationTipo"
+          required
+        >
+          <option value="" disabled>
+            Seleccione Tipo
+          </option>
+          <option value="Pública">Pública</option>
+          <option value="Privada">Privada</option>
+        </select>
+      </div>
+      <div className="d-flex gap-2">
+        {" "}
+        {/* Agrega d-flex y gap-2 (o el valor de gap que prefieras) */}
+        <ButtonSave handleSave={handleSave} />
+        <ButtonDelete handleDelete={handleDelete} />
+      </div>
       <button
         className="btn btn-secondary mt-3 ms-2"
         onClick={() => navigate(`/detalle-cliente/${clientId}`)}

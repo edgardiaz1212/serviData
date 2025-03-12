@@ -71,6 +71,7 @@ class Servicio(db.Model):
         return {
             "id": self.id,
             "cliente": self.cliente.serialize() if self.cliente else None,
+            "cliente_id": self.cliente_id,
             "contrato": self.contrato,
             "estado_contrato": self.estado_contrato,
             "estado_servicio": self.estado_servicio,

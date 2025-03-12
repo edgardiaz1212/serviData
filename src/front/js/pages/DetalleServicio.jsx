@@ -37,7 +37,7 @@ const DetalleServicio = () => {
   const handleEditClick = () => {
     navigate(`/editar-servicio/${serviceId}`);
   };
-
+console.log(serviceData)
   return (
     <>
       <div className="container">
@@ -187,7 +187,7 @@ const DetalleServicio = () => {
           show={showDocumentModal}
           onClose={() => setShowDocumentModal(false)}
         />
-        <button className="btn btn-secondary" onClick={() => navigate('/clientes')}>Volver</button>
+        <button className="btn btn-secondary" onClick={() => navigate(`/detalle-cliente/${serviceData.cliente.id}`)}>Volver</button>
       </div>
     </>
   );

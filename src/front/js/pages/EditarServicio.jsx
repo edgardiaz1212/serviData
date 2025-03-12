@@ -4,6 +4,7 @@ import { Context } from '../store/appContext';
 import DatosServicio from '../component/DatosServicio.jsx';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ButtonSave from '../component/ButtonSave.jsx';
 
 function EditarServicio() {
     const { serviceId, clientId } = useParams();
@@ -89,6 +90,7 @@ function EditarServicio() {
             <button className="btn btn-primary mt-3" onClick={handleSave}>
                 Guardar
             </button>
+            <ButtonSave handleSave={handleSave}/>
             <button className="btn btn-danger mt-3 ms-2" onClick={handleDelete}>
                 Eliminar
             </button>
