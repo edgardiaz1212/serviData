@@ -260,6 +260,7 @@ export const generateExcelServiciosAprovisionadosPorMes = async (actions) => {
       "Hostname",
       "IP Publica",
       "IP Privada",
+    ]
   ];
 
   // Agregar datos
