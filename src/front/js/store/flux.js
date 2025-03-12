@@ -269,7 +269,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during getting client data", error);
         }
       },
-      getClientbyTipo : async (tipo) => {
+      getClientbyTipo: async (tipo) => {
         const store = getStore;
         try {
           const response = await fetch(
@@ -348,6 +348,7 @@ const getState = ({ getStore, getActions, setStore }) => {
         }
       },
       deleteClientAndServices: async (clientId) => {
+        const store = getStore;
         try {
           const response = await fetch(
             `${process.env.REACT_APP_BACKEND_URL}/clients/${clientId}`,
@@ -368,7 +369,11 @@ const getState = ({ getStore, getActions, setStore }) => {
               }`
             );
           }
-
+          // Actualizar el estado global con los clientes actualizados
+          const updatedClients = store.clientData.filter(
+            (cliente) => cliente.id !== clientId
+          );
+          setStore({ clientData: updatedClients });
           // Si la respuesta es exitosa, devolver un objeto indicando el éxito
           return { success: true };
         } catch (error) {
@@ -517,24 +522,24 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
       getServiceCountsByType: async () => {
         try {
-            const response = await fetch(
-                `${process.env.REACT_APP_BACKEND_URL}/service-counts-by-type`
-            );
-            if (response.ok) {
-                const data = await response.json();
-                if (Object.keys(data).length === 0) {
-                    console.warn("No service counts data available");
-                    setStore({ serviceCountsByType: {} });
-                } else {
-                    setStore({ serviceCountsByType: data });
-                }
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/service-counts-by-type`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            if (Object.keys(data).length === 0) {
+              console.warn("No service counts data available");
+              setStore({ serviceCountsByType: {} });
             } else {
-                console.error("Failed to get service counts by type");
+              setStore({ serviceCountsByType: data });
             }
+          } else {
+            console.error("Failed to get service counts by type");
+          }
         } catch (error) {
-            console.log("Error during getting service counts by type", error);
+          console.log("Error during getting service counts by type", error);
         }
-    },
+      },
       getServiceCountsByClientType: async (clientType) => {
         try {
           const response = await fetch(
@@ -700,101 +705,111 @@ const getState = ({ getStore, getActions, setStore }) => {
           return { success: false, message: error.message };
         }
       },
-        getServiciosRetiradosPorMes : async (month, year) => {
+      getServiciosRetiradosPorMes: async (month, year) => {
         try {
-            const response = await fetch(
-                `${process.env.REACT_APP_BACKEND_URL}/servicios-retirados-por-mes?month=${month}&year=${year}`
-            );
-            if (!response.ok) {
-                throw new Error("Error al obtener servicios retirados");
-            }
-            return await response.json();
-        } catch (error) {
-            console.error("Error fetching servicios retirados:", error);
-            return [];
-        }
-    },
-    
-    getServiciosAprovisionadosPorMes : async (month, year) => {
-        try {
-            const response = await fetch(
-                `${process.env.REACT_APP_BACKEND_URL}/servicios-aprovisionados-por-mes?month=${month}&year=${year}`
-            );
-            if (!response.ok) {
-                throw new Error("Error al obtener servicios aprovisionados");
-            }
-            return await response.json();
-        } catch (error) {
-            console.error("Error fetching servicios aprovisionados:", error);
-            return [];
-        }
-    },
-    getServiciosAprovisionadosPorMesAnual : async (year) => {
-        try {
-            const response = await fetch(
-                `${process.env.REACT_APP_BACKEND_URL}/servicios-aprovisionados-por-mes-anual?year=${year}`
-            );
-            if (!response.ok) {
-                throw new Error("Error al obtener servicios aprovisionados por mes");
-            }
-            return await response.json();
-        } catch (error) {
-            console.error("Error fetching servicios aprovisionados por mes:", error);
-            return [];
-        }
-    },
-    getServiciosAprovisionadosPorAno : async () => {
-        try {
-            const response = await fetch(
-                `${process.env.REACT_APP_BACKEND_URL}/servicios-aprovisionados-por-ano`
-            );
-            if (!response.ok) {
-                throw new Error("Error al obtener servicios aprovisionados por año");
-            }
-            return await response.json();
-        } catch (error) {
-            console.error("Error fetching servicios aprovisionados por año:", error);
-            return [];
-        }
-    },
-    getServiciosActivos: async () => {
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/servicios-activos`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/servicios-retirados-por-mes?month=${month}&year=${year}`
+          );
+          if (!response.ok) {
+            throw new Error("Error al obtener servicios retirados");
           }
-        );
-        if (response.ok) {
-          const data = await response.json();
-          return data;
-        } else {
-          console.error("Failed to get active services");
-          throw new Error("Failed to fetch active services");
-        }
-      } catch (error) {
-        console.error("Error during getting active services", error);
-        throw error;
-      }
-    },
-
-    getCompleteClientServices: async () => {
-        try {
-            const response = await fetch(
-                `${process.env.REACT_APP_BACKEND_URL}/exportar-datos-completos`
-            );
-            if (!response.ok) {
-                throw new Error("Error al obtener el datos completos");
-            }
-            return await response.json();
+          return await response.json();
         } catch (error) {
-            console.error("Error fetching datos completos:", error);
-            return [];
+          console.error("Error fetching servicios retirados:", error);
+          return [];
         }
-    },
+      },
+
+      getServiciosAprovisionadosPorMes: async (month, year) => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/servicios-aprovisionados-por-mes?month=${month}&year=${year}`
+          );
+          if (!response.ok) {
+            throw new Error("Error al obtener servicios aprovisionados");
+          }
+          return await response.json();
+        } catch (error) {
+          console.error("Error fetching servicios aprovisionados:", error);
+          return [];
+        }
+      },
+      getServiciosAprovisionadosPorMesAnual: async (year) => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/servicios-aprovisionados-por-mes-anual?year=${year}`
+          );
+          if (!response.ok) {
+            throw new Error(
+              "Error al obtener servicios aprovisionados por mes"
+            );
+          }
+          return await response.json();
+        } catch (error) {
+          console.error(
+            "Error fetching servicios aprovisionados por mes:",
+            error
+          );
+          return [];
+        }
+      },
+      getServiciosAprovisionadosPorAno: async () => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/servicios-aprovisionados-por-ano`
+          );
+          if (!response.ok) {
+            throw new Error(
+              "Error al obtener servicios aprovisionados por año"
+            );
+          }
+          return await response.json();
+        } catch (error) {
+          console.error(
+            "Error fetching servicios aprovisionados por año:",
+            error
+          );
+          return [];
+        }
+      },
+      getServiciosActivos: async () => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/servicios-activos`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          } else {
+            console.error("Failed to get active services");
+            throw new Error("Failed to fetch active services");
+          }
+        } catch (error) {
+          console.error("Error during getting active services", error);
+          throw error;
+        }
+      },
+
+      getCompleteClientServices: async () => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/exportar-datos-completos`
+          );
+          if (!response.ok) {
+            throw new Error("Error al obtener el datos completos");
+          }
+          return await response.json();
+        } catch (error) {
+          console.error("Error fetching datos completos:", error);
+          return [];
+        }
+      },
       //Acciones generales
       // Document handling actions
       uploadDocument: async (entityType, entityId, formData) => {
