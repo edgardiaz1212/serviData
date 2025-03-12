@@ -2,7 +2,8 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Context } from "../store/appContext";
 import ModalDocumentLoad from "../component/ModalDocumentLoad.jsx";
-import ServiceCard from "../component/ServiceCard.jsx"; // Nuevo componente para servicios
+import ServiceCard from "../component/ServiceCard.jsx";
+import GenerarInformePDF from "../component/GenerarInformePDF.jsx"; // Importa el nuevo componente
 
 function DetalleCliente({ clientData: propClientData }) {
     const { clientId } = useParams();
@@ -112,19 +113,23 @@ function DetalleCliente({ clientData: propClientData }) {
                         <option value="activos">Activos</option>
                         <option value="retirados">Retirados</option>
                     </select>
-                    <button>Descargar Informe</button>
+                    {/* Botón para generar el informe */}
+                    {filteredServices.length > 0 && (
+                        <GenerarInformePDF
+                            razonSocial={clientData.razon_social}
+                            rif={clientData.rif}
+                            servicios={filteredServices}
+                        />
+                    )}
                 </div>
                 <ul className="list-group">
                     {filteredServices.length > 0 ? (
                         filteredServices.map((service, index) => (
-                        <>
                             <ServiceCard
                                 key={index}
                                 service={service}
                                 onClick={() => handleServiceClick(service.id)}
                             />
-                            
-                            </>
                         ))
                     ) : (
                         <li className="list-group-item">
