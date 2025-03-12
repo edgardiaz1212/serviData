@@ -145,10 +145,17 @@ export const generateExcelServiciosRetiradosMesActual = async (actions) => {
     [
       "Razón Social",
       "RIF",
+      "Tipo de Servicio",
       "Contrato",
       "Dominio",
       "Hostname",
-      "Tipo de Servicio",
+      "Plan Facturado",
+      "Dominio",
+      "Hostname",
+      "IP Publica",
+      "IP Privada",
+   
+     
     ],
   ];
 
@@ -190,12 +197,17 @@ export const generateExcelServiciosAprovisionadosMesActual = async (
   // Crear la hoja de cálculo
   const wsData = [
     [
-      "Razón Social",
-      "RIF",
-      "Contrato",
-      "Dominio",
-      "Hostname",
-      "Tipo de Servicio",
+        "Razón Social",
+        "RIF",
+        "Tipo de Servicio",
+        "Contrato",
+        "Dominio",
+        "Hostname",
+        "Plan Facturado",
+        "Dominio",
+        "Hostname",
+        "IP Publica",
+        "IP Privada",
     ],
   ];
 
@@ -239,11 +251,15 @@ export const generateExcelServiciosAprovisionadosPorMes = async (actions) => {
       "Mes",
       "Razón Social",
       "RIF",
+      "Tipo de Servicio",
       "Contrato",
       "Dominio",
       "Hostname",
-      "Tipo de Servicio",
-    ],
+      "Plan Facturado",
+      "Dominio",
+      "Hostname",
+      "IP Publica",
+      "IP Privada",
   ];
 
   // Agregar datos
@@ -286,10 +302,15 @@ export const generateExcelServiciosAprovisionadosPorAno = async (actions) => {
         "Año",
         "Razón Social",
         "RIF",
+        "Tipo de Servicio",
         "Contrato",
         "Dominio",
         "Hostname",
-        "Tipo de Servicio",
+        "Plan Facturado",
+        "Dominio",
+        "Hostname",
+        "IP Publica",
+        "IP Privada",
       ],
     ];
 
