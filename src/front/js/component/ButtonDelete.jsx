@@ -4,21 +4,21 @@ import styled from 'styled-components';
 const ButtonDelete = ({handleDelete}) => {
   return (
     <StyledWrapper>
-      <button className="noselect" onClick={handleDelete}><span className="text" >Eliminar Cliente y Servicio</span><span className="icon"><svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24"><path d="M24 20.188l-8.315-8.209 8.2-8.282-3.697-3.697-8.212 8.318-8.31-8.203-3.666 3.666 8.321 8.24-8.206 8.313 3.666 3.666 8.237-8.318 8.285 8.203z" /></svg></span></button>
+      <button className="noselect" onClick={handleDelete}><span className="text" >Eliminar</span><span className="icon"><svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24"><path d="M24 20.188l-8.315-8.209 8.2-8.282-3.697-3.697-8.212 8.318-8.31-8.203-3.666 3.666 8.321 8.24-8.206 8.313 3.666 3.666 8.237-8.318 8.285 8.203z" /></svg></span></button>
     </StyledWrapper>
   );
 }
 
 const StyledWrapper = styled.div`
   button {
-   width: 210px;
+   width: 120px;
    height: 50px;
    cursor: pointer;
    display: flex;
    align-items: center;
    background: red;
    border: none;
-   border-radius: 5px;
+   border-radius: 10px;
    box-shadow: 1px 1px 3px rgba(0,0,0,0.15);
    background: #e62222;
   }
@@ -28,15 +28,15 @@ const StyledWrapper = styled.div`
   }
 
   button .text {
-   transform: translateX(1px);
+   transform: translateX(3px);
    color: white;
    
   }
 
   button .icon {
    position: absolute;
-   
-   transform: translateX(170px);
+   border-left: 1px solid #ff3636;
+   transform: translateX(70px);
    height: 40px;
    width: 45px;
    display: flex;
@@ -58,7 +58,7 @@ const StyledWrapper = styled.div`
   }
 
   button:hover .icon {
-   width: 195px;
+   width: 100px;
    border-left: none;
    transform: translateX(0);
   }
