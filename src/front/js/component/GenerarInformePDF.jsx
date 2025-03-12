@@ -24,9 +24,7 @@ const styles = StyleSheet.create({
     table: {
         display: "table",
         width: "100%",
-        // borderStyle: "solid",
-        // borderWidth: 1,
-        // borderColor: "#000",
+        
     },
     tableRow: {
         flexDirection: "row",
@@ -47,26 +45,33 @@ const styles = StyleSheet.create({
         borderColor: "#000",
         padding: 5,
     },
-});
+})
 
 const InformePDF = ({ razonSocial, rif, servicios }) => {
-    // Función para verificar si una columna está vacía o contiene solo ceros
     const isColumnEmpty = (columnData) => {
         return columnData.every(value => !value);
     };
 
-    // Extraer datos de las columnas
     const tipoServicioData = servicios.map(servicio => servicio.tipo_servicio);
     const contratoData = servicios.map(servicio => servicio.contrato);
     const dominioData = servicios.map(servicio => servicio.dominio);
-    const estadoServicioData = servicios.map(servicio => servicio.estado_servicio);
+    const hostnameData = servicios.map(servicio => servicio.hostname);
+    const planServicioData = servicios.map(servicio => servicio.plan_servicio);
+    const ramData = servicios.map(servicio => servicio.ram);
+    const hddData = servicios.map(servicio => servicio.hdd);
+    const cpuData = servicios.map(servicio => servicio.cpu);
+    const cantidadRuData = servicios.map(servicio => servicio.cantidad_ru);
+    const cantidadM2Data = servicios.map(servicio => servicio.cantidad_m2);
 
     return (
         <Document>
-            <Page size="A4" style={styles.page}>
+            <Page size="letter" orientation="landscape" style={styles.page}>
                 <View style={styles.header}>
                     <Image src={logo} style={styles.logo} />
-                    <Text style={styles.title}>Datos de {razonSocial} - RIF: {rif}</Text>
+                    <View>
+                        <Text style={styles.tittle}>Centro De Datos El Hatillo</Text>
+                        <Text style={styles.title}>Datos de {razonSocial} - RIF: {rif}</Text>
+                    </View>
                 </View>
 
                 <View style={styles.table}>
@@ -74,7 +79,13 @@ const InformePDF = ({ razonSocial, rif, servicios }) => {
                         {!isColumnEmpty(tipoServicioData) && <Text style={styles.tableColHeader}>Tipo de Servicio</Text>}
                         {!isColumnEmpty(contratoData) && <Text style={styles.tableColHeader}>Contrato</Text>}
                         {!isColumnEmpty(dominioData) && <Text style={styles.tableColHeader}>Dominio</Text>}
-                        {!isColumnEmpty(estadoServicioData) && <Text style={styles.tableColHeader}>Estado</Text>}
+                        {!isColumnEmpty(hostnameData) && <Text style={styles.tableColHeader}>Hostname</Text>}
+                        {!isColumnEmpty(planServicioData) && <Text style={styles.tableColHeader}>Plan de Servicio</Text>}
+                        {!isColumnEmpty(ramData) && <Text style={styles.tableColHeader}>RAM</Text>}
+                        {!isColumnEmpty(hddData) && <Text style={styles.tableColHeader}>HDD</Text>}
+                        {!isColumnEmpty(cpuData) && <Text style={styles.tableColHeader}>CPU</Text>}
+                        {!isColumnEmpty(cantidadRuData) && <Text style={styles.tableColHeader}>Cantidad Unidades Rack</Text>}
+                        {!isColumnEmpty(cantidadM2Data) && <Text style={styles.tableColHeader}>Cantidad m2</Text>}
                     </View>
 
                     {servicios.map((servicio, index) => (
@@ -82,7 +93,13 @@ const InformePDF = ({ razonSocial, rif, servicios }) => {
                             {!isColumnEmpty(tipoServicioData) && <Text style={styles.tableCol}>{servicio.tipo_servicio || ""}</Text>}
                             {!isColumnEmpty(contratoData) && <Text style={styles.tableCol}>{servicio.contrato || ""}</Text>}
                             {!isColumnEmpty(dominioData) && <Text style={styles.tableCol}>{servicio.dominio || ""}</Text>}
-                            {!isColumnEmpty(estadoServicioData) && <Text style={styles.tableCol}>{servicio.estado_servicio || ""}</Text>}
+                            {!isColumnEmpty(hostnameData) && <Text style={styles.tableCol}>{servicio.hostname || ""}</Text>}
+                            {!isColumnEmpty(planServicioData) && <Text style={styles.tableCol}>{servicio.plan_servicio || ""}</Text>}
+                            {!isColumnEmpty(ramData) && <Text style={styles.tableCol}>{servicio.ram || ""}</Text>}
+                            {!isColumnEmpty(hddData) && <Text style={styles.tableCol}>{servicio.hdd || ""}</Text>}
+                            {!isColumnEmpty(cpuData) && <Text style={styles.tableCol}>{servicio.cpu || ""}</Text>}
+                            {!isColumnEmpty(cantidadRuData) && <Text style={styles.tableCol}>{servicio.cantidad_ru || ""}</Text>}
+                            {!isColumnEmpty(cantidadM2Data) && <Text style={styles.tableCol}>{servicio.cantidad_m2 || ""}</Text>}
                         </View>
                     ))}
                 </View>
