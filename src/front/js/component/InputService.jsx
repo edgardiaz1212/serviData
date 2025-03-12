@@ -4,6 +4,7 @@ import { Context } from '../store/appContext'; // Import Context to access actio
 import DatosServicio from '../component/DatosServicio.jsx'; // Import DatosServicio component
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ButtonSave from './ButtonSave.jsx';
 
 function InputService({ clientData }) {
   const navigate = useNavigate(); // Initialize navigate for navigation
@@ -49,23 +50,24 @@ function InputService({ clientData }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (e.target.checkValidity() === false) {
+    const form = e.target.closest('form');
+    
+    if (form.checkValidity() === false) {
       e.stopPropagation();
       toast.error('Por favor, complete todos los campos obligatorios.');
     } else {
       try {
-        await actions.addServiceData({ ...serviceData, cliente_id: clientData.id}); // Send data to backend
+        await actions.addServiceData({ ...serviceData, cliente_id: clientData.id });
         toast.success('Datos del servicio enviados correctamente');
       
         setTimeout(() => {
-          navigate("/data-registro"); // Redirect to Manual Data Entry if client not found
-        }, 1500)
+          navigate("/data-registro");
+        }, 1500);
       } catch (error) {
         toast.error('Error al enviar los datos del servicio');
         console.error('Error submitting service data:', error);
       }
     }
-    
   };
 
   return (
@@ -78,10 +80,8 @@ function InputService({ clientData }) {
           handleChange={handleChange}
         />
        
+        <ButtonSave handleSave={handleSubmit} />
         
-        <button className="btn btn-success mt-2 w-25" type="submit">
-          Guardar
-        </button>
       </form>
       <ToastContainer />
     </>
