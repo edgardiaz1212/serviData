@@ -76,10 +76,7 @@ function InputClienteServicio({ onSubmit }) {
         toast.success(
           "Datos del cliente y del servicio enviados correctamente"
         );
-        console.log("Client and Service data submitted:", {
-          clientData,
-          serviceData,
-        });
+        ;
         if (onSubmit) onSubmit();
 
         setTimeout(() => {

@@ -38,7 +38,7 @@ const DetalleServicio = () => {
   const handleEditClick = () => {
     navigate(`/editar-servicio/${serviceId}`);
   };
-console.log(serviceData)
+
   return (
     <>
       <div className="container">
