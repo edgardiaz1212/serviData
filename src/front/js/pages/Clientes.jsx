@@ -28,7 +28,8 @@ const Clientes = () => {
 
   return (
     <div className='container'>
-      <h1><UsersRound   />Clientes</h1> 
+      <h1><UsersRound /> Clientes</h1>
+      <p>Visualice y gestione los clientes registrados. Filtre por tipo (Privada/Pública) y utilice la búsqueda para encontrar clientes específicos.</p>
       <h5>Selecciona para detalles</h5>
      
       <div className="d-flex justify-content-between align-items-center mb-3">

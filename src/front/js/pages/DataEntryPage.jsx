@@ -1,15 +1,15 @@
-import React, { useState, useContext } from 'react';
-import { Link } from 'react-router-dom';
-import * as XLSX from 'xlsx';
-import { Context } from '../store/appContext';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { NotebookPen } from 'lucide-react';
+import React, { useState, useContext } from "react";
+import { Link } from "react-router-dom";
+import * as XLSX from "xlsx";
+import { Context } from "../store/appContext";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { NotebookPen } from "lucide-react";
 
 const DataEntryPage = () => {
   const { actions } = useContext(Context);
   const [excelData, setExcelData] = useState([]);
-  const [estadoServicio, setEstadoServicio] = useState('Nuevo'); // Estado inicial
+  const [estadoServicio, setEstadoServicio] = useState("Nuevo"); // Estado inicial
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
@@ -24,7 +24,7 @@ const DataEntryPage = () => {
 
       // Guardar los datos procesados en el estado
       setExcelData(jsonData);
-      toast.success('Archivo cargado correctamente');
+      toast.success("Archivo cargado correctamente");
     };
 
     reader.readAsArrayBuffer(file);
@@ -34,18 +34,24 @@ const DataEntryPage = () => {
     try {
       // Enviar los datos procesados al backend
       await actions.uploadExcelData(excelData, estadoServicio);
-      toast.success('Datos cargados correctamente');
+      toast.success("Datos cargados correctamente");
       // Limpiar el estado para borrar la tabla de vista previa
       setExcelData([]);
     } catch (error) {
-      toast.error('Error al cargar los datos');
+      toast.error("Error al cargar los datos");
     }
   };
 
   return (
     <>
       <div className="container text-center vh-100">
-        <h1><NotebookPen /> Registro de Clientes y Servicios</h1>
+        <h1>
+          <NotebookPen /> Registro de Clientes y Servicios
+        </h1>
+        <p>
+          Utilice esta página para cargar datos de clientes y servicios desde un
+          archivo Excel. Revise la vista previa antes de confirmar la carga.
+        </p>
         <div className="drag-drop-area border border-success-emphasis rounded p-5">
           <p>Arrastra tu archivo Excel aquí o haz clic para seleccionar</p>
           <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
@@ -74,7 +80,9 @@ const DataEntryPage = () => {
               </table>
             </div>
             <div className="form-group mt-3">
-              <label htmlFor="estado_servicio"><strong>Estado del Servicio</strong></label>
+              <label htmlFor="estado_servicio">
+                <strong>Estado del Servicio</strong>
+              </label>
               <select
                 className="form-control"
                 id="estado_servicio"
@@ -87,13 +95,18 @@ const DataEntryPage = () => {
                 <option value="Reaprovisionado">Reaprovisionado</option>
               </select>
             </div>
-            <button className="btn btn-success mt-3 me-2" onClick={handleConfirmUpload}>
+            <button
+              className="btn btn-success mt-3 me-2"
+              onClick={handleConfirmUpload}
+            >
               Correcto, Cargar
             </button>
           </>
         )}
         <Link to="/consulta-clientes-registrados">
-          <button className="btn btn-secondary mt-3">Agregar Manualmente</button>
+          <button className="btn btn-secondary mt-3">
+            Agregar Manualmente
+          </button>
         </Link>
       </div>
       <ToastContainer />
