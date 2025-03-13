@@ -27,7 +27,7 @@ const Resumen = () => {
   // Validar si newServicesCurrentMonth y newServicesPastMonth están definidos
   const newServicesCurrentMonthCount = (store.newServicesCurrentMonth || [])
     .length;
-  const newServicesPastMonthCount = (store.newServicesPastMonth || []).length;
+  const newServicesPastMonthCount = (store.newServicesLastMonth || []).length;
 
   return (
     <>
