@@ -14,6 +14,7 @@ import {
     generateExcelServiciosAprovisionadosPorAno,
     generarExcelDataCompleta,
 } from '../component/ExcelGenerator.jsx';
+import {FileChartLine} from 'lucide-react';
 
 function Reportes() {
     const { actions, store } = useContext(Context);
@@ -151,7 +152,7 @@ function Reportes() {
         <>
             <ToastContainer />
             <div className="container">
-                <h1>Reportes</h1>
+                <h1><FileChartLine /> Reportes</h1>
                 <div className="row justify-content-between">
                     <div className="col-auto">
                         <h3>Clientes</h3>

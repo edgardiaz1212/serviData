@@ -43,7 +43,10 @@ const EditarCliente = () => {
         throw new Error(result.message);
       }
       toast.success("Cliente actualizado con éxito");
-      navigate(`/detalle-cliente/${clientId}`);
+      setTimeout(() => {
+        navigate(`/detalle-cliente/${clientId}`);
+      }, 1500);
+      
     } catch (error) {
       toast.error("Error al actualizar el cliente");
       console.error(error);
@@ -61,7 +64,10 @@ const EditarCliente = () => {
         throw new Error(result.message);
       }
       toast.success("Cliente y servicios eliminados con éxito");
-      navigate("/clientes");
+      setTimeout(() => {
+        navigate("/clientes");
+      }, 1500);
+      
     } catch (error) {
       toast.error("Error al eliminar el cliente y servicios");
       console.error(error);

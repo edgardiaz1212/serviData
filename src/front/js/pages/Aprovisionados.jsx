@@ -1,7 +1,7 @@
 import React, { useEffect, useContext } from 'react';
 import { Context } from '../store/appContext';
 import { useNavigate } from 'react-router-dom';
-
+import { ChartNetwork } from 'lucide-react';
 
 const Aprovisionados = () => {
   const { store, actions } = useContext(Context);
@@ -29,7 +29,7 @@ const Aprovisionados = () => {
     <div className="container">
 <h5>Datos del mes en curso</h5>
 
-      <h2>Servicios Nuevos Aprovisionados</h2>
+      <h2><ChartNetwork /> Servicios Nuevos Aprovisionados</h2>
       {filteredNewServices && filteredNewServices.length > 0 ? (
         <div className="table-responsive">
           <table className="table table-bordered">

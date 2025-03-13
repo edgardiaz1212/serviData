@@ -1,46 +1,47 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Context } from '../store/appContext';
 import ModalDocumentLoad from '../component/ModalDocumentLoad.jsx';
 import { FileText, Pencil } from 'lucide-react';
 
 const DetalleServicio = () => {
-  const { serviceId } = useParams();
-  const { store, actions } = useContext(Context);
-  const navigate = useNavigate();
+    const { serviceId } = useParams();
+    const { store, actions } = useContext(Context);
+    const navigate = useNavigate();
+    const location = useLocation();
 
-  useEffect(() => {
-    if (!store.isAuthenticated) {
-      navigate('/login', { replace: true });
+    useEffect(() => {
+        if (!store.isAuthenticated) {
+            navigate('/login', { replace: true });
+        }
+    }, [store.isAuthenticated, navigate]);
+
+    const [serviceData, setServiceData] = useState(null);
+    const [showDocumentModal, setShowDocumentModal] = useState(false);
+
+    useEffect(() => {
+        const fetchServiceData = async () => {
+            try {
+                const service = await actions.getServiceById(serviceId);
+                const serviceObject = Array.isArray(service) ? service[0] : service;
+                setServiceData(serviceObject);
+            } catch (error) {
+                console.error("Error fetching service data", error);
+            }
+        };
+        fetchServiceData();
+    }, [serviceId]);
+
+    if (!serviceData) {
+        return <div>Loading...</div>;
     }
-  }, [store.isAuthenticated, navigate]);
 
-  const [serviceData, setServiceData] = useState(null);
-  const [showDocumentModal, setShowDocumentModal] = useState(false);
-
-  useEffect(() => {
-    const fetchServiceData = async () => {
-      try {
-        const service = await actions.getServiceById(serviceId);
-        const serviceObject = Array.isArray(service) ? service[0] : service;
-        setServiceData(serviceObject);
-      } catch (error) {
-        console.error("Error fetching service data", error);
-      }
+    const handleEditClick = () => {
+        navigate(`/editar-servicio/${serviceId}`, { state: { clientId: serviceData.cliente_id } }); // Pass clientId in state
     };
-    fetchServiceData();
-  }, [serviceId]);
 
-  if (!serviceData) {
-    return <div>Loading...</div>;
-  }
-
-  const handleEditClick = () => {
-    navigate(`/editar-servicio/${serviceId}`);
-  };
-
-  return (
-    <>
+    return (
+        <>
       <div className="container">
         <div className="d-flex justify-content-between align-items-center">
           <h2>Detalles del Servicio</h2>
@@ -194,7 +195,7 @@ const DetalleServicio = () => {
         <button className="btn btn-secondary" onClick={() => navigate(`/detalle-cliente/${serviceData.cliente.id}`)}>Regresar</button>
       </div>
     </>
-  );
+    );
 };
 
 export default DetalleServicio;
