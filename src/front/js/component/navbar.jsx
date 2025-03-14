@@ -18,7 +18,7 @@ const Navbar = () => {
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container-fluid">
         <Link className="navbar-brand d-flex align-items-center" to="/">
-          <img src={logo} alt="Logo" width="30" height="30" className="me-2" />
+          <img src={logo} alt="Logo" width="50" height="30" className="me-2" />
           ServiData
         </Link>
         
@@ -76,7 +76,7 @@ const Navbar = () => {
                 </span>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/settings">
+                <Link className="nav-link" to="/user-register">
                   <Cog size={18} />
                 </Link>
               </li>
