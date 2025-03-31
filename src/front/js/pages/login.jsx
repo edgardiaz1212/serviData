@@ -32,10 +32,12 @@ const Login = () => {
     }
   };
 
+
   return (
     <>
       <div className="login-container d-flex justify-content-center align-items-center vh-100 ">
-        <ToastContainer
+        
+      <ToastContainer
           position="top-center"
           autoClose={3000}
           hideProgressBar
@@ -47,6 +49,7 @@ const Login = () => {
           pauseOnHover
           theme="dark"
         />
+
         <div className="card logincard p-4 " style={{ width: "350px" }}>
           <h1 className="text-center font-bold text-gray-900">ServiData</h1>
           <form onSubmit={handleSubmit} className="mt-4">

@@ -5,6 +5,8 @@ import { Context } from "../store/appContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { NotebookPen } from "lucide-react";
+// Import the Excel file
+import excelTemplate from "../../doc/FormatoCargaBase.xlsx";
 
 const DataEntryPage = () => {
   const { actions } = useContext(Context);
@@ -42,6 +44,22 @@ const DataEntryPage = () => {
     }
   };
 
+  // Function to download the Excel template
+  const downloadExcelTemplate = () => {
+    // Create a link element
+    const link = document.createElement("a");
+    // Set the href to the path of the file
+    link.href = excelTemplate;
+    // Set the download attribute to the name of the file
+    link.download = "formato_carga_base.xlsx";
+    // Add the link to the body
+    document.body.appendChild(link);
+    // Simulate a click on the link
+    link.click();
+    // Remove the link from the body
+    document.body.removeChild(link);
+  };
+
   return (
     <>
       <div className="container text-center vh-100">
@@ -55,6 +73,19 @@ const DataEntryPage = () => {
         <div className="drag-drop-area border border-success-emphasis rounded p-5">
           <p>Arrastra tu archivo Excel aquí o haz clic para seleccionar</p>
           <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
+          <p className="mt-3">
+            <a
+              href="#"
+              onClick={downloadExcelTemplate}
+              style={{
+                cursor: "pointer",
+                color: "blue",
+                textDecoration: "underline",
+              }}
+            >
+              Descargar formato de carga base
+            </a>
+          </p>
         </div>
         {excelData.length > 0 && (
           <>
