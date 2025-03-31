@@ -930,14 +930,20 @@ const getState = ({ getStore, getActions, setStore }) => {
 
       uploadExcelData: async (data, estadoServicio) => {
         try {
+          // Ensure 'rif' is a string
+          const transformedData = data.map(item => ({
+            ...item,
+            rif: String(item.rif), // Convert rif to string
+          }));
+
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/upload-excel`, 
+            `${process.env.REACT_APP_BACKEND_URL}/upload-excel`,
             {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({ data, estado_servicio: estadoServicio }),
+              body: JSON.stringify({ data: transformedData, estado_servicio: estadoServicio }),
             }
           );
           if (!response.ok) {
@@ -953,6 +959,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           throw error; // Re-throw for handling in the component
         }
       },
+
     },
   };
 };
