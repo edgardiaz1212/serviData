@@ -34,13 +34,57 @@ const DataEntryPage = () => {
 
   const handleConfirmUpload = async () => {
     try {
-      // Enviar los datos procesados al backend
-      await actions.uploadExcelData(excelData, estadoServicio);
+      // Transform Excel data to match backend column names
+      const transformedData = excelData.map(row => {
+        return {
+          // Map from Excel column names to backend expected names
+          tipo: row["Tipo"],
+          rif: row["RIF"],
+          razon_social: row["Razón Social"],
+          contrato: row["Contrato"],
+          tipo_servicio: row["Tipo de Servicio"],
+          estado_contrato: row["Estado del Contrato"],
+          facturado: row["Facturado"],
+          plan_anterior: row["Plan Anterior"],
+          plan_facturado: row["Plan Facturado"],
+          plan_aprovisionado: row["Plan Aprovisionado"],
+          plan_servicio: row["Plan de Servicio"],
+          descripcion: row["Descripción"],
+          estado_servicio: row["Estado del Servicio"],
+          dominio: row["Dominio"],
+          dns_dominio: row["DNS del Dominio"],
+          ubicacion: row["Ubicación"],
+          ubicacion_sala: row["Ubicación en la Sala"],
+          cantidad_ru: row["Cantidad de RU"],
+          cantidad_m2: row["Cantidad de m2"],
+          cantidad_bastidores: row["Cantidad de Bastidores"],
+          hostname: row["Hostname"],
+          nombre_servidor: row["Nombre del Servidor"],
+          nombre_nodo: row["Nombre del Nodo"],
+          nombre_plataforma: row["Nombre de la Plataforma"],
+          ram: row["RAM (GB)"],
+          hdd: row["HDD (GB)"],
+          cpu: row["CPU (GHz)"],
+          datastore: row["Datastore"],
+          ip_privada: row["IP Privada"],
+          ip_publica: row["IP Pública"],
+          vlan: row["VLAN"],
+          ipam: row["IPAM"],
+          observaciones: row["Observaciones"],
+          comentarios: row["Comentarios"]
+        };
+      });
+  
+      // Log what we're sending to verify format
+      console.log("Sending transformed data:", { data: transformedData, estado_servicio: estadoServicio });
+      
+      // Send the transformed data to the backend
+      await actions.uploadExcelData(transformedData, estadoServicio);
       toast.success("Datos cargados correctamente");
-      // Limpiar el estado para borrar la tabla de vista previa
       setExcelData([]);
     } catch (error) {
-      toast.error("Error al cargar los datos");
+      console.error("Detailed error:", error);
+      toast.error(`Error al cargar los datos: ${error.message}`);
     }
   };
 

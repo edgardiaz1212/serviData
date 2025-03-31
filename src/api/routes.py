@@ -925,26 +925,6 @@ def delete_document(document_id):
         return jsonify({"error": str(e)}), 500
 
 # Ruta para descargar un documento por su ID
-@api.route('/download-document/<int:document_id>', methods=['GET'])
-def download_document(document_id):
-    try:
-        documento = Documento.query.get(document_id)
-        if not documento:
-            return jsonify({"error": "Document not found"}), 404
-
-        # Configurar el encabezado Content-Disposition con el nombre del archivo
-        response = send_file(
-            io.BytesIO(documento.contenido),
-            mimetype=documento.tipo,
-            as_attachment=True,
-            download_name=documento.nombre  # Usar download_name para el nombre del archivo
-        )
-        return response
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-        
-# Carga DE Informacion excel
 @api.route('/upload-excel', methods=['POST'])
 def upload_excel():
     try:
@@ -953,6 +933,10 @@ def upload_excel():
         estado_servicio = data.get('estado_servicio', 'Nuevo')
 
         # Validar formato de los datos
+        if not data:
+            return jsonify({"error": "No data provided in request body."}), 400
+        if 'data' not in data:
+            return jsonify({"error": "Missing 'data' key in request body."}), 400
         if not isinstance(data.get('data'), list):
             return jsonify({"error": "Invalid data format. Expected a list of records."}), 400
 
@@ -961,104 +945,169 @@ def upload_excel():
 
         # Mapear columnas si es necesario
         column_mapping = {
-           'tipo': 'Tipo',  # Assuming "Tipo" is in the Clientes sheet
-    'rif': 'RIF',  # Assuming "RIF" is in the Clientes sheet
-    'razon_social': 'Razón Social',
-    'contrato': 'Contrato',
-    'tipo_servicio': 'Tipo de Servicio',
-    'estado_contrato': 'Estado del Contrato',
-    'facturado': 'Facturado',
-    'plan_anterior': 'Plan Anterior',
-    'plan_facturado': 'Plan Facturado',
-    'plan_aprovisionado': 'Plan Aprovisionado',
-    'plan_servicio': 'Plan de Servicio',
-    'descripcion': 'Descripción',
-    'estado_servicio': 'Estado del Servicio',
-    'dominio': 'Dominio',
-    'dns_dominio': 'DNS del Dominio',
-    'ubicacion': 'Ubicación',
-    'ubicacion_sala': 'Ubicación en la Sala',
-    'cantidad_ru': 'Cantidad de RU',
-    'cantidad_m2': 'Cantidad de m2',
-    'cantidad_bastidores': 'Cantidad de Bastidores',
-    'hostname': 'Hostname',
-    'nombre_servidor': 'Nombre del Servidor',
-    'nombre_nodo': 'Nombre del Nodo',
-    'nombre_plataforma': 'Nombre de la Plataforma',
-    'ram': 'RAM (GB)',
-    'hdd': 'HDD (GB)',
-    'cpu': 'CPU (GHz)',
-    'datastore': 'Datastore',
-    'ip_privada': 'IP Privada',
-    'ip_publica': 'IP Pública',
-    'vlan': 'VLAN',
-    'ipam': 'IPAM',
-    'observaciones': 'Observaciones',
-    'comentarios': 'Comentarios',
+            'tipo': 'Tipo',  # Assuming "Tipo" is in the Clientes sheet
+            'rif': 'RIF',  # Assuming "RIF" is in the Clientes sheet
+            'razon_social': 'Razón Social',
+            'contrato': 'Contrato',
+            'tipo_servicio': 'Tipo de Servicio',
+            'estado_contrato': 'Estado del Contrato',
+            'facturado': 'Facturado',
+            'plan_anterior': 'Plan Anterior',
+            'plan_facturado': 'Plan Facturado',
+            'plan_aprovisionado': 'Plan Aprovisionado',
+            'plan_servicio': 'Plan de Servicio',
+            'descripcion': 'Descripción',
+            'estado_servicio': 'Estado del Servicio',
+            'dominio': 'Dominio',
+            'dns_dominio': 'DNS del Dominio',
+            'ubicacion': 'Ubicación',
+            'ubicacion_sala': 'Ubicación en la Sala',
+            'cantidad_ru': 'Cantidad de RU',
+            'cantidad_m2': 'Cantidad de m2',
+            'cantidad_bastidores': 'Cantidad de Bastidores',
+            'hostname': 'Hostname',
+            'nombre_servidor': 'Nombre del Servidor',
+            'nombre_nodo': 'Nombre del Nodo',
+            'nombre_plataforma': 'Nombre de la Plataforma',
+            'ram': 'RAM (GB)',
+            'hdd': 'HDD (GB)',
+            'cpu': 'CPU (GHz)',
+            'datastore': 'Datastore',
+            'ip_privada': 'IP Privada',
+            'ip_publica': 'IP Pública',
+            'vlan': 'VLAN',
+            'ipam': 'IPAM',
+            'observaciones': 'Observaciones',
+            'comentarios': 'Comentarios',
         }
         df.rename(columns=column_mapping, inplace=True)
 
+        # Check for missing columns
+        required_columns = ['rif', 'tipo', 'razon_social', 'contrato', 'tipo_servicio', 'estado_contrato', 'facturado', 'plan_anterior', 'plan_facturado', 'plan_aprovisionado', 'plan_servicio', 'descripcion', 'estado_servicio', 'dominio', 'dns_dominio', 'ubicacion', 'ubicacion_sala', 'cantidad_ru', 'cantidad_m2', 'cantidad_bastidores', 'hostname', 'nombre_servidor', 'nombre_nodo', 'nombre_plataforma', 'ram', 'hdd', 'cpu', 'datastore', 'ip_privada', 'ip_publica', 'vlan', 'ipam', 'observaciones', 'comentarios']
+
+        # Instead of checking columns in the dataframe
+        # Check properties in each record
+        for record in data['data']:
+            missing_fields = [field for field in required_columns if field not in record]
+            if missing_fields:
+                return jsonify({"error": f"Missing required fields in a record: {', '.join(missing_fields)}"}), 400
+        
+        # Check if 'rif' column exists in the DataFrame
+        if 'RIF' not in df.columns:
+            return jsonify({"error": "Missing 'RIF' column in the data."}), 400
+
         # Procesar filas
         for index, row in df.iterrows():
-            if pd.isna(row['rif']):
+            # Ensure RIF is a string
+            rif_value = str(row['RIF']) if pd.notna(row['RIF']) else None
+            if not rif_value:
+                print(f"Warning: Empty RIF in row {index}. Skipping row.")
                 continue
 
             # Crear/obtener cliente
-            cliente = Cliente.query.filter_by(rif=row['rif']).first()
+            cliente = Cliente.query.filter_by(rif=rif_value).first()
             if not cliente:
                 cliente = Cliente(
-                    tipo=row.get('tipo', ''),
-                    rif=row.get('rif', ''),
-                    razon_social=row.get('razon_social', '')
+                    tipo=row.get('Tipo', ''),
+                    rif=rif_value,  # Use the string value
+                    razon_social=row.get('Razón Social', '')
                 )
-                db.session.add(cliente)
-                db.session.commit()
+                try:
+                    db.session.add(cliente)
+                    db.session.commit()
+                except SQLAlchemyError as e:
+                    db.session.rollback()
+                    return jsonify({"error": f"Database error creating client: {str(e)}", "details": str(e.__dict__['orig'])}), 500
 
             # Crear servicio, organizando los campos por categoría
+            cantidad_ru = 0
+            if 'Cantidad de RU' in row and pd.notna(row['Cantidad de RU']):
+                try:
+                    cantidad_ru = int(row['Cantidad de RU'])
+                except ValueError:
+                    print(f"Warning: Non-integer value for cantidad_ru: {row['Cantidad de RU']}")
+                    cantidad_ru = 0
+            cantidad_m2 = 0
+            if 'Cantidad de m2' in row and pd.notna(row['Cantidad de m2']):
+                try:
+                    cantidad_m2 = int(row['Cantidad de m2'])
+                except ValueError:
+                    print(f"Warning: Non-integer value for cantidad_m2: {row['Cantidad de m2']}")
+                    cantidad_m2 = 0
+            cantidad_bastidores = 0
+            if 'Cantidad de Bastidores' in row and pd.notna(row['Cantidad de Bastidores']):
+                try:
+                    cantidad_bastidores = int(row['Cantidad de Bastidores'])
+                except ValueError:
+                    print(f"Warning: Non-integer value for cantidad_bastidores: {row['Cantidad de Bastidores']}")
+                    cantidad_bastidores = 0
+            ram = 0
+            if 'RAM (GB)' in row and pd.notna(row['RAM (GB)']):
+                try:
+                    ram = int(row['RAM (GB)'])
+                except ValueError:
+                    print(f"Warning: Non-integer value for ram: {row['RAM (GB)']}")
+                    ram = 0
+            hdd = 0
+            if 'HDD (GB)' in row and pd.notna(row['HDD (GB)']):
+                try:
+                    hdd = int(row['HDD (GB)'])
+                except ValueError:
+                    print(f"Warning: Non-integer value for hdd: {row['HDD (GB)']}")
+                    hdd = 0
+            cpu = 0
+            if 'CPU (GHz)' in row and pd.notna(row['CPU (GHz)']):
+                try:
+                    cpu = int(row['CPU (GHz)'])
+                except ValueError:
+                    print(f"Warning: Non-integer value for cpu: {row['CPU (GHz)']}")
+                    cpu = 0
+
             servicio = Servicio(
                 # Identificación y Contrato
-                contrato=row.get('contrato', ''),
-                tipo_servicio=row.get('tipo_servicio', ''),
-                estado_contrato=row.get('estado_contrato', ''),
-                facturado=row.get('facturado', ''),
+                contrato=row.get('Contrato', ''),
+                tipo_servicio=row.get('Tipo de Servicio', ''),
+                estado_contrato=row.get('Estado del Contrato', ''),
+                facturado=row.get('Facturado', ''),
 
                 # Información del Servicio/Plan
-                plan_anterior=row.get('plan_anterior', ''),
-                plan_facturado=row.get('plan_facturado', ''),
-                plan_aprovisionado=row.get('plan_aprovisionado', ''),
-                plan_servicio=row.get('plan_servicio', ''),
-                descripcion=row.get('descripcion', ''),
+                plan_anterior=row.get('Plan Anterior', ''),
+                plan_facturado=row.get('Plan Facturado', ''),
+                plan_aprovisionado=row.get('Plan Aprovisionado', ''),
+                plan_servicio=row.get('Plan de Servicio', ''),
+                descripcion=row.get('Descripción', ''),
                 estado_servicio=estado_servicio,
 
                 # Información de Dominio y DNS
-                dominio=row.get('dominio', ''),
-                dns_dominio=row.get('dns_dominio', ''),
+                dominio=row.get('Dominio', ''),
+                dns_dominio=row.get('DNS del Dominio', ''),
 
                 # Ubicación y Espacio Físico
-                ubicacion=row.get('ubicacion', ''),
-                ubicacion_sala=row.get('ubicacion_sala', ''),
-                cantidad_ru=int(row['cantidad_ru']) if 'cantidad_ru' in row and pd.notna(row['cantidad_ru']) else 0,
-                cantidad_m2=int(row['cantidad_m2']) if 'cantidad_m2' in row and pd.notna(row['cantidad_m2']) else 0,
-                cantidad_bastidores=int(row['cantidad_bastidores']) if 'cantidad_bastidores' in row and pd.notna(row['cantidad_bastidores']) else 0,
+                ubicacion=row.get('Ubicación', ''),
+                ubicacion_sala=row.get('Ubicación en la Sala', ''),
+                cantidad_ru=cantidad_ru,
+                cantidad_m2=cantidad_m2,
+                cantidad_bastidores=cantidad_bastidores,
 
                 # Información de Hardware/Infraestructura
-                hostname=row.get('hostname', ''),
-                nombre_servidor=row.get('nombre_servidor', ''),
-                nombre_nodo=row.get('nombre_nodo', ''),
-                nombre_plataforma=row.get('nombre_plataforma', ''),
-                ram=int(row['ram']) if 'ram' in row and pd.notna(row['ram']) else 0,
-                hdd=int(row['hdd']) if 'hdd' in row and pd.notna(row['hdd']) else 0,
-                cpu=int(row['cpu']) if 'cpu' in row and pd.notna(row['cpu']) else 0,
-                datastore=row.get('datastore', ''),
+                hostname=row.get('Hostname', ''),
+                nombre_servidor=row.get('Nombre del Servidor', ''),
+                nombre_nodo=row.get('Nombre del Nodo', ''),
+                nombre_plataforma=row.get('Nombre de la Plataforma', ''),
+                ram=ram,
+                hdd=hdd,
+                cpu=cpu,
+                datastore=row.get('Datastore', ''),
 
                 # Red e IP
-                ip_privada=row.get('ip_privada', ''),
-                ip_publica=row.get('ip_publica', ''),
-                ipam=row.get('ipam', ''),
+                ip_privada=row.get('IP Privada', ''),
+                ip_publica=row.get('IP Pública', ''),
+                ipam=row.get('IPAM', ''),
 
                 # Observaciones y Comentarios
-                observaciones=row.get('observaciones', ''),
-                comentarios=row.get('comentarios', ''),
+                observaciones=row.get('Observaciones', ''),
+                comentarios=row.get('Comentarios', ''),
+                vlan=row.get('VLAN',''),
 
                 cliente_id=cliente.id,
             )
@@ -1068,6 +1117,11 @@ def upload_excel():
         db.session.commit()
         return jsonify({"message": "Excel data uploaded successfully!"}), 201
 
+    except KeyError as e:
+        db.session.rollback()
+        return jsonify({"error": f"Missing column in data: {str(e)}"}), 400
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+
+

@@ -80,7 +80,7 @@ function InputClienteServicio({ onSubmit }) {
         if (onSubmit) onSubmit();
 
         setTimeout(() => {
-          navigate("/data-registro");
+          navigate("/registro");
         }, 1500);
       } catch (error) {
         toast.error("Error al enviar los datos del cliente y del servicio");

@@ -61,7 +61,7 @@ function InputService({ clientData }) {
         toast.success('Datos del servicio enviados correctamente');
       
         setTimeout(() => {
-          navigate("/data-registro");
+          navigate("/registro");
         }, 1500);
       } catch (error) {
         toast.error('Error al enviar los datos del servicio');

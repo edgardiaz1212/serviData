@@ -931,7 +931,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       uploadExcelData: async (data, estadoServicio) => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/upload-excel`,
+            `${process.env.REACT_APP_BACKEND_URL}/upload-excel`, 
             {
               method: "POST",
               headers: {
@@ -941,12 +941,16 @@ const getState = ({ getStore, getActions, setStore }) => {
             }
           );
           if (!response.ok) {
-            throw new Error("Network response was not ok");
+            const errorData = await response.json();
+            console.error("Server error details:", errorData);
+            throw new Error("Network response was not ok: " + (errorData.error || ""));
           }
           const result = await response.json();
           console.log("Data uploaded successfully:", result);
+          return result;
         } catch (error) {
           console.error("Error uploading data:", error);
+          throw error; // Re-throw for handling in the component
         }
       },
     },
