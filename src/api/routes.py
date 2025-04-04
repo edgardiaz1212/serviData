@@ -983,7 +983,7 @@ def upload_excel():
         df.rename(columns=column_mapping, inplace=True)
 
         # Check for missing columns
-        required_columns = ['rif', 'tipo', 'razon_social', 'contrato', 'tipo_servicio', 'estado_contrato', 'facturado', 'plan_anterior', 'plan_facturado', 'plan_aprovisionado', 'plan_servicio', 'descripcion', 'estado_servicio', 'dominio', 'dns_dominio', 'ubicacion', 'ubicacion_sala', 'cantidad_ru', 'cantidad_m2', 'cantidad_bastidores', 'hostname', 'nombre_servidor', 'nombre_nodo', 'nombre_plataforma', 'ram', 'hdd', 'cpu', 'datastore', 'ip_privada', 'ip_publica', 'vlan', 'ipam', 'observaciones', 'comentarios']
+        required_columns = ['rif', 'tipo', 'razon_social', 'contrato', 'tipo_servicio', ]
 
         # Instead of checking columns in the dataframe
         # Check properties in each record
