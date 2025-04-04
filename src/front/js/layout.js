@@ -1,12 +1,11 @@
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ScrollToTop from "./component/scrollToTop";
-//import { BackendURL } from "./component/backendURL"; // Ensure correct export
 import "../styles/index.css";
 import injectContext from "./store/appContext.js";
-import Navbar from "./component/navbar"; // Ensure this path is correct
-import Footer from "./component/footer"; // Ensure this path is correct
-import Login from "./pages/login.jsx"; // Ensure this path is correct
+import Navbar from "./component/navbar";
+import Footer from "./component/footer";
+import Login from "./pages/login.jsx";
 import Resumen from "./pages/Resumen.jsx"
 import DataEntryPage from "./pages/DataEntryPage.jsx";
 import UserRegistrationPage from "./pages/UserRegistrationPage.jsx";
@@ -23,29 +22,30 @@ import NotFound from "./pages/NotFound.jsx";
 
 const Layout = () => {
     const basename = process.env.REACT_APP_BASENAME_REACT || "";
-    //const backendURL = process.env.REACT_APP_BACKEND_URL || ""; // Updated
 
     return (
-        <div className="" style={{ backgroundColor: "#fffdfd" }}>
+        <div className="app-container" style={{ backgroundColor: "#fffdfd", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
             <BrowserRouter basename={basename}>
                 <ScrollToTop>
                     <Navbar />
-                    <Routes>
-                        <Route path="/" element={<Login />} />
-                        <Route path="/resumen" element={<Resumen/>} />
-                        <Route path="/clientes" element={<Clientes />} />
-                        <Route path="registro" element={<DataEntryPage/>} />
-                        <Route path="/user-register" element={<UserRegistrationPage />} />
-                        <Route path="consulta-clientes-registrados" element={<ConsultaClientesRegistrados/>} />
-                        <Route path="/manual-data-entry" element={<ManualDataEntryPage />} /> "
-                        <Route path='detalle-cliente/:clientId' element={<DetalleCliente />} />
-                        <Route path='detalle-servicio/:serviceId' element={<DetalleServicio />} />
-                        <Route path="/editar-servicio/:serviceId" element={<EditarServicio />} />
-                        <Route path="/editar-cliente/:clientId" element={<EditarCliente />} />
-                        <Route path="/aprovisionados" element={<Aprovisionados/>} />
-                        <Route path="/reportes" element={<Reportes/>} />
-                        <Route path="/*" element={<NotFound />} />
-                    </Routes>
+                    <div className="content-container" style={{ flexGrow: 1 }}>
+                        <Routes>
+                            <Route path="/" element={<Login />} />
+                            <Route path="/resumen" element={<Resumen />} />
+                            <Route path="/clientes" element={<Clientes />} />
+                            <Route path="registro" element={<DataEntryPage />} />
+                            <Route path="/user-register" element={<UserRegistrationPage />} />
+                            <Route path="consulta-clientes-registrados" element={<ConsultaClientesRegistrados />} />
+                            <Route path="/manual-data-entry" element={<ManualDataEntryPage />} />
+                            <Route path='detalle-cliente/:clientId' element={<DetalleCliente />} />
+                            <Route path='detalle-servicio/:serviceId' element={<DetalleServicio />} />
+                            <Route path="/editar-servicio/:serviceId" element={<EditarServicio />} />
+                            <Route path="/editar-cliente/:clientId" element={<EditarCliente />} />
+                            <Route path="/aprovisionados" element={<Aprovisionados />} />
+                            <Route path="/reportes" element={<Reportes />} />
+                            <Route path="/*" element={<NotFound />} />
+                        </Routes>
+                    </div>
                     <Footer />
                 </ScrollToTop>
             </BrowserRouter>

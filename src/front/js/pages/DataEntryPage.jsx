@@ -106,7 +106,7 @@ const DataEntryPage = () => {
 
   return (
     <>
-      <div className="container text-center vh-100">
+      <div className="container text-center ">
         <h1>
           <NotebookPen /> Registro de Clientes y Servicios
         </h1>

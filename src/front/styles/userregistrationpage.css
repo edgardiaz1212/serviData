@@ -1,0 +1,22 @@
+/* Add this to your CSS file */
+.section-cell {
+    cursor: pointer;
+    transition: background-color 0.3s ease, border 0.3s ease; /* Added border transition */
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid transparent; /* Changed border width to 1px */
+  }
+  
+  .section-cell:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .section-cell.active {
+    background-color: #e0e0e0;
+    ; /* Changed border width to 1px */
+  }
+  
+  .section-cell.active svg {
+    color: #007bff; /* Change icon color when active */
+  }
+  
