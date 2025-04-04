@@ -108,12 +108,12 @@ const UserRegistrationPage = () => {
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
 
       {/* Page Title and Description */}
-      <h1 className=" mb-3 d-flex align-items-center justify-content-center">
+      <h1 className=" mb-3 d-flex align-items-center ">
         <Settings size={30} className="me-2" />
         Configuración
       </h1>
       <p className=" mb-4">
-        Aquí puedes gestionar tu información.
+        Aquí puedes gestionar la información de Servidata.
       </p>
 
       {/* Section Selection Table */}
