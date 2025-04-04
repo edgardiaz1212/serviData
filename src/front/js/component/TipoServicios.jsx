@@ -1,16 +1,16 @@
 import React from 'react'
 export const servicios = [
-    'Hw Linux',
-    'Bd Mysql',
-    'Hw Windows',
-    'Bd Sql Server',
-    'Mensajería',
-    'Ddv',
-    'Vmware',
-    'Proxmox',
-    'Hospedaje Dedicado Físico',
-    'Respaldo y Recuperación',
-    'Colocation Ru',
+    'HW LINUX',
+    'BD MYSQL',
+    'HW WINDOWS',
+    'BD SQL SERVER',
+    'MENSAJERIA',
+    'DDV',
+    'VMWARE',
+    'PROXMOX',
+    'HOSPEDAJE DEDICADO FISICO',
+    'RESPALDO Y RECUPERACION',
+    'COLOCATION RU',
   ];
 function TipoServicios() {
     
