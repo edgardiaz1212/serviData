@@ -12,6 +12,8 @@ from sqlalchemy import func, extract
 import logging
 from sqlalchemy.exc import SQLAlchemyError
 import logging
+from fuzzywuzzy import fuzz, process
+
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -924,7 +926,40 @@ def delete_document(document_id):
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
-# Ruta para descargar un documento por su ID
+# Ruta y comprobacion de datos para cargar un documento
+# this is your list of valid service types (from TipoServicios.jsx)
+valid_service_types = [
+    'HW LINUX',
+    'BD MYSQL',
+    'HW WINDOWS',
+    'BD SQL SERVER',
+    'MENSAJERIA',
+    'DDV',
+    'VMWARE',
+    'PROXMOX',
+    'HOSPEDAJE DEDICADO FISICO',
+    'RESPALDO Y RECUPERACION',
+    'COLOCATION RU',
+]
+def correct_service_type(service_type):
+    """
+    Corrects a service type to the closest valid service type using fuzzy matching.
+
+    Args:
+        service_type (str): The service type to correct.
+
+    Returns:
+        str: The corrected service type, or the original if no close match is found.
+    """
+    if not service_type:
+        return "Other"  # Default value if empty
+    
+    best_match, score = process.extractOne(service_type, valid_service_types, scorer=fuzz.ratio)
+    if score >= 70:  # Adjust the threshold as needed
+        return best_match
+    else:
+        return "Other"  # Default value if no close match
+    
 @api.route('/upload-excel', methods=['POST'])
 def upload_excel():
     try:
@@ -1019,6 +1054,12 @@ def upload_excel():
                     db.session.rollback()
                     return jsonify({"error": f"Database error creating client: {str(e)}", "details": str(e.__dict__['orig'])}), 500
 
+            # Correct the service type
+            original_service_type = row.get('Tipo de Servicio', '')
+            corrected_service_type = correct_service_type(original_service_type)
+            if original_service_type != corrected_service_type:
+                print(f"Warning: Corrected service type from '{original_service_type}' to '{corrected_service_type}' in row {index}.")
+
             # Crear servicio, organizando los campos por categoría
             cantidad_ru = 0
             if 'Cantidad de RU' in row and pd.notna(row['Cantidad de RU']):
@@ -1066,7 +1107,7 @@ def upload_excel():
             servicio = Servicio(
                 # Identificación y Contrato
                 contrato=row.get('Contrato', ''),
-                tipo_servicio=row.get('Tipo de Servicio', ''),
+                tipo_servicio=corrected_service_type,  # Use the corrected service type
                 estado_contrato=row.get('Estado del Contrato', ''),
                 facturado=row.get('Facturado', ''),
 
@@ -1123,5 +1164,3 @@ def upload_excel():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
-
-
