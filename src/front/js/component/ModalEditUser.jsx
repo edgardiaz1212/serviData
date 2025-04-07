@@ -8,11 +8,17 @@ const ModalEditUser = ({ user, show, handleClose, handleSave, handleDelete }) =>
   useEffect(() => {
     setUsername(user.username);
     setRole(user.role);
+    setPassword(''); // Reset password field when modal opens
   }, [user]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    handleSave({ ...user, username, role, password });
+    const updatedUser = { ...user, username, role };
+    if (password) {
+      updatedUser.password = password;
+    }
+    handleSave(updatedUser);
+    setPassword(''); // Reset password field after saving
   };
 
   return (
@@ -38,15 +44,15 @@ const ModalEditUser = ({ user, show, handleClose, handleSave, handleDelete }) =>
               <div className="form-group">
                 <label>Rol:</label>
                 <select
-                className="form-control"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                required
-              >
-                <option value="">Seleccione un rol</option>
-                <option value="Admin">Administrador</option>
-                <option value="User">Usuario</option>
-              </select>
+                  className="form-control"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  required
+                >
+                  <option value="">Seleccione un rol</option>
+                  <option value="Admin">Administrador</option>
+                  <option value="User">Usuario</option>
+                </select>
               </div>
               <div className="form-group">
                 <label>Contraseña:</label>
