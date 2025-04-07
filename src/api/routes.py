@@ -972,7 +972,7 @@ def correct_client_type(client_type):
     """
     valid_types = ['Pública', 'Privada']
     if not client_type:
-        return "Otro"  # Default value if empty
+        return "Privada"  # Default value if empty
 
     best_match, score = process.extractOne(client_type, valid_types, scorer=fuzz.ratio)
     if score >= 70:  # Adjust the threshold as needed
