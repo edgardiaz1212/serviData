@@ -160,3 +160,23 @@ class Documento(db.Model):
             'servicio_id': self.servicio_id,
             'created_at': self.created_at.isoformat(),
         }
+class ServicePlan(db.Model):
+    __tablename__ = 'service_plans'
+    id = db.Column(db.Integer, primary_key=True)
+    service_name = db.Column(db.String, nullable=False)
+    tier_size = db.Column(db.String, nullable=False)  # S, M, L, XL, 2XL, 3XL
+    price = db.Column(db.Float, nullable=False)
+    description = db.Column(db.String, nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'service_name': self.service_name,
+            'tier_size': self.tier_size,
+            'price': self.price,
+            'description': self.description,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat(),
+        }

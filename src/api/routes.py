@@ -473,9 +473,7 @@ def get_service_counts_by_client_type(client_type):
         # Manejar errores generales
         return jsonify({"error": str(e)}), 500  
       
-from datetime import datetime
-from flask import jsonify
-from sqlalchemy.exc import SQLAlchemyError
+
 
 @api.route('/new-services-current-month', methods=['GET'])
 def get_new_services_current_month():
@@ -592,6 +590,47 @@ def get_new_services_last_month():
     except Exception as e:
         # Manejar errores generales
         return jsonify({"error": str(e)}), 500
+
+# Service Plan Endpoints
+@app.route('/api/service-plans', methods=['GET'])
+def get_service_plans():
+    service_plans = ServicePlan.query.all()
+    return jsonify([plan.serialize() for plan in service_plans]), 200
+
+@app.route('/api/service-plans', methods=['POST'])
+def add_service_plan():
+    data = request.get_json()
+    new_plan = ServicePlan(
+        service_name=data['service_name'],
+        tier_size=data['tier_size'],
+        price=data['price'],
+        description=data['description']
+    )
+    db.session.add(new_plan)
+    db.session.commit()
+    return jsonify(new_plan.serialize()), 201
+
+@app.route('/api/service-plans/<int:plan_id>', methods=['PUT'])
+def edit_service_plan(plan_id):
+    plan = ServicePlan.query.get(plan_id)
+    if not plan:
+        return jsonify({'message': 'Service plan not found'}), 404
+    data = request.get_json()
+    plan.service_name = data['service_name']
+    plan.tier_size = data['tier_size']
+    plan.price = data['price']
+    plan.description = data['description']
+    db.session.commit()
+    return jsonify(plan.serialize()), 200
+
+@app.route('/api/service-plans/<int:plan_id>', methods=['DELETE'])
+def delete_service_plan(plan_id):
+    plan = ServicePlan.query.get(plan_id)
+    if not plan:
+        return jsonify({'message': 'Service plan not found'}), 404
+    db.session.delete(plan)
+    db.session.commit()
+    return jsonify({'message': 'Service plan deleted'}), 200
 
 # acciones combinadas
 @api.route('/add_client_and_service', methods=['POST'])

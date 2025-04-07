@@ -3,7 +3,7 @@ import { Context } from "../store/appContext";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import ModalEditUser from "../component/ModalEditUser.jsx";
-import { User, Users, Pencil, Trash, Plus, Settings } from "lucide-react"; // Import icons
+import { User, Users, Pencil, Trash, Plus, Settings, PackagePlus, Package, FileEdit } from "lucide-react"; // Import icons
 import "../../styles/userregistrationpage.css"
 
 const UserRegistrationPage = () => {
@@ -13,6 +13,13 @@ const UserRegistrationPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [selectedSection, setSelectedSection] = useState("editCurrentUser");
+  const [servicePlans, setServicePlans] = useState([]);
+  const [newServicePlan, setNewServicePlan] = useState({
+    service_name: "",
+    tier_size: "S",
+    price: 0,
+    description: "",
+  });
 
   useEffect(() => {
     let isMounted = true;
@@ -20,12 +27,92 @@ const UserRegistrationPage = () => {
       navigate("/login", { replace: true });
     } else if (isMounted) {
       actions.fetchUserData();
+      if (user && user.role === "Admin") {
+        fetchServicePlans();
+      }
     }
 
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [user]);
+
+  const fetchServicePlans = async () => {
+    try {
+      const response = await fetch("/api/service-plans"); // Replace with your API endpoint
+      if (!response.ok) {
+        throw new Error("Failed to fetch service plans");
+      }
+      const data = await response.json();
+      setServicePlans(data);
+    } catch (error) {
+      console.error("Error fetching service plans:", error);
+      toast.error("Error fetching service plans");
+    }
+  };
+
+  const handleAddServicePlan = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch("/api/service-plans", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newServicePlan),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to add service plan");
+      }
+      toast.success("Service plan added successfully");
+      setNewServicePlan({
+        service_name: "",
+        tier_size: "S",
+        price: 0,
+        description: "",
+      });
+      fetchServicePlans(); // Refresh the list
+    } catch (error) {
+      console.error("Error adding service plan:", error);
+      toast.error("Error adding service plan");
+    }
+  };
+
+  const handleEditServicePlan = async (plan) => {
+    try {
+      const response = await fetch(`/api/service-plans/${plan.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(plan),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to edit service plan");
+      }
+      toast.success("Service plan edited successfully");
+      fetchServicePlans(); // Refresh the list
+    } catch (error) {
+      console.error("Error editing service plan:", error);
+      toast.error("Error editing service plan");
+    }
+  };
+
+  const handleDeleteServicePlan = async (planId) => {
+    try {
+      const response = await fetch(`/api/service-plans/${planId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to delete service plan");
+      }
+      toast.success("Service plan deleted successfully");
+      fetchServicePlans(); // Refresh the list
+    } catch (error) {
+      console.error("Error deleting service plan:", error);
+      toast.error("Error deleting service plan");
+    }
+  };
 
   const [newUser, setNewUser] = useState({
     username: "",
@@ -130,15 +217,26 @@ const UserRegistrationPage = () => {
               <p className="mt-2">Editar tus Datos</p>
             </td>
             {user && user.role === "Admin" && (
-              <td
-                className={`text-center section-cell ${
-                  selectedSection === "manageUsers" ? "active" : ""
-                }`}
-                onClick={() => handleSectionChange("manageUsers")}
-              >
-                <Users size={48} className="mx-auto" color={selectedSection === "manageUsers" ? "#007bff" : "currentColor"}/>
-                <p className="mt-2">Gestionar Usuarios</p>
-              </td>
+              <>
+                <td
+                  className={`text-center section-cell ${
+                    selectedSection === "manageUsers" ? "active" : ""
+                  }`}
+                  onClick={() => handleSectionChange("manageUsers")}
+                >
+                  <Users size={48} className="mx-auto" color={selectedSection === "manageUsers" ? "#007bff" : "currentColor"}/>
+                  <p className="mt-2">Gestionar Usuarios</p>
+                </td>
+                <td
+                  className={`text-center section-cell ${
+                    selectedSection === "manageServicePlans" ? "active" : ""
+                  }`}
+                  onClick={() => handleSectionChange("manageServicePlans")}
+                >
+                  <Package size={48} className="mx-auto" color={selectedSection === "manageServicePlans" ? "#007bff" : "currentColor"}/>
+                  <p className="mt-2">Gestionar Planes</p>
+                </td>
+              </>
             )}
           </tr>
         </tbody>
@@ -302,6 +400,141 @@ const UserRegistrationPage = () => {
                 handleDelete={handleDelete}
               />
             )}
+          </div>
+        </>
+      )}
+      {/* Manage Service Plans Section */}
+      {selectedSection === "manageServicePlans" && user && user.role === "Admin" && (
+        <>
+          <h2 className="text-center mb-3">
+            <PackagePlus size={24} className="me-2" />
+            Agregar Plan de Servicio
+          </h2>
+          <div className="d-flex justify-content-center">
+            <form className="m-3 w-50" onSubmit={handleAddServicePlan}>
+              <div className="mb-3">
+                <label htmlFor="serviceName" className="form-label">
+                  Nombre del Servicio
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="serviceName"
+                  value={newServicePlan.service_name}
+                  onChange={(e) =>
+                    setNewServicePlan({
+                      ...newServicePlan,
+                      service_name: e.target.value,
+                    })
+                  }
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="tierSize" className="form-label">
+                  Tamaño del Plan
+                </label>
+                <select
+                  className="form-select"
+                  id="tierSize"
+                  value={newServicePlan.tier_size}
+                  onChange={(e) =>
+                    setNewServicePlan({
+                      ...newServicePlan,
+                      tier_size: e.target.value,
+                    })
+                  }
+                  required
+                >
+                  <option value="S">S</option>
+                  <option value="M">M</option>
+                  <option value="L">L</option>
+                  <option value="XL">XL</option>
+                  <option value="2XL">2XL</option>
+                  <option value="3XL">3XL</option>
+                </select>
+              </div>
+              <div className="mb-3">
+                <label htmlFor="price" className="form-label">
+                  Precio
+                </label>
+                <input
+                  type="number"
+                  className="form-control"
+                  id="price"
+                  value={newServicePlan.price}
+                  onChange={(e) =>
+                    setNewServicePlan({
+                      ...newServicePlan,
+                      price: parseFloat(e.target.value),
+                    })
+                  }
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="description" className="form-label">
+                  Descripción
+                </label>
+                <textarea
+                  className="form-control"
+                  id="description"
+                  value={newServicePlan.description}
+                  onChange={(e) =>
+                    setNewServicePlan({
+                      ...newServicePlan,
+                      description: e.target.value,
+                    })
+                  }
+                  required
+                />
+              </div>
+              <div className="d-flex justify-content-center">
+                <button type="submit" className="btn btn-success m-2">
+                  Agregar Plan
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div className="container">
+            <h2 className="text-center mb-3">
+              <FileEdit size={24} className="me-2" />
+              Lista de Planes de Servicio
+            </h2>
+            <div className="d-flex justify-content-center">
+              <ul className="list-group w-75">
+                {servicePlans.map((plan) => (
+                  <li
+                    key={plan.id}
+                    className="list-group-item d-flex justify-content-between align-items-center"
+                  >
+                    <div>
+                      <strong>{plan.service_name} - {plan.tier_size}:</strong> ${plan.price}
+                      <p>{plan.description}</p>
+                    </div>
+                    <div>
+                      <button
+                        type="button"
+                        className="btn btn-outline-primary me-2"
+                        onClick={() => handleEditServicePlan(plan)}
+                      >
+                        <Pencil size={16} />
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-outline-danger"
+                        onClick={() => handleDeleteServicePlan(plan.id)}
+                      >
+                        <Trash size={16} />
+                        Eliminar
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </>
       )}
