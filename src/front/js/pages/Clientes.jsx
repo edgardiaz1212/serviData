@@ -40,9 +40,9 @@ const Clientes = () => {
           <input type="radio" className="btn-check" name="btnradio" id="btnradio2" autoComplete="off" checked={clientType === 'Pública'} onChange={handleClientTypeChange} />
           <label className="btn btn-outline-primary" htmlFor="btnradio2">Pública</label>
         </div>
-        <div className="input-group" style={{ maxWidth: '200px' }}>
+        <div className="input-group" style={{ maxWidth: '250px' }}>
           <div className="input-group-text" id="btnGroupAddon"><Search /></div>
-          <input type="text" className="form-control" placeholder="Busqueda" aria-label="Input group example" aria-describedby="btnGroupAddon" value={searchQuery} onChange={handleSearchChange} />
+          <input type="text" className="form-control" placeholder="Razon Social o RIF" aria-label="Input group example" aria-describedby="btnGroupAddon" value={searchQuery} onChange={handleSearchChange} />
         </div>
       </div>
       <TotalClient clientType={clientType} searchQuery={searchQuery} />

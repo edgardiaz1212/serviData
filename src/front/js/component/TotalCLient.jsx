@@ -13,9 +13,13 @@ function TotalClient({ clientType, searchQuery }) {
     setCurrentPage(1); // Reset to first page when clientType changes
   }, [clientType]);
 
-  const filteredClients = store.clientData.filter(client =>
-    client.razon_social.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredClients = store.clientData.filter(client => {
+    const lowerCaseSearchQuery = searchQuery.toLowerCase();
+    return (
+      client.razon_social.toLowerCase().includes(lowerCaseSearchQuery) ||
+      client.rif.toLowerCase().includes(lowerCaseSearchQuery)
+    );
+  });
 
   const handleClientClick = (clientId) => {
     navigate(`/detalle-cliente/${clientId}`);
