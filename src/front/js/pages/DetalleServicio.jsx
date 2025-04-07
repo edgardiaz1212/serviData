@@ -49,6 +49,11 @@ const DetalleServicio = () => {
   if (loading) return <div>Cargando...</div>;
   if (error) return <div>{error}</div>;
 
+  // Add a check for serviceData before rendering
+  if (!serviceData) {
+    return <div>Cargando detalles del servicio...</div>; // Or any other placeholder
+  }
+
   return (
     <>
       <div className="container">
@@ -72,6 +77,7 @@ const DetalleServicio = () => {
         </div>
         <h5>Último status</h5>
         <div className="col-md-6 mb-3">
+          {/* Now it's safe to access serviceData.estado_servicio */}
           <p>{serviceData.estado_servicio}</p>
         </div>
 
