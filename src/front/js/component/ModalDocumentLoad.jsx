@@ -4,81 +4,83 @@ import { Context } from "../store/appContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const ModalDocumentLoad = ({ entityType, entityId, show, onClose }) => {
+const ModalDocumentLoad = ({ entityType, entityId, show, onClose, onDocumentChange }) => {
   const { store, actions } = useContext(Context);
   const [file, setFile] = useState(null); // Archivo seleccionado para subir
   const [loading, setLoading] = useState(false); // Estado de carga
   const [error, setError] = useState(null); // Manejo de errores
   const [hasDocument, setHasDocument] = useState(false); // Indica si hay un documento cargado
   const [documentId, setDocumentId] = useState(null);
-  
+
   // Verificar si hay un documento cargado al abrir el modal
   useEffect(() => {
     const checkDocumentExists = async () => {
-        try {
-            const exists = await actions.checkDocumentExists(entityType, entityId);
-            setHasDocument(exists);
-        } catch (err) {
-            setError("Error al verificar el estado del documento");
-            toast.error("Error al verificar el estado del documento");
-            console.error(err);
-        }
+      try {
+        const exists = await actions.checkDocumentExists(entityType, entityId);
+        setHasDocument(exists);
+      } catch (err) {
+        setError("Error al verificar el estado del documento");
+        toast.error("Error al verificar el estado del documento");
+        console.error(err);
+      }
     };
     if (show) {
-        checkDocumentExists();
+      checkDocumentExists();
     }
-}, [show, entityType, entityId]);
+  }, [show, entityType, entityId]);
 
- // Manejar la selección de archivo
- const handleFileChange = (e) => {
-  const selectedFile = e.target.files[0];
-  if (selectedFile) {
-    // Verificar el tamaño del archivo (límite de 10MB)
-    if (selectedFile.size > 10 * 1024 * 1024) {
-      setError("El archivo es demasiado grande. El tamaño máximo es 10MB.");
-      toast.error("El archivo es demasiado grande");
-      return;
+  // Manejar la selección de archivo
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      // Verificar el tamaño del archivo (límite de 10MB)
+      if (selectedFile.size > 10 * 1024 * 1024) {
+        setError("El archivo es demasiado grande. El tamaño máximo es 10MB.");
+        toast.error("El archivo es demasiado grande");
+        return;
+      }
+
+      setFile(selectedFile);
+      setError(null);
     }
-    
-    setFile(selectedFile);
-    setError(null);
-  }
-};
+  };
 
   // Manejar la carga del documento
   const handleUpload = async () => {
     if (!file) {
-        setError("Please select a file to upload");
-        return;
+      setError("Please select a file to upload");
+      return;
     }
 
     setLoading(true);
     setError(null);
 
     try {
-        const formData = new FormData();
-        formData.append('file', file);
-        await actions.uploadDocument(entityType, entityId, formData);
+      const formData = new FormData();
+      formData.append('file', file);
+      await actions.uploadDocument(entityType, entityId, formData);
 
-        setFile(null);
-        setHasDocument(true); // Actualizar el estado para indicar que hay un documento
-        toast.success("Documento cargado exitosamente", {
-            autoClose: 3000,
-        });
-
-        setTimeout(() => {
-          onClose();
+      setFile(null);
+      setHasDocument(true); // Actualizar el estado para indicar que hay un documento
+      toast.success("Documento cargado exitosamente", {
+        autoClose: 3000,
+      });
+      if (onDocumentChange) {
+        onDocumentChange();
+      }
+      setTimeout(() => {
+        onClose();
       }, 500) // Cerrar el modal después de cargar
     } catch (err) {
-        setError("Failed to upload document");
-        toast.error("Error al cargar el documento", {
-            autoClose: 3000,
-        });
-        console.error(err);
+      setError("Failed to upload document");
+      toast.error("Error al cargar el documento", {
+        autoClose: 3000,
+      });
+      console.error(err);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
   // Manejar la descarga del documento
   const handleDownload = async () => {
@@ -86,18 +88,18 @@ const ModalDocumentLoad = ({ entityType, entityId, show, onClose }) => {
     setError(null);
 
     try {
-        await actions.downloadDocument(store.documentId, entityType === "client");
-        toast.success("Documento descargado exitosamente", {
-            autoClose: 3000
-        });
+      await actions.downloadDocument(store.documentId, entityType === "client");
+      toast.success("Documento descargado exitosamente", {
+        autoClose: 3000
+      });
     } catch (err) {
-        setError("Error al descargar el documento");
-        toast.error("Error al descargar el documento");
-        console.error(err);
+      setError("Error al descargar el documento");
+      toast.error("Error al descargar el documento");
+      console.error(err);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
   // Manejar la eliminación del documento
   const handleDelete = async () => {
@@ -105,20 +107,23 @@ const ModalDocumentLoad = ({ entityType, entityId, show, onClose }) => {
     setError(null);
 
     try {
-        await actions.deleteDocument(store.documentId, entityType === "client");
-        setHasDocument(false); // Actualizar el estado para indicar que no hay un documento
-        toast.success("Documento eliminado exitosamente" , { autoClose: 3000 });
-        setTimeout(() => {
-          onClose();
+      await actions.deleteDocument(store.documentId, entityType === "client");
+      setHasDocument(false); // Actualizar el estado para indicar que no hay un documento
+      toast.success("Documento eliminado exitosamente", { autoClose: 3000 });
+      if (onDocumentChange) {
+        onDocumentChange();
+      }
+      setTimeout(() => {
+        onClose();
       }, 500)
     } catch (err) {
-        setError("Error al eliminar el documento");
-        toast.error("Error al eliminar el documento");
-        console.error(err);
+      setError("Error al eliminar el documento");
+      toast.error("Error al eliminar el documento");
+      console.error(err);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
   // No renderizar el modal si no está visible
   if (!show) return null;
@@ -126,22 +131,22 @@ const ModalDocumentLoad = ({ entityType, entityId, show, onClose }) => {
   return (
     <>
       <ToastContainer
-                position="top-right"
-                autoClose={3000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-            />
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <div className="modal" tabIndex="-1" style={{ display: "block" }}>
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title">
-                {entityType === "client" ? "Documento del Cliente" : "Documento del Servicio"}
+                {entityType === "client" ? "Anexa Personal Autorizado" : "Anexa Contrato del Servicio"}
               </h5>
               <button
                 type="button"
@@ -195,7 +200,12 @@ const ModalDocumentLoad = ({ entityType, entityId, show, onClose }) => {
               <button
                 type="button"
                 className="btn btn-secondary"
-                onClick={onClose}
+                onClick={() => {
+                  onClose();
+                  if (onDocumentChange) {
+                    onDocumentChange();
+                  }
+                }}
                 disabled={loading}
               >
                 Cerrar

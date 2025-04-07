@@ -5,50 +5,58 @@ import ModalDocumentLoad from '../component/ModalDocumentLoad.jsx';
 import { FileText, Pencil } from 'lucide-react';
 
 const DetalleServicio = () => {
-    const { serviceId } = useParams();
-    const { store, actions } = useContext(Context);
-    const navigate = useNavigate();
-    const location = useLocation();
+  const { serviceId } = useParams();
+  const { store, actions } = useContext(Context);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    useEffect(() => {
-        if (!store.isAuthenticated) {
-            navigate('/login', { replace: true });
-        }
-    }, [store.isAuthenticated, navigate]);
-
-    const [serviceData, setServiceData] = useState(null);
-    const [showDocumentModal, setShowDocumentModal] = useState(false);
-
-    useEffect(() => {
-        const fetchServiceData = async () => {
-            try {
-                const service = await actions.getServiceById(serviceId);
-                const serviceObject = Array.isArray(service) ? service[0] : service;
-                setServiceData(serviceObject);
-            } catch (error) {
-                console.error("Error fetching service data", error);
-            }
-        };
-        fetchServiceData();
-    }, [serviceId]);
-
-    if (!serviceData) {
-        return <div>Loading...</div>;
+  useEffect(() => {
+    if (!store.isAuthenticated) {
+      navigate('/login', { replace: true });
     }
+  }, [store.isAuthenticated, navigate]);
 
-    const handleEditClick = () => {
-        navigate(`/editar-servicio/${serviceId}`, { state: { clientId: serviceData.cliente_id } }); // Pass clientId in state
+  const [serviceData, setServiceData] = useState(null);
+  const [showDocumentModal, setShowDocumentModal] = useState(false);
+  const [hasDocument, setHasDocument] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [refresh, setRefresh] = useState(false); // New state to force re-render
+
+  useEffect(() => {
+    const fetchServiceData = async () => {
+      setLoading(true);
+      try {
+        const service = await actions.getServiceById(serviceId);
+        const serviceObject = Array.isArray(service) ? service[0] : service;
+        setServiceData(serviceObject);
+        const exists = await actions.checkDocumentExists("service", serviceId);
+        setHasDocument(exists);
+      } catch (error) {
+        setError("Error al cargar los datos del servicio");
+        console.error("Error fetching service data", error);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchServiceData();
+  }, [serviceId, refresh]); // Add refresh to the dependency array
 
-    return (
-        <>
+  const handleEditClick = () => {
+    navigate(`/editar-servicio/${serviceId}`, { state: { clientId: serviceData.cliente_id } }); // Pass clientId in state
+  };
+
+  if (loading) return <div>Cargando...</div>;
+  if (error) return <div>{error}</div>;
+
+  return (
+    <>
       <div className="container">
         <div className="d-flex justify-content-between align-items-center">
           <h2>Detalles del Servicio</h2>
           <div>
             <button className="btn btn-primary me-2" onClick={handleEditClick}>
-            
-            <Pencil size={20} strokeWidth={1.75} />
+              <Pencil size={20} strokeWidth={1.75} />
               Editar Datos
             </button>
             <button
@@ -57,6 +65,8 @@ const DetalleServicio = () => {
             >
               Gestionar Documentos
               <FileText />
+              {hasDocument && <span className="badge bg-success ms-2">Cargado</span>}
+              {!hasDocument && <span className="badge bg-danger ms-2">Vacío</span>}
             </button>
           </div>
         </div>
@@ -191,11 +201,12 @@ const DetalleServicio = () => {
           entityId={serviceId}
           show={showDocumentModal}
           onClose={() => setShowDocumentModal(false)}
+          onDocumentChange={() => setRefresh(!refresh)} // Toggle refresh state
         />
         <button className="btn btn-secondary" onClick={() => navigate(`/detalle-cliente/${serviceData.cliente.id}`)}>Regresar</button>
       </div>
     </>
-    );
+  );
 };
 
 export default DetalleServicio;
