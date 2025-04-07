@@ -960,6 +960,26 @@ def correct_service_type(service_type):
     else:
         return "Other"  # Default value if no close match
     
+def correct_client_type(client_type):
+    """
+    Corrects a client type to either 'Pública' or 'Privada' using fuzzy matching.
+
+    Args:
+        client_type (str): The client type to correct.
+
+    Returns:
+        str: The corrected client type ('Pública' or 'Privada').
+    """
+    valid_types = ['Pública', 'Privada']
+    if not client_type:
+        return "Otro"  # Default value if empty
+
+    best_match, score = process.extractOne(client_type, valid_types, scorer=fuzz.ratio)
+    if score >= 70:  # Adjust the threshold as needed
+        return best_match
+    else:
+        return "Privada"  # Default value if no close match
+    
 @api.route('/upload-excel', methods=['POST'])
 def upload_excel():
     try:
@@ -1039,11 +1059,17 @@ def upload_excel():
                 print(f"Warning: Empty RIF in row {index}. Skipping row.")
                 continue
 
+            # Correct the client type
+            original_client_type = row.get('Tipo', '')
+            corrected_client_type = correct_client_type(original_client_type)
+            if original_client_type != corrected_client_type:
+                print(f"Warning: Corrected client type from '{original_client_type}' to '{corrected_client_type}' in row {index}.")
+
             # Crear/obtener cliente
             cliente = Cliente.query.filter_by(rif=rif_value).first()
             if not cliente:
                 cliente = Cliente(
-                    tipo=row.get('Tipo', ''),
+                    tipo=corrected_client_type,  # Use the corrected client type
                     rif=rif_value,  # Use the string value
                     razon_social=row.get('Razón Social', '')
                 )
