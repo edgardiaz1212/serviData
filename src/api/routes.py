@@ -14,6 +14,7 @@ from sqlalchemy.exc import SQLAlchemyError
 import logging
 from fuzzywuzzy import fuzz, process
 
+
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -473,9 +474,88 @@ def get_service_counts_by_client_type(client_type):
         # Manejar errores generales
         return jsonify({"error": str(e)}), 500  
       
-from datetime import datetime
-from flask import jsonify
-from sqlalchemy.exc import SQLAlchemyError
+@api.route('/service-counts-by-platform', methods=['GET'])
+def get_service_counts_by_platform():
+    """
+    Calcula y devuelve el número de servicios agrupados por nombre_plataforma.
+    Ideal para una gráfica de barras titulada "Servicios por Plataforma".
+    """
+    try:
+        # Consulta para contar servicios por nombre_plataforma
+        platform_counts = db.session.query(
+            Servicio.nombre_plataforma,
+            func.count(Servicio.id).label('count')
+        ).group_by(
+            Servicio.nombre_plataforma
+        ).order_by(
+            db.desc('count') # Opcional: ordenar por cantidad descendente
+        ).all()
+
+        # Formatear los resultados para la respuesta JSON
+        result = [
+            {'nombre_plataforma': platform if platform else 'No especificada', 'count': count}
+            for platform, count in platform_counts
+        ]
+
+        # Verificar si hay datos
+        if not result:
+            return jsonify({"message": "No hay datos de servicios por plataforma disponibles."}), 404
+        
+        return jsonify(result), 200
+
+    except SQLAlchemyError as e:
+        # Manejar errores de base de datos
+        logging.error(f"Error de base de datos al obtener conteo por plataforma: {str(e)}")
+        return jsonify({"error": "Error de base de datos", "details": str(e)}), 500
+    except Exception as e:
+        # Manejar otros errores inesperados
+        logging.error(f"Error inesperado al obtener conteo por plataforma: {str(e)}")
+        return jsonify({"error": "Ocurrió un error inesperado", "details": str(e)}), 500
+
+@api.route('/new-services-monthly', methods=['GET'])
+def get_new_services_monthly_trend():
+    """
+    Calcula y devuelve el número de servicios creados por mes y año.
+    Ideal para una gráfica de líneas mostrando la tendencia mensual.
+    """
+    try:
+        # Consulta para contar servicios agrupados por año y mes de creación
+        monthly_trend = db.session.query(
+            extract('year', Servicio.created_at).label('year'),
+            extract('month', Servicio.created_at).label('month'),
+            func.count(Servicio.id).label('count')
+        ).group_by(
+            extract('year', Servicio.created_at),
+            extract('month', Servicio.created_at)
+        ).order_by(
+            extract('year', Servicio.created_at),
+            extract('month', Servicio.created_at)
+        ).all()
+
+        # Formatear los resultados para la respuesta JSON en formato 'YYYY-MM'
+        result = [
+            # Formatea el mes con dos dígitos (ej: 01, 02, ..., 12)
+            {'month': f"{int(year)}-{int(month):02d}", 'count': count}
+            for year, month, count in monthly_trend
+        ]
+
+        # Verificar si hay datos
+        if not result:
+            # Es válido devolver un array vacío si no hay datos históricos
+            return jsonify([]), 200
+            # O si prefieres un 404:
+            # return jsonify({"message": "No hay datos de tendencia mensual disponibles."}), 404
+
+        return jsonify(result), 200
+
+    except SQLAlchemyError as e:
+        # Manejar errores de base de datos
+        logging.error(f"Error de base de datos al obtener tendencia mensual: {str(e)}")
+        return jsonify({"error": "Error de base de datos", "details": str(e)}), 500
+    except Exception as e:
+        # Manejar otros errores inesperados
+        logging.error(f"Error inesperado al obtener tendencia mensual: {str(e)}")
+        return jsonify({"error": "Ocurrió un error inesperado", "details": str(e)}), 500
 
 @api.route('/new-services-current-month', methods=['GET'])
 def get_new_services_current_month():
@@ -935,9 +1015,7 @@ valid_service_types = [
     'BD SQL SERVER',
     'MENSAJERIA',
     'DDV',
-    'VMWARE',
-    'PROXMOX',
-    'HOSPEDAJE DEDICADO FISICO',
+    'HOSPEDAJE DEDICADO',
     'RESPALDO Y RECUPERACION',
     'COLOCATION RU',
 ]

@@ -6,9 +6,7 @@ export const servicios = [
     'BD SQL SERVER',
     'MENSAJERIA',
     'DDV',
-    'VMWARE',
-    'PROXMOX',
-    'HOSPEDAJE DEDICADO FISICO',
+    'HOSPEDAJE DEDICADO',
     'RESPALDO Y RECUPERACION',
     'COLOCATION RU',
   ];

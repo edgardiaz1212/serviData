@@ -23,6 +23,8 @@ const getState = ({ getStore, getActions, setStore }) => {
       activeServiceCount: 0,
       documentName: [], // Add document state
       documentId: null, // Add document ID state
+      serviceCountsByPlatform: [],
+      newServicesMonthlyTrend: [],
     },
 
     actions: {
@@ -569,6 +571,46 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during getting client service counts", error);
         }
       },
+      getServiceCountsByPlatform: async () => {
+        const store = getStore();
+        try {
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/service-counts-by-platform`, // Asegúrate que la URL base esté correcta
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        // Si necesitas autenticación, agrega el encabezado Authorization aquí
+                        // "Authorization": `Bearer ${store.token}` // Ejemplo si usas tokens JWT
+                    },
+                }
+            );
+
+            if (response.ok) {
+                const data = await response.json();
+                // Guardar los datos en el store
+                setStore({ serviceCountsByPlatform: data });
+                console.log("Datos de conteo por plataforma obtenidos:", data);
+                return data; // Devuelve los datos por si se necesitan directamente
+            } else if (response.status === 404) {
+                // Manejar el caso donde no hay datos
+                console.warn("No se encontraron datos de servicios por plataforma.");
+                setStore({ serviceCountsByPlatform: [] }); // Asegura que el estado quede vacío
+                return [];
+            } else {
+                // Manejar otros errores HTTP
+                const errorData = await response.json();
+                console.error("Error al obtener conteo por plataforma:", response.status, errorData);
+                setStore({ serviceCountsByPlatform: [] }); // Limpiar en caso de error
+                return { error: true, message: errorData.error || `Error ${response.status}` };
+            }
+        } catch (error) {
+            // Manejar errores de red u otros errores inesperados
+            console.error("Error de red o inesperado al obtener conteo por plataforma:", error);
+            setStore({ serviceCountsByPlatform: [] }); // Limpiar en caso de error
+            return { error: true, message: error.message };
+        }
+    },
 
       getAprovisionados: async () => {
         try {
@@ -715,7 +757,48 @@ const getState = ({ getStore, getActions, setStore }) => {
           return [];
         }
       },
+      getNewServicesMonthlyTrend: async () => {
+        const store = getStore();
+        // Define el endpoint del backend para esta consulta
+        const endpoint = `${process.env.REACT_APP_BACKEND_URL}/new-services-monthly`; // <-- Asegúrate de crear este endpoint en Flask
 
+        try {
+            const response = await fetch(endpoint, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    // Si necesitas autenticación, agrega el encabezado Authorization aquí
+                    // "Authorization": `Bearer ${store.token}`
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                // Ordenar los datos por mes por si el backend no lo hace
+                const sortedData = data.sort((a, b) => {
+                    if (a.month < b.month) return -1;
+                    if (a.month > b.month) return 1;
+                    return 0;
+                });
+                setStore({ newServicesMonthlyTrend: sortedData });
+                console.log("Tendencia mensual de nuevos servicios obtenida:", sortedData);
+                return sortedData;
+            } else if (response.status === 404) {
+                console.warn("No se encontraron datos de tendencia mensual de nuevos servicios.");
+                setStore({ newServicesMonthlyTrend: [] });
+                return [];
+            } else {
+                const errorData = await response.json();
+                console.error("Error al obtener tendencia mensual:", response.status, errorData);
+                setStore({ newServicesMonthlyTrend: [] });
+                return { error: true, message: errorData.error || `Error ${response.status}` };
+            }
+        } catch (error) {
+            console.error("Error de red o inesperado al obtener tendencia mensual:", error);
+            setStore({ newServicesMonthlyTrend: [] });
+            return { error: true, message: error.message };
+        }
+    },
       getServiciosAprovisionadosPorMes: async (month, year) => {
         try {
           const response = await fetch(
