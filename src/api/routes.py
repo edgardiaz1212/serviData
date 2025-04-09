@@ -985,7 +985,7 @@ def upload_excel():
     try:
         # Obtener datos del cuerpo JSON
         data = request.get_json()
-        estado_servicio = data.get('estado_servicio', 'Nuevo')
+        estado_servicio_default = data.get('estado_servicio', 'Nuevo') # Renombrado para evitar conflicto
 
         # Validar formato de los datos
         if not data:
@@ -998,10 +998,10 @@ def upload_excel():
         # Convertir datos a DataFrame
         df = pd.DataFrame(data['data'])
 
-        # Mapear columnas si es necesario
+        # Mapear columnas si es necesario (igual que antes)
         column_mapping = {
-            'tipo': 'Tipo',  # Assuming "Tipo" is in the Clientes sheet
-            'rif': 'RIF',  # Assuming "RIF" is in the Clientes sheet
+            'tipo': 'Tipo',
+            'rif': 'RIF',
             'razon_social': 'Razón Social',
             'contrato': 'Contrato',
             'tipo_servicio': 'Tipo de Servicio',
@@ -1012,7 +1012,7 @@ def upload_excel():
             'plan_aprovisionado': 'Plan Aprovisionado',
             'plan_servicio': 'Plan de Servicio',
             'descripcion': 'Descripción',
-            'estado_servicio': 'Estado del Servicio',
+            'estado_servicio': 'Estado del Servicio', # Columna opcional en Excel
             'dominio': 'Dominio',
             'dns_dominio': 'DNS del Dominio',
             'ubicacion': 'Ubicación',
@@ -1037,103 +1037,121 @@ def upload_excel():
         }
         df.rename(columns=column_mapping, inplace=True)
 
-        # Check for missing columns
-        required_columns = ['rif', 'tipo', 'razon_social', 'contrato', 'tipo_servicio', ]
+        # Check for missing required columns in the DataFrame structure itself
+        # These are essential for client identification and service uniqueness check
+        required_df_columns = ['RIF', 'Contrato', 'Tipo de Servicio']
+        missing_df_cols = [col for col in required_df_columns if col not in df.columns]
+        if missing_df_cols:
+            return jsonify({"error": f"Missing required columns in the Excel data: {', '.join(missing_df_cols)}"}), 400
 
-        # Instead of checking columns in the dataframe
-        # Check properties in each record
-        for record in data['data']:
-            missing_fields = [field for field in required_columns if field not in record]
-            if missing_fields:
-                return jsonify({"error": f"Missing required fields in a record: {', '.join(missing_fields)}"}), 400
-        
-        # Check if 'rif' column exists in the DataFrame
-        if 'RIF' not in df.columns:
-            return jsonify({"error": "Missing 'RIF' column in the data."}), 400
+        processed_count = 0
+        skipped_duplicates = 0
+        skipped_missing_rif = 0
 
         # Procesar filas
         for index, row in df.iterrows():
-            # Ensure RIF is a string
+            # Ensure RIF is a string and exists
             rif_value = str(row['RIF']) if pd.notna(row['RIF']) else None
             if not rif_value:
-                print(f"Warning: Empty RIF in row {index}. Skipping row.")
+                logging.warning(f"Skipping row {index + 2}: Empty RIF.")
+                skipped_missing_rif += 1
                 continue
 
             # Correct the client type
-            original_client_type = row.get('Tipo', '')
+            original_client_type = row.get('Tipo', '') # Get Tipo, default to empty if missing
             corrected_client_type = correct_client_type(original_client_type)
-            if original_client_type != corrected_client_type:
-                print(f"Warning: Corrected client type from '{original_client_type}' to '{corrected_client_type}' in row {index}.")
+            # No warning needed here unless debugging specific type issues
 
             # Crear/obtener cliente
             cliente = Cliente.query.filter_by(rif=rif_value).first()
             if not cliente:
                 cliente = Cliente(
-                    tipo=corrected_client_type,  # Use the corrected client type
-                    rif=rif_value,  # Use the string value
-                    razon_social=row.get('Razón Social', '')
+                    tipo=corrected_client_type,
+                    rif=rif_value,
+                    razon_social=row.get('Razón Social', '') # Default to empty if missing
                 )
                 try:
                     db.session.add(cliente)
+                    # Commit immediately to get the client ID for the service check
                     db.session.commit()
                 except SQLAlchemyError as e:
                     db.session.rollback()
-                    return jsonify({"error": f"Database error creating client: {str(e)}", "details": str(e.__dict__['orig'])}), 500
+                    logging.error(f"Database error creating client for RIF {rif_value}: {str(e)}")
+                    # Decide if you want to stop the whole upload or just skip this row
+                    return jsonify({"error": f"Database error creating client: {str(e)}", "details": str(e.__dict__.get('orig'))}), 500
 
-            # Correct the service type
-            original_service_type = row.get('Tipo de Servicio', '')
+            # --- Inicio de la comprobación de duplicados ---
+            contrato_excel = row.get('Contrato')
+            contrato_value = str(contrato_excel) if pd.notna(contrato_excel) else ''
+            original_service_type = row.get('Tipo de Servicio', '') # Get Tipo de Servicio, default to empty
             corrected_service_type = correct_service_type(original_service_type)
-            if original_service_type != corrected_service_type:
-                print(f"Warning: Corrected service type from '{original_service_type}' to '{corrected_service_type}' in row {index}.")
 
-            # Crear servicio, organizando los campos por categoría
+            # Check if a service with the same contrato and tipo_servicio already exists for this client
+            existing_service = Servicio.query.filter_by(
+                cliente_id=cliente.id,
+                contrato=contrato_value,
+                tipo_servicio=corrected_service_type # Check against the corrected type
+            ).first()
+
+            if existing_service:
+                logging.warning(f"Skipping row {index + 2}: Duplicate service found for client RIF {rif_value} (Contrato: '{contrato_value}', Tipo: '{corrected_service_type}')")
+                skipped_duplicates += 1
+                continue # Skip to the next row if duplicate found
+            # --- Fin de la comprobación de duplicados ---
+
+            # Use estado_servicio from Excel if present, otherwise use the default from JSON body
+            estado_servicio = row.get('Estado del Servicio', estado_servicio_default) if pd.notna(row.get('Estado del Servicio')) else estado_servicio_default
+
+            # --- Procesamiento de valores numéricos (igual que antes) ---
             cantidad_ru = 0
             if 'Cantidad de RU' in row and pd.notna(row['Cantidad de RU']):
                 try:
                     cantidad_ru = int(row['Cantidad de RU'])
-                except ValueError:
-                    print(f"Warning: Non-integer value for cantidad_ru: {row['Cantidad de RU']}")
-                    cantidad_ru = 0
+                except (ValueError, TypeError):
+                    logging.warning(f"Row {index + 2}: Invalid non-integer value for 'Cantidad de RU': {row['Cantidad de RU']}. Using 0.")
+                    cantidad_ru = 0 # Default to 0 on error
             cantidad_m2 = 0
             if 'Cantidad de m2' in row and pd.notna(row['Cantidad de m2']):
                 try:
                     cantidad_m2 = int(row['Cantidad de m2'])
-                except ValueError:
-                    print(f"Warning: Non-integer value for cantidad_m2: {row['Cantidad de m2']}")
+                except (ValueError, TypeError):
+                    logging.warning(f"Row {index + 2}: Invalid non-integer value for 'Cantidad de m2': {row['Cantidad de m2']}. Using 0.")
                     cantidad_m2 = 0
             cantidad_bastidores = 0
             if 'Cantidad de Bastidores' in row and pd.notna(row['Cantidad de Bastidores']):
                 try:
                     cantidad_bastidores = int(row['Cantidad de Bastidores'])
-                except ValueError:
-                    print(f"Warning: Non-integer value for cantidad_bastidores: {row['Cantidad de Bastidores']}")
+                except (ValueError, TypeError):
+                    logging.warning(f"Row {index + 2}: Invalid non-integer value for 'Cantidad de Bastidores': {row['Cantidad de Bastidores']}. Using 0.")
                     cantidad_bastidores = 0
             ram = 0
             if 'RAM (GB)' in row and pd.notna(row['RAM (GB)']):
                 try:
                     ram = int(row['RAM (GB)'])
-                except ValueError:
-                    print(f"Warning: Non-integer value for ram: {row['RAM (GB)']}")
+                except (ValueError, TypeError):
+                    logging.warning(f"Row {index + 2}: Invalid non-integer value for 'RAM (GB)': {row['RAM (GB)']}. Using 0.")
                     ram = 0
             hdd = 0
             if 'HDD (GB)' in row and pd.notna(row['HDD (GB)']):
                 try:
                     hdd = int(row['HDD (GB)'])
-                except ValueError:
-                    print(f"Warning: Non-integer value for hdd: {row['HDD (GB)']}")
+                except (ValueError, TypeError):
+                    logging.warning(f"Row {index + 2}: Invalid non-integer value for 'HDD (GB)': {row['HDD (GB)']}. Using 0.")
                     hdd = 0
             cpu = 0
             if 'CPU (GHz)' in row and pd.notna(row['CPU (GHz)']):
                 try:
                     cpu = int(row['CPU (GHz)'])
-                except ValueError:
-                    print(f"Warning: Non-integer value for cpu: {row['CPU (GHz)']}")
+                except (ValueError, TypeError):
+                    logging.warning(f"Row {index + 2}: Invalid non-integer value for 'CPU (GHz)': {row['CPU (GHz)']}. Using 0.")
                     cpu = 0
+            # --- Fin del procesamiento de valores numéricos ---
 
+            # Crear servicio (solo si no es duplicado)
             servicio = Servicio(
                 # Identificación y Contrato
-                contrato=row.get('Contrato', ''),
-                tipo_servicio=corrected_service_type,  # Use the corrected service type
+                contrato=contrato_value,
+                tipo_servicio=corrected_service_type, # Use corrected type
                 estado_contrato=row.get('Estado del Contrato', ''),
                 facturado=row.get('Facturado', ''),
 
@@ -1143,7 +1161,7 @@ def upload_excel():
                 plan_aprovisionado=row.get('Plan Aprovisionado', ''),
                 plan_servicio=row.get('Plan de Servicio', ''),
                 descripcion=row.get('Descripción', ''),
-                estado_servicio=estado_servicio,
+                estado_servicio=estado_servicio, # Use determined estado_servicio
 
                 # Información de Dominio y DNS
                 dominio=row.get('Dominio', ''),
@@ -1169,24 +1187,34 @@ def upload_excel():
                 # Red e IP
                 ip_privada=row.get('IP Privada', ''),
                 ip_publica=row.get('IP Pública', ''),
+                vlan=row.get('VLAN',''), # Asegúrate que el mapeo sea correcto si la columna es 'VLAN'
                 ipam=row.get('IPAM', ''),
 
                 # Observaciones y Comentarios
                 observaciones=row.get('Observaciones', ''),
                 comentarios=row.get('Comentarios', ''),
-                vlan=row.get('VLAN',''),
 
                 cliente_id=cliente.id,
             )
             db.session.add(servicio)
+            processed_count += 1
 
-        # Confirmar transacción
+        # Confirmar transacción después de procesar todas las filas válidas
         db.session.commit()
-        return jsonify({"message": "Excel data uploaded successfully!"}), 201
+        return jsonify({
+            "message": f"Excel data processed. {processed_count} services added.",
+            "skipped_duplicates": skipped_duplicates,
+            "skipped_missing_rif": skipped_missing_rif
+        }), 201
 
     except KeyError as e:
         db.session.rollback()
-        return jsonify({"error": f"Missing column in data: {str(e)}"}), 400
+        logging.error(f"Upload failed due to missing column: {str(e)}")
+        return jsonify({"error": f"Missing expected column in data: {str(e)}"}), 400
+    except pd.errors.EmptyDataError:
+         db.session.rollback()
+         return jsonify({"error": "The provided data is empty."}), 400
     except Exception as e:
         db.session.rollback()
+        logging.error(f"An unexpected error occurred during Excel upload: {str(e)}", exc_info=True) # Log stack trace
         return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
