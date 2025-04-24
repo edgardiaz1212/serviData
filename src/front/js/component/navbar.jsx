@@ -19,7 +19,7 @@ const Navbar = () => {
       <div className="container-fluid">
         <Link className="navbar-brand d-flex align-items-center" to="/">
           <img src={logo} alt="Logo" width="50" height="30" className="me-2" />
-          ServiData
+          Planificación y Proyectos <strong className="text-warning"> DCCE</strong>
         </Link>
         
         {/* Hamburger menu toggle button */}

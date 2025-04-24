@@ -1,8 +1,8 @@
 
 import React ,{useContext, useEffect, useState}from 'react';
-import { ArrowRight, BarChart2, Database, Server, Shield, Users } from 'lucide-react'; 
+import { ArrowRight, BarChart2, Database, Server, Shield, Users , ShieldCheck } from 'lucide-react'; 
 import { Context } from '../store/appContext'; 
-
+import work from '../../img/work.png'
 
 export default function DCCELandingPage() {
   const {actions, store}=useContext(Context);
@@ -217,38 +217,24 @@ useEffect(() => {
         </div>
       </section>
 
-      {/* Estadísticas */}
-      <section id="estadisticas" className="py-5 bg-light">
+       {/* Banner de confianza */}
+       <section className="py-5 bg-primary text-white">
         <div className="container">
-          <h2 className="fw-bold text-center mb-5 text-dark">Estadísticas en Tiempo Real</h2>
-          
-          <div className="row g-4 text-center">
-            <div className="col-md col-6"> {/* Use col-md for medium screens, col-6 for small */}
-              <div className="bg-white p-4 rounded shadow-sm h-100">
-                <div className="display-5 fw-bold text-primary mb-2">250+</div>
-                <div className="text-muted">Clientes Empresariales</div>
-              </div>
+          <div className="row align-items-center">
+            <div className="col-md-6 mb-4 mb-md-0">
+              <h2 className="h2 fw-bold mb-4">Protección y Confianza en Cada Proyecto</h2>
+              <p className="fs-5">
+                Nuestros servicios de centro de datos cuentan y cumplen con los más altos estándares de seguridad de la industria.
+              </p>
             </div>
-            
-            <div className="col-md col-6">
-              <div className="bg-white p-4 rounded shadow-sm h-100">
-                <div className="display-5 fw-bold text-primary mb-2">99.9%</div>
-                <div className="text-muted">Tiempo de Actividad</div>
-              </div>
-            </div>
-            
-            <div className="col-md col-6">
-              <div className="bg-white p-4 rounded shadow-sm h-100">
-                <div className="display-5 fw-bold text-primary mb-2">5PB+</div>
-                <div className="text-muted">Datos Gestionados</div>
-              </div>
-            </div>
-            
-            <div className="col-md col-6">
-              <div className="bg-white p-4 rounded shadow-sm h-100">
-                <div className="display-5 fw-bold text-primary mb-2">24/7</div>
-                <div className="text-muted">Soporte Técnico</div>
-              </div>
+            <div className="col-md-6 d-flex justify-content-center">
+                <ShieldCheck size={90}/>
+              {/* <img
+                src={work}
+                alt="Seguridad y confianza"
+                className="img-fluid rounded-3 shadow-lg"
+                style={{ maxWidth: '100%', height: 'auto' }} // Responsive image
+              /> */}
             </div>
           </div>
         </div>

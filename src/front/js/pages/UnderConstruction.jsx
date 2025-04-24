@@ -20,9 +20,7 @@ export default function UnderConstruction() {
       <Link to="/" className="btn btn-primary btn-lg">
         Volver al Inicio
       </Link>
-      <footer className="mt-5 text-muted small">
-        © {new Date().getFullYear()} Tu Nombre de Empresa/Proyecto
-      </footer>
+      
     </div>
   );
 }
