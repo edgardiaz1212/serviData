@@ -32,41 +32,47 @@ export default function DCCELandingPage() {
       {/* Hero Section */}
       <header className="bg-primary text-white">
         <div className="container py-5">
-          {/* Bootstrap Navbar */}
+          {/* Bootstrap Navbar specific to Home.jsx */}
           <nav className="navbar navbar-expand-md navbar-dark bg-primary mb-5">
             <div className="container-fluid px-0">
               <a className="navbar-brand d-flex align-items-center" href="#">
                 <Server className="h-8 w-8 me-2" />
                 <span className="fs-5 fw-bold">Planificacion y Proyectos DCCE</span>
               </a>
-              <button
-                className="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarNav"
-                aria-controls="navbarNav"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-              >
-                <span className="navbar-toggler-icon"></span>
-              </button>
+              {/* Hamburger button - Show only if NOT authenticated */}
+              {!store.isAuthenticated && (
+                <button
+                  className="navbar-toggler"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#navbarNav"
+                  aria-controls="navbarNav"
+                  aria-expanded="false"
+                  aria-label="Toggle navigation"
+                >
+                  <span className="navbar-toggler-icon"></span>
+                </button>
+              )}
               <div className="collapse navbar-collapse" id="navbarNav">
-                <ul className="navbar-nav ms-auto mb-2 mb-md-0">
-                  <li className="nav-item">
-                    <a className="nav-link" href="#servicios">Servicios</a>
-                  </li>
-                  <li className="nav-item">
-                    {/* Note: There is no section with id="estadisticas" in the provided code */}
-                    <a className="nav-link" href="#estadisticas">Estadísticas</a>
-                  </li>
-                  <li className="nav-item">
-                    <a className="nav-link" href="#contacto">Contacto</a>
-                  </li>
-                </ul>
+                {/* Show these links only if NOT authenticated */}
+                {!store.isAuthenticated && (
+                  <ul className="navbar-nav ms-auto mb-2 mb-md-0">
+                    <li className="nav-item">
+                      <a className="nav-link" href="#servicios">Servicios</a>
+                    </li>
+                    <li className="nav-item">
+                      {/* Note: There is no section with id="estadisticas" in the provided code */}
+                      <a className="nav-link" href="#estadisticas">Estadísticas</a>
+                    </li>
+                    <li className="nav-item">
+                      <a className="nav-link" href="#contacto">Contacto</a>
+                    </li>
+                  </ul>
+                )}
                 {/* Conditional Access button */}
                 <a
                   href={accessLink} // Use the conditional link
-                  className="btn btn-info ms-md-3"
+                  className={`btn btn-info ${store.isAuthenticated ? 'ms-auto' : 'ms-md-3'}`} // Adjust margin if authenticated
                 >
                   {accessButtonText} {/* Use the conditional text */}
                 </a>
@@ -74,6 +80,7 @@ export default function DCCELandingPage() {
             </div>
           </nav>
 
+          {/* Rest of the component remains the same... */}
           <div className="row align-items-center">
             <div className="col-md-6 mb-4 mb-md-0">
               <h1 className="display-4 fw-bold mb-3">Centro de Datos Clientes Externos</h1>
@@ -81,7 +88,6 @@ export default function DCCELandingPage() {
                 Planificación y gestión integral de proyectos para infraestructura de datos empresariales
               </p>
               <div className="d-flex gap-3">
-                {/* Removed the commented-out login button */}
                 <a
                   href="#contacto"
                   className="btn btn-outline-light fw-bold py-2 px-4"

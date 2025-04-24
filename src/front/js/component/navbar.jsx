@@ -17,7 +17,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark p-2">
       <div className="container-fluid">
         <Link className="navbar-brand d-flex align-items-center" to="/">
           <img src={logo} alt="Logo" width="50" height="30" className="me-2" />
@@ -27,7 +27,7 @@ const Navbar = () => {
         {/* Hamburger menu toggle button - Conditionally rendered */}
         {isAuthenticated && ( // Only show the button if the user is authenticated
           <button
-            className="navbar-toggler"
+            className="navbar-toggler "
             type="button"
             data-bs-toggle="collapse"
             data-bs-target="#navbarNavDropdown"
