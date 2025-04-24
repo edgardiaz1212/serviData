@@ -1,11 +1,17 @@
-import React from 'react';
-// You might want to switch to Bootstrap Icons later for consistency
+
+import React ,{useContext, useEffect, useState}from 'react';
 import { ArrowRight, BarChart2, Database, Server, Shield, Users } from 'lucide-react'; 
-// Make sure Bootstrap CSS is imported in your project's entry point (e.g., index.js or App.js)
-// import 'bootstrap/dist/css/bootstrap.min.css'; 
+import { Context } from '../store/appContext'; 
+
 
 export default function DCCELandingPage() {
-  return (
+  const {actions, store}=useContext(Context);
+useEffect(() => {
+  actions.getTotalClients();
+  actions.getTotalServices();
+}, []);
+
+    return (
     <div className="d-flex flex-column min-vh-100">
       {/* Hero Section */}
       {/* Using bg-primary as a stand-in for the gradient. Add custom CSS for a gradient if needed. */}
@@ -189,11 +195,11 @@ export default function DCCELandingPage() {
                     <div className="bg-dark p-3 rounded">
                       <div className="d-flex justify-content-between mb-2">
                         <span className="text-light small">Clientes activos:</span>
-                        <span className="text-success fw-bold">138</span>
+                        <span className="text-success fw-bold">{store.totalClients || 0}</span>
                       </div>
                       <div className="d-flex justify-content-between mb-2">
                         <span className="text-light small">Servicios contratados:</span>
-                        <span className="text-success fw-bold">426</span>
+                        <span className="text-success fw-bold">{store.totalServices || 0}</span>
                       </div>
                       <div className="d-flex justify-content-between">
                         <span className="text-light small">Uso de recursos:</span>
@@ -272,7 +278,7 @@ export default function DCCELandingPage() {
                      </svg>
                    </div>
                 </div>
-                <span>+123 456 7890</span>
+                <span>+58 212 9060200</span>
               </div>
               
               <div className="d-flex align-items-center mb-3">
@@ -283,7 +289,7 @@ export default function DCCELandingPage() {
                      </svg>
                    </div>
                  </div>
-                <span>contacto@dcce.com</span>
+                <span>copyp_cdh@cantv.com.ve</span>
               </div>
               
               <div className="d-flex align-items-center">
@@ -295,7 +301,7 @@ export default function DCCELandingPage() {
                      </svg>
                    </div>
                  </div>
-                <span>Av. Tecnológica 1234, Parque Industrial</span>
+                <span>Calle A Las cabañas. Av Principal del Hatillo. Sector La Boyera. Edificio Cantv Caracas Venezuela</span>
               </div>
             </div>
             
