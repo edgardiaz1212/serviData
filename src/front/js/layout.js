@@ -33,7 +33,7 @@ const Layout = () => {
                     <div className="content-container" style={{ flexGrow: 1 }}>
                         <Routes>
                             <Route path="/underconstruction" element={<UnderConstruction />} />
-                            <Route path='landing' element={<DCCELandingPage />} />
+                            <Route path='' element={<DCCELandingPage />} />
                             <Route path="/login" element={<Login />} />
                             <Route path="/resumen" element={<Resumen />} />
                             <Route path="/clientes" element={<Clientes />} />

@@ -1,36 +1,51 @@
+// src/front/js/pages/Home.jsx
 
-import React ,{useContext, useEffect, useState}from 'react';
-import { ArrowRight, BarChart2, Database, Server, Shield, Users , ShieldCheck } from 'lucide-react'; 
-import { Context } from '../store/appContext'; 
-import work from '../../img/work.png'
+import React, { useContext, useEffect } from 'react';
+import { ArrowRight, BarChart2, Database, Server, Shield, Users, ShieldCheck } from 'lucide-react';
+import { Context } from '../store/appContext';
+// Removed unused import 'work' as it wasn't used in the provided code.
+// import work from '../../img/work.png'
 
 export default function DCCELandingPage() {
-  const {actions, store}=useContext(Context);
-useEffect(() => {
-  actions.getTotalClients();
-  actions.getTotalServices();
-}, []);
+  const { actions, store } = useContext(Context);
 
-    return (
+  useEffect(() => {
+    // Fetch data only if it's not already in the store to avoid unnecessary calls
+    if (!store.totalClients) {
+      actions.getTotalClients();
+    }
+    if (!store.totalServices) {
+      actions.getTotalServices();
+    }
+    // The actions and store objects from flux are generally stable,
+    // so they don't usually need to be in the dependency array.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty array ensures this runs only once when the component mounts
+
+  // Determine the correct link and button text based on authentication status
+  const accessLink = store.isAuthenticated ? "/resumen" : "/login";
+  const accessButtonText = store.isAuthenticated ? "Ir al Resumen" : "Acceder";
+  const accessServidataButtonText = store.isAuthenticated ? "Ir al Resumen" : "Acceder a Servidata";
+
+  return (
     <div className="d-flex flex-column min-vh-100">
       {/* Hero Section */}
-      {/* Using bg-primary as a stand-in for the gradient. Add custom CSS for a gradient if needed. */}
       <header className="bg-primary text-white">
         <div className="container py-5">
           {/* Bootstrap Navbar */}
           <nav className="navbar navbar-expand-md navbar-dark bg-primary mb-5">
             <div className="container-fluid px-0">
               <a className="navbar-brand d-flex align-items-center" href="#">
-                <Server className="h-8 w-8 me-2" /> {/* Adjust size/margin as needed */}
+                <Server className="h-8 w-8 me-2" />
                 <span className="fs-5 fw-bold">Planificacion y Proyectos DCCE</span>
               </a>
-              <button 
-                className="navbar-toggler" 
-                type="button" 
-                data-bs-toggle="collapse" 
-                data-bs-target="#navbarNav" 
-                aria-controls="navbarNav" 
-                aria-expanded="false" 
+              <button
+                className="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNav"
+                aria-controls="navbarNav"
+                aria-expanded="false"
                 aria-label="Toggle navigation"
               >
                 <span className="navbar-toggler-icon"></span>
@@ -41,23 +56,24 @@ useEffect(() => {
                     <a className="nav-link" href="#servicios">Servicios</a>
                   </li>
                   <li className="nav-item">
+                    {/* Note: There is no section with id="estadisticas" in the provided code */}
                     <a className="nav-link" href="#estadisticas">Estadísticas</a>
                   </li>
                   <li className="nav-item">
                     <a className="nav-link" href="#contacto">Contacto</a>
                   </li>
                 </ul>
-                {/* Move Access button outside nav links for better alignment */}
-                <a 
-                  href="/login" 
-                  className="btn btn-info ms-md-3" // Use a contrasting color like btn-info or btn-light
+                {/* Conditional Access button */}
+                <a
+                  href={accessLink} // Use the conditional link
+                  className="btn btn-info ms-md-3"
                 >
-                  Acceder
+                  {accessButtonText} {/* Use the conditional text */}
                 </a>
               </div>
             </div>
           </nav>
-          
+
           <div className="row align-items-center">
             <div className="col-md-6 mb-4 mb-md-0">
               <h1 className="display-4 fw-bold mb-3">Centro de Datos Clientes Externos</h1>
@@ -65,14 +81,9 @@ useEffect(() => {
                 Planificación y gestión integral de proyectos para infraestructura de datos empresariales
               </p>
               <div className="d-flex gap-3">
-                {/* <a 
-                  href="/login" 
-                  className="btn btn-light text-primary fw-bold py-2 px-4 shadow d-inline-flex align-items-center"
-                >
-                  Iniciar Sesión <ArrowRight className="ms-2 h-5 w-5" />
-                </a> */}
-                <a 
-                  href="#contacto" 
+                {/* Removed the commented-out login button */}
+                <a
+                  href="#contacto"
                   className="btn btn-outline-light fw-bold py-2 px-4"
                 >
                   Contactar
@@ -80,8 +91,7 @@ useEffect(() => {
               </div>
             </div>
             <div className="col-md-6 d-flex justify-content-center">
-              {/* Simplified visual representation - gradient blur is complex */}
-              <div className="bg-primary-subtle p-4 rounded-3 shadow"> 
+              <div className="bg-primary-subtle p-4 rounded-3 shadow">
                 <div className="row g-3 text-center">
                   <div className="col-6"><Server className="h-16 w-16 text-primary" /></div>
                   <div className="col-6"><Database className="h-16 w-16 text-primary" /></div>
@@ -94,11 +104,10 @@ useEffect(() => {
         </div>
       </header>
 
-      {/* Servicios */}
+      {/* Servicios Section */}
       <section id="servicios" className="py-5 bg-light">
         <div className="container">
           <h2 className="fw-bold text-center mb-5 text-dark">Nuestros Servicios</h2>
-          
           <div className="row g-4">
             {/* Service Card 1 */}
             <div className="col-md-4">
@@ -140,7 +149,7 @@ useEffect(() => {
         </div>
       </section>
 
-      {/* Sistema Servidata */}
+      {/* Sistema Servidata Section */}
       <section id="servidata" className="py-5 bg-white">
         <div className="container">
           <div className="row align-items-center">
@@ -167,22 +176,24 @@ useEffect(() => {
                   Panel de control intuitivo y fácil de usar
                 </li>
               </ul>
-              <a 
-                href="/login" 
+              {/* Conditional Servidata Access button */}
+              <a
+                href={accessLink} // Use the conditional link
                 className="btn btn-primary btn-lg shadow d-inline-flex align-items-center"
               >
-                Acceder a Servidata <ArrowRight className="ms-2 h-5 w-5" />
+                {accessServidataButtonText} {/* Use the conditional text */}
+                <ArrowRight className="ms-2 h-5 w-5" />
               </a>
             </div>
-            
+
             <div className="col-md-6">
-              {/* Mockup using Bootstrap Card */}
+              {/* Mockup Card */}
               <div className="card bg-dark text-light shadow-lg">
                 <div className="card-header d-flex justify-content-between align-items-center py-2">
                   <div className="d-flex gap-2">
-                    <span className="d-inline-block rounded-circle bg-danger" style={{width: '12px', height: '12px'}}></span>
-                    <span className="d-inline-block rounded-circle bg-warning" style={{width: '12px', height: '12px'}}></span>
-                    <span className="d-inline-block rounded-circle bg-success" style={{width: '12px', height: '12px'}}></span>
+                    <span className="d-inline-block rounded-circle bg-danger" style={{ width: '12px', height: '12px' }}></span>
+                    <span className="d-inline-block rounded-circle bg-warning" style={{ width: '12px', height: '12px' }}></span>
+                    <span className="d-inline-block rounded-circle bg-success" style={{ width: '12px', height: '12px' }}></span>
                   </div>
                   <small className="text-muted">servidata.dcce.com</small>
                 </div>
@@ -203,13 +214,12 @@ useEffect(() => {
                       </div>
                       <div className="d-flex justify-content-between">
                         <span className="text-light small">Uso de recursos:</span>
+                        {/* This value seems static, update if dynamic data is available */}
                         <span className="text-info fw-bold">78%</span>
                       </div>
                     </div>
                   </div>
-                  {/* <button className="btn btn-primary w-100 fw-bold">
-                    Iniciar sesión
-                  </button> */}
+                  {/* Removed the commented-out login button inside the card */}
                 </div>
               </div>
             </div>
@@ -217,8 +227,8 @@ useEffect(() => {
         </div>
       </section>
 
-       {/* Banner de confianza */}
-       <section className="py-5 bg-primary text-white">
+      {/* Banner de confianza Section */}
+      <section className="py-5 bg-primary text-white">
         <div className="container">
           <div className="row align-items-center">
             <div className="col-md-6 mb-4 mb-md-0">
@@ -228,111 +238,98 @@ useEffect(() => {
               </p>
             </div>
             <div className="col-md-6 d-flex justify-content-center">
-                <ShieldCheck size={90}/>
-              {/* <img
-                src={work}
-                alt="Seguridad y confianza"
-                className="img-fluid rounded-3 shadow-lg"
-                style={{ maxWidth: '100%', height: 'auto' }} // Responsive image
-              /> */}
+              <ShieldCheck size={90} />
+              {/* Removed the img tag as it wasn't used */}
             </div>
           </div>
         </div>
       </section>
 
-      
-      {/* Contacto */}
+
+      {/* Contacto Section */}
       <section id="contacto" className="py-5 bg-dark text-light">
         <div className="container">
           <h2 className="fw-bold text-center mb-5">Contáctenos</h2>
-          
           <div className="row">
             <div className="col-md-6 mb-4 mb-md-0">
               <h3 className="fs-5 fw-bold mb-3">Centro de Datos Clientes Externos</h3>
               <p className="text-muted mb-4">
-                Estamos comprometidos en proporcionar la mejor experiencia a nuestros clientes. 
+                Estamos comprometidos en proporcionar la mejor experiencia a nuestros clientes.
                 Contáctenos para obtener más información sobre nuestros servicios o para resolver cualquier duda.
               </p>
-              
               {/* Contact Info Items */}
               <div className="d-flex align-items-center mb-3">
-                 {/* Consider using Bootstrap Icons here */}
                 <div className="flex-shrink-0 me-3">
-                   <div className="bg-primary rounded-circle d-flex align-items-center justify-content-center" style={{width: '40px', height: '40px'}}>
-                     <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{width: '20px', height: '20px'}}>
-                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                     </svg>
-                   </div>
+                  <div className="bg-primary rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
+                    <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '20px', height: '20px' }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                  </div>
                 </div>
                 <span>+58 212 9060200</span>
               </div>
-              
               <div className="d-flex align-items-center mb-3">
-                 <div className="flex-shrink-0 me-3">
-                   <div className="bg-primary rounded-circle d-flex align-items-center justify-content-center" style={{width: '40px', height: '40px'}}>
-                     <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{width: '20px', height: '20px'}}>
-                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                     </svg>
-                   </div>
-                 </div>
+                <div className="flex-shrink-0 me-3">
+                  <div className="bg-primary rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
+                    <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '20px', height: '20px' }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                </div>
                 <span>copyp_cdh@cantv.com.ve</span>
               </div>
-              
               <div className="d-flex align-items-center">
-                 <div className="flex-shrink-0 me-3">
-                   <div className="bg-primary rounded-circle d-flex align-items-center justify-content-center" style={{width: '40px', height: '40px'}}>
-                     <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{width: '20px', height: '20px'}}>
-                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                     </svg>
-                   </div>
-                 </div>
+                <div className="flex-shrink-0 me-3">
+                  <div className="bg-primary rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
+                    <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '20px', height: '20px' }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                </div>
                 <span>Calle A Las cabañas. Av Principal del Hatillo. Sector La Boyera. Edificio Cantv Caracas Venezuela</span>
               </div>
             </div>
-            
             <div className="col-md-6">
+              {/* Contact Form - Consider adding state and onSubmit handler */}
               <form>
                 <div className="mb-3">
                   <label className="form-label small fw-bold" htmlFor="name">
                     Nombre
                   </label>
-                  {/* Add .bg-secondary .text-light .border-secondary for dark mode inputs */}
-                  <input 
-                    className="form-control bg-secondary text-light border-secondary" 
-                    id="name" 
-                    type="text" 
+                  <input
+                    className="form-control bg-secondary text-light border-secondary"
+                    id="name"
+                    type="text"
                     placeholder="Su nombre"
                   />
                 </div>
-                
                 <div className="mb-3">
                   <label className="form-label small fw-bold" htmlFor="email">
                     Correo electrónico
                   </label>
-                  <input 
-                    className="form-control bg-secondary text-light border-secondary" 
-                    id="email" 
-                    type="email" 
+                  <input
+                    className="form-control bg-secondary text-light border-secondary"
+                    id="email"
+                    type="email"
                     placeholder="su@email.com"
                   />
                 </div>
-                
                 <div className="mb-3">
                   <label className="form-label small fw-bold" htmlFor="message">
                     Mensaje
                   </label>
-                  <textarea 
-                    className="form-control bg-secondary text-light border-secondary" 
-                    id="message" 
+                  <textarea
+                    className="form-control bg-secondary text-light border-secondary"
+                    id="message"
                     rows="5"
                     placeholder="¿En qué podemos ayudarte?"
                   ></textarea>
                 </div>
-                
                 <div className="d-grid">
-                  <button 
-                    className="btn btn-primary fw-bold" 
+                  {/* Changed type to "button" as there's no submit logic */}
+                  <button
+                    className="btn btn-primary fw-bold"
                     type="button"
                   >
                     Enviar Mensaje
@@ -343,8 +340,6 @@ useEffect(() => {
           </div>
         </div>
       </section>
-
-  
     </div>
   );
 }
