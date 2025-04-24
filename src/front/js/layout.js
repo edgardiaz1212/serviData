@@ -19,6 +19,8 @@ import EditarCliente from "./pages/EditarCliente.jsx";
 import Aprovisionados from "./pages/Aprovisionados.jsx";
 import Reportes from "./pages/Reportes.jsx";
 import NotFound from "./pages/NotFound.jsx";
+import DCCELandingPage from "./pages/Home.jsx";
+import UnderConstruction from "./pages/UnderConstruction.jsx";
 
 const Layout = () => {
     const basename = process.env.REACT_APP_BASENAME_REACT || "";
@@ -30,7 +32,9 @@ const Layout = () => {
                     <Navbar />
                     <div className="content-container" style={{ flexGrow: 1 }}>
                         <Routes>
-                            <Route path="/" element={<Login />} />
+                            <Route path="/underconstruction" element={<UnderConstruction />} />
+                            <Route path='landing' element={<DCCELandingPage />} />
+                            <Route path="/login" element={<Login />} />
                             <Route path="/resumen" element={<Resumen />} />
                             <Route path="/clientes" element={<Clientes />} />
                             <Route path="registro" element={<DataEntryPage />} />
