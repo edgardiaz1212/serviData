@@ -37,7 +37,7 @@ export default function DCCELandingPage() {
             <div className="container-fluid px-0">
               <a className="navbar-brand d-flex align-items-center" href="#">
                 <Server className="h-8 w-8 me-2" />
-                <span className="fs-5 fw-bold">Planificacion y Proyectos DCCE</span>
+                <span className="fs-5 fw-bold">Planificación y Proyectos DCCE</span>
               </a>
               {/* Hamburger button - Show only if NOT authenticated */}
               {!store.isAuthenticated && (
