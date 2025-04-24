@@ -247,13 +247,14 @@ export default function DCCELandingPage() {
 
 
       {/* Contacto Section */}
-      <section id="contacto" className="py-5 bg-dark text-light">
+      <section id="contacto" className="py-1 bg-dark text-light">
         <div className="container">
-          <h2 className="fw-bold text-center mb-5">Contáctenos</h2>
+          <h2 className="fw-bold text-center mb-1">Contáctenos</h2>
           <div className="row">
-            <div className="col-md-6 mb-4 mb-md-0">
+             <div className="col-md-12  mb-md-0"> {/*cambiar a col-md-6 al usar enviar mensaje*/}
+
               <h3 className="fs-5 fw-bold mb-3">Centro de Datos Clientes Externos</h3>
-              <p className="text-muted mb-4">
+              <p className=" mb-2">
                 Estamos comprometidos en proporcionar la mejor experiencia a nuestros clientes.
                 Contáctenos para obtener más información sobre nuestros servicios o para resolver cualquier duda.
               </p>
@@ -290,8 +291,8 @@ export default function DCCELandingPage() {
                 <span>Calle A Las cabañas. Av Principal del Hatillo. Sector La Boyera. Edificio Cantv Caracas Venezuela</span>
               </div>
             </div>
-            <div className="col-md-6">
-              {/* Contact Form - Consider adding state and onSubmit handler */}
+            {/* <div className="col-md-6">
+              
               <form>
                 <div className="mb-3">
                   <label className="form-label small fw-bold" htmlFor="name">
@@ -327,7 +328,7 @@ export default function DCCELandingPage() {
                   ></textarea>
                 </div>
                 <div className="d-grid">
-                  {/* Changed type to "button" as there's no submit logic */}
+                  
                   <button
                     className="btn btn-primary fw-bold"
                     type="button"
@@ -335,9 +336,9 @@ export default function DCCELandingPage() {
                     Enviar Mensaje
                   </button>
                 </div>
-              </form>
+              </form> 
+          </div>*/}
             </div>
-          </div>
         </div>
       </section>
     </div>
