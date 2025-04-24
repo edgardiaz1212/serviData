@@ -14,7 +14,7 @@ const Footer = () => {
             </div>
             
             {/* Social Icons - Consider using Bootstrap Icons */}
-            <a href="#" className="text-secondary mx-2">
+            <a href="https://github.com/edgardiaz1212/Servidata" className="text-secondary mx-2">
             <img className="logo-icon" src={logo} alt="icon" width="90" />
             </a>
             

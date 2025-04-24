@@ -59,12 +59,12 @@ export default function DCCELandingPage() {
                 Planificación y gestión integral de proyectos para infraestructura de datos empresariales
               </p>
               <div className="d-flex gap-3">
-                <a 
-                  href="#login" 
+                {/* <a 
+                  href="/login" 
                   className="btn btn-light text-primary fw-bold py-2 px-4 shadow d-inline-flex align-items-center"
                 >
                   Iniciar Sesión <ArrowRight className="ms-2 h-5 w-5" />
-                </a>
+                </a> */}
                 <a 
                   href="#contacto" 
                   className="btn btn-outline-light fw-bold py-2 px-4"
@@ -162,7 +162,7 @@ export default function DCCELandingPage() {
                 </li>
               </ul>
               <a 
-                href="#login" 
+                href="/login" 
                 className="btn btn-primary btn-lg shadow d-inline-flex align-items-center"
               >
                 Acceder a Servidata <ArrowRight className="ms-2 h-5 w-5" />
@@ -201,9 +201,9 @@ export default function DCCELandingPage() {
                       </div>
                     </div>
                   </div>
-                  <button className="btn btn-primary w-100 fw-bold">
+                  {/* <button className="btn btn-primary w-100 fw-bold">
                     Iniciar sesión
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>
@@ -248,62 +248,7 @@ export default function DCCELandingPage() {
         </div>
       </section>
 
-      {/* Login Section */}
-      <section id="login" className="py-5 bg-white">
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-md-6 col-lg-4">
-              <div className="card shadow-lg border-0 rounded-3">
-                <div className="card-body p-4 p-sm-5">
-                  <div className="text-center mb-4">
-                    <Server className="h-12 w-12 text-primary" />
-                  </div>
-                  <h2 className="fs-4 fw-bold text-center mb-4 text-dark">Acceso a Servidata</h2>
-                  
-                  <form>
-                    <div className="mb-3">
-                      <label className="form-label fw-bold small" htmlFor="username">
-                        Usuario
-                      </label>
-                      <input 
-                        className="form-control" 
-                        id="username" 
-                        type="text" 
-                        placeholder="Ingrese su usuario"
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label fw-bold small" htmlFor="password">
-                        Contraseña
-                      </label>
-                      <input 
-                        className="form-control" 
-                        id="password" 
-                        type="password" 
-                        placeholder="••••••••"
-                      />
-                    </div>
-                    <div className="d-grid mb-3">
-                      <button 
-                        className="btn btn-primary fw-bold" 
-                        type="button"
-                      >
-                        Iniciar Sesión
-                      </button>
-                    </div>
-                    <div className="text-center">
-                      <a className="small text-primary" href="#">
-                        ¿Olvidó su contraseña?
-                      </a>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
+      
       {/* Contacto */}
       <section id="contacto" className="py-5 bg-dark text-light">
         <div className="container">
