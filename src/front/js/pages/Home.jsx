@@ -60,11 +60,7 @@ export default function DCCELandingPage() {
                     <li className="nav-item">
                       <a className="nav-link" href="#servicios">Servicios</a>
                     </li>
-                    <li className="nav-item">
-                      {/* Note: There is no section with id="estadisticas" in the provided code */}
-                      <a className="nav-link" href="#estadisticas">Estadísticas</a>
-                    </li>
-                    <li className="nav-item">
+                                       <li className="nav-item">
                       <a className="nav-link" href="#contacto">Contacto</a>
                     </li>
                   </ul>
