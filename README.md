@@ -1,70 +1,92 @@
-# Getting Started with Create React App
+# ServiData
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+ServiData is a full-stack web application that provides a backend API built with Flask and a frontend user interface built with React. The backend API manages data models, user authentication, and serves data to the frontend, while the React frontend offers an interactive and dynamic user experience with charts, routing, and styled components.
 
-## Available Scripts
+## Project Overview
 
-In the project directory, you can run:
+- **Backend:** Flask API server with SQLAlchemy ORM, database migrations using Flask-Migrate, JWT authentication, CORS support, and an admin interface. The backend serves API endpoints under `/api` and also serves the frontend static files from the `public` directory.
+- **Frontend:** React application created with Create React App, using React 19, react-router-dom for routing, chart.js for data visualization, styled-components for styling, and other libraries to enhance the user interface.
 
-### `npm start`
+## Installation and Setup
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Prerequisites
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- Python 3.11
+- Node.js and npm
+- PostgreSQL (optional, can use SQLite for development)
 
-### `npm test`
+### Backend Setup
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. Create and activate a Python virtual environment:
 
-### `npm run build`
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   ```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+2. Install backend dependencies:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+3. Set environment variables (create a `.env` file or set them in your environment):
 
-### `npm run eject`
+   - `FLASK_DEBUG=1` for development mode
+   - `DATABASE_URL` with your database connection string (e.g., PostgreSQL URI). If not set, SQLite will be used by default.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+4. Run database migrations and create tables:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+   ```bash
+   flask db upgrade
+   ```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+5. Start the Flask backend server:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+   ```bash
+   python src/app.py
+   ```
 
-## Learn More
+   The backend server will run on `http://localhost:3002`.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Frontend Setup
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+1. Navigate to the frontend directory (if applicable) or project root.
 
-### Code Splitting
+2. Install frontend dependencies:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+   ```bash
+   npm install
+   ```
 
-### Analyzing the Bundle Size
+3. Start the React development server:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+   ```bash
+   npm start
+   ```
 
-### Making a Progressive Web App
+   The frontend will be available at `http://localhost:3000`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+4. To create a production build of the frontend:
 
-### Advanced Configuration
+   ```bash
+   npm run build
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+   The build output will be placed in the `build` folder and served by the backend.
 
-### Deployment
+## Running the Full Application
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+- Start the backend server (`python src/app.py`), which serves the API and frontend static files.
+- Start the frontend development server (`npm start`) for development with hot reloading.
+- Access the application via the frontend URL (`http://localhost:3000`) or backend URL (`http://localhost:3002/servidata`).
 
-### `npm run build` fails to minify
+## Additional Information
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- The backend automatically creates an admin user with username `admin` and password `administrator` on first run.
+- The backend uses Flask-Migrate for database schema migrations.
+- The frontend uses React Router for client-side routing and Chart.js for data visualization.
+
+## Author
+
+Edgar Diaz - [GitHub](https://github.com/edgargdiaz1212)
