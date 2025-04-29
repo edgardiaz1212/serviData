@@ -13,6 +13,7 @@ import logging
 from sqlalchemy.exc import SQLAlchemyError
 import logging
 from fuzzywuzzy import fuzz, process
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 
 # Set up logging
@@ -29,59 +30,153 @@ CORS(api)
 def login_user():
     data = request.get_json()
     username = data.get('username')
-    password = data.get('password')
-    user = User.query.filter_by(username=username, password=password).first()
-    if user:
+    password_text = data.get('password') # Get the plain text password from request
+
+    if not username or not password_text:
+        return jsonify({"message": "Username and password required"}), 400
+
+    # Find user by username
+    user = User.query.filter_by(username=username).first()
+
+    # Check if user exists AND if the provided password is correct
+    if user and user.check_password(password_text):
+        access_token = create_access_token(identity=user.id) # Usamos user.id como identidad
+
         return jsonify({"message": "Login successful", "user": user.serialize()}), 200
     else:
+        # Invalid credentials (user not found or password incorrect)
         return jsonify({"message": "Invalid credentials"}), 401
 
 @api.route('/users', methods=['POST'])
+@jwt_required()
 def create_user():
+    current_user_id = get_jwt_identity()
+    requesting_user = User.query.get(current_user_id)
+    if not requesting_user or requesting_user.role != 'Admin':
+       return jsonify({"message": "Admin privileges required"}), 403
+
     data = request.get_json()
     username = data.get('username')
-    password = data.get('password')
+    password_text = data.get('password')
     role = data.get('role')
-    new_user = User(username=username, password=password, role=role)
-    db.session.add(new_user)
-    db.session.commit()
-    return jsonify({"message": "User created successfully", "user": new_user.serialize()}), 201
+
+    if not username or not password_text:
+         return jsonify({"message": "Username and password are required"}), 400
+
+    existing_user = User.query.filter_by(username=username).first()
+    if existing_user:
+        return jsonify({"message": "Username already exists"}), 409
+
+    new_user = User(username=username, role=role)
+    new_user.set_password(password_text)
+
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+        return jsonify({"message": "User created successfully", "user": new_user.serialize()}), 201
+    except SQLAlchemyError as e:
+         # ... (manejo de errores)
+         return jsonify({"message": "Error creating user"}), 500
+  
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Unexpected error creating user: {str(e)}")
+        return jsonify({"message": "An unexpected error occurred"}), 500
+
 
 @api.route('/users/<int:user_id>', methods=['PUT'])
+@jwt_required() # Proteger esta ruta
 def edit_user(user_id):
+    current_user_id = get_jwt_identity()
+    requesting_user = User.query.get(current_user_id)
+
+    # Permitir editarse a sí mismo o si es Admin
+    if user_id != current_user_id and (not requesting_user or requesting_user.role != 'Admin'):
+         return jsonify({"message": "Permission denied"}), 403
+
     data = request.get_json()
     user = User.query.get(user_id)
     if not user:
         return jsonify({"message": "User not found"}), 404
-    user.username = data.get('username', user.username)
-    if 'role' in data:
-        user.role = data['role']
-    user.password = data.get('password', user.password)
-    db.session.commit()
-    return jsonify({"message": "User updated successfully", "user": user.serialize()}), 200
+
+    # ... (lógica de actualización)
+    new_password_text = data.get('password')
+    if new_password_text:
+        # Solo permitir cambiar contraseña si es el propio usuario o un Admin
+        if user_id == current_user_id or (requesting_user and requesting_user.role == 'Admin'):
+             user.set_password(new_password_text)
+        else:
+             # No permitir cambiar contraseña de otro si no es admin (aunque ya filtramos antes)
+             pass # O devolver un error específico si se intenta
+
+
+    try:
+        db.session.commit()
+        return jsonify({"message": "User updated successfully", "user": user.serialize()}), 200
+    except SQLAlchemyError as e:
+         db.session.rollback()
+         logging.error(f"Database error updating user {user_id}: {str(e)}")
+         return jsonify({"message": "Error updating user"}), 500
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Unexpected error updating user {user_id}: {str(e)}")
+        return jsonify({"message": "An unexpected error occurred"}), 500
+
 
 @api.route('/users', methods=['GET'])
+@jwt_required() # Proteger esta ruta
 def get_users():
-    users = User.query.all()
-    if not users:
-        return jsonify({"message": "No users found"}), 404
-    else:    
+    # Opcional: Solo permitir a Admins ver la lista completa
+    current_user_id = get_jwt_identity()
+    requesting_user = User.query.get(current_user_id)
+    if not requesting_user or requesting_user.role != 'Admin':
+       return jsonify({"message": "Admin privileges required"}), 403
+
+    try:
+        users = User.query.all()
         return jsonify([user.serialize() for user in users]), 200
+    except Exception as e:
+        logging.error(f"Error fetching users: {str(e)}")
+        return jsonify({"message": "Error fetching users"}), 500
+
 
 @api.route('/users/<int:user_id>', methods=['DELETE'])
+@jwt_required() # Proteger esta ruta
 def delete_user(user_id):
+    current_user_id = get_jwt_identity()
+    requesting_user = User.query.get(current_user_id)
+
+    # No permitir eliminarse a sí mismo
+    if user_id == current_user_id:
+        return jsonify({"message": "Cannot delete your own account"}), 403
+
+    # Solo permitir a Admins eliminar otros usuarios
+    if not requesting_user or requesting_user.role != 'Admin':
+       return jsonify({"message": "Admin privileges required"}), 403
+
     user = User.query.get(user_id)
     if not user:
         return jsonify({"message": "User not found"}), 404
-    db.session.delete(user)
-    db.session.commit()
-    return jsonify({"message": "User deleted successfully"}), 200
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({"message": "User deleted successfully"}), 200
+    except SQLAlchemyError as e:
+         db.session.rollback()
+         logging.error(f"Database error deleting user {user_id}: {str(e)}")
+         return jsonify({"message": "Error deleting user"}), 500
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Unexpected error deleting user {user_id}: {str(e)}")
+        return jsonify({"message": "An unexpected error occurred"}), 500
+
 
 # ------------------------------
 # Acciones para Cliente
 # ------------------------------
 
 @api.route('/add_client/', methods=['POST'])
+@jwt_required()
 def client_post():
     if request.method == 'POST':
         try:
@@ -99,6 +194,7 @@ def client_post():
         return jsonify({"message": "Invalid credentials"}), 401
 
 @api.route('/client-consult/', methods=['GET'])
+@jwt_required()
 def client_consult():
     name = request.args.get('name')  # Get the name parameter from the query string
     if name:
@@ -111,6 +207,7 @@ def client_consult():
         return jsonify([c.serialize() for c in cliente]), 200
 
 @api.route('/clientes/<int:client_id>', methods=['GET'])
+@jwt_required()
 def get_client_by_id(client_id):
     client = Cliente.query.get(client_id)
     if not client:
@@ -118,6 +215,7 @@ def get_client_by_id(client_id):
     return jsonify(client.serialize()), 200
 
 @api.route('/clients_tipo', methods=['GET'])
+@jwt_required()
 def get_clients_by_type():
     tipo = request.args.get('tipo')
     if tipo:
@@ -130,6 +228,7 @@ def get_clients_by_type():
         return jsonify([client.serialize() for client in clients]), 200
 
 @api.route('/client-suggestions/', methods=['GET'])
+@jwt_required()
 def client_suggestions():
     query = request.args.get('query', '')
     if not query:
@@ -141,6 +240,7 @@ def client_suggestions():
         return jsonify([cliente.serialize() for cliente in clientes]), 200
 
 @api.route('/clientes/total', methods=['GET'])
+@jwt_required()
 def get_total_clients():
     total_clients = Cliente.query.count()
     return jsonify({"total": total_clients}), 200
@@ -155,6 +255,7 @@ def get_client_counts_by_type():
         return jsonify({"error": str(e)}), 500
 
 @api.route('/clients/<int:client_id>', methods=['PUT'])
+@jwt_required()
 def update_client(client_id):
     try:
         data = request.get_json()
@@ -176,6 +277,7 @@ def update_client(client_id):
         return jsonify({"error": "Error interno del servidor", "details": str(e)}), 500
 
 @api.route('/clients/<int:client_id>', methods=['DELETE'])
+@jwt_required()
 def delete_client_and_services(client_id):
     try:
         client = Cliente.query.get(client_id)
@@ -199,6 +301,7 @@ def delete_client_and_services(client_id):
 # ------------------------------
 
 @api.route('/add_service/', methods=['POST'])
+@jwt_required()
 def service_post():
     if request.method == 'POST':
         data = request.get_json()
@@ -292,6 +395,7 @@ def service_post():
         return jsonify({"message": "Invalid credentials"}), 401
 
 @api.route('/servicios-by-cliente/<int:cliente_id>', methods=['GET'])
+@jwt_required()
 def get_services(cliente_id):
     try:
         # Verificar si el cliente existe
@@ -314,16 +418,19 @@ def get_services(cliente_id):
         return jsonify({"message": "An unexpected error occurred", "error": str(e)}), 500
 
 @api.route('/servicios', methods=['GET'])
+@jwt_required()
 def get_all_services():
     services = Servicio.query.all()
     return jsonify([service.serialize() for service in services]), 200
 
 @api.route('/servicios/total', methods=['GET'])
+@jwt_required()
 def get_total_services():
     total_services = Servicio.query.count()
     return jsonify({"total": total_services}), 200
 
 @api.route('/servicios/<int:service_id>', methods=['GET'])
+@jwt_required()
 def get_service(service_id):
     service = Servicio.query.get(service_id)
     if service:
@@ -332,6 +439,7 @@ def get_service(service_id):
         return jsonify({"message": "Service not found"}), 404
 
 @api.route('/services_by_client_type/<client_type>', methods=['GET'])
+@jwt_required()
 def get_services_by_client_type(client_type):
     try:
         # Realizar una consulta agregada para contar los servicios por tipo de servicio según el tipo de cliente
@@ -348,6 +456,7 @@ def get_services_by_client_type(client_type):
         return jsonify({"error": str(e)}), 500
 
 @api.route('/servicios/<int:service_id>', methods=['PUT'])
+@jwt_required()
 def update_service(service_id):
     try:
         data = request.get_json()
@@ -391,6 +500,7 @@ def update_service(service_id):
         return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
 
 @api.route('/services/<int:service_id>', methods=['DELETE'])
+@jwt_required()
 def delete_service(service_id):
     try:
         servicio = Servicio.query.filter_by(id=service_id).first()
@@ -407,6 +517,7 @@ def delete_service(service_id):
     except Exception as e:
         return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
 @api.route('/top-services', methods=['GET'])
+@jwt_required()
 def get_top_services():
     try:
         # Consulta para obtener los servicios más populares, excluyendo aquellos con estado_servicio = "Retirado"
@@ -430,6 +541,7 @@ def get_top_services():
         return jsonify({"error": str(e)}), 500
 
 @api.route('/service-counts-by-type', methods=['GET'])
+@jwt_required()
 def get_service_counts_by_type_active():
     try:
         # Consulta para obtener el conteo de servicios agrupados por tipo de cliente y tipo de servicio
@@ -457,6 +569,7 @@ def get_service_counts_by_type_active():
         return jsonify({"error": str(e)}), 500
 
 @api.route('/service-counts-by-client-type/<client_type>', methods=['GET'])
+@jwt_required()
 def get_service_counts_by_client_type(client_type):
     try:
         # Consulta para obtener el conteo total de servicios para el tipo de cliente
@@ -475,6 +588,7 @@ def get_service_counts_by_client_type(client_type):
         return jsonify({"error": str(e)}), 500  
       
 @api.route('/service-counts-by-platform', methods=['GET'])
+@jwt_required()
 def get_service_counts_by_platform():
     """
     Calcula y devuelve el número de servicios agrupados por nombre_plataforma.
@@ -513,6 +627,7 @@ def get_service_counts_by_platform():
         return jsonify({"error": "Ocurrió un error inesperado", "details": str(e)}), 500
 
 @api.route('/new-services-monthly', methods=['GET'])
+@jwt_required()
 def get_new_services_monthly_trend():
     """
     Calcula y devuelve el número de servicios creados por mes y año.
@@ -558,6 +673,7 @@ def get_new_services_monthly_trend():
         return jsonify({"error": "Ocurrió un error inesperado", "details": str(e)}), 500
 
 @api.route('/new-services-current-month', methods=['GET'])
+@jwt_required()
 def get_new_services_current_month():
     try:
         # Obtener el primer día del mes actual y el primer día del siguiente mes
@@ -636,6 +752,7 @@ def get_new_services_current_month():
         return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
 
 @api.route('/new-services-last-month', methods=['GET'])
+@jwt_required()
 def get_new_services_last_month():
     try:
         # Obtener la fecha actual
@@ -675,6 +792,7 @@ def get_new_services_last_month():
 
 # acciones combinadas
 @api.route('/add_client_and_service', methods=['POST'])
+@jwt_required()
 def add_client_and_service():
     try:
         data = request.get_json()
@@ -748,6 +866,7 @@ def add_client_and_service():
         return jsonify({"error": str(e)}), 500
 
 @api.route('/servicios-retirados-por-mes', methods=['GET'])
+@jwt_required()
 def get_servicios_retirados_por_mes():
     try:
         month = request.args.get('month', type=int)
@@ -784,6 +903,7 @@ def get_servicios_retirados_por_mes():
         return jsonify({"error": str(e)}), 500
     
 @api.route('/servicios-aprovisionados-por-mes', methods=['GET'])
+@jwt_required()
 def get_servicios_aprovisionados_por_mes():
     try:
         month = request.args.get('month', type=int)
@@ -820,6 +940,7 @@ def get_servicios_aprovisionados_por_mes():
         return jsonify({"error": str(e)}), 500
     
 @api.route('/servicios-aprovisionados-por-mes-anual', methods=['GET'])
+@jwt_required()
 def get_servicios_aprovisionados_por_mes_anual():
     try:
         year = request.args.get('year', type=int)
@@ -858,6 +979,7 @@ def get_servicios_aprovisionados_por_mes_anual():
         return jsonify({"error": str(e)}), 500
     
 @api.route('/servicios-aprovisionados-por-ano', methods=['GET'])
+@jwt_required()
 def get_servicios_aprovisionados_por_ano():
     try:
         # Obtener todos los servicios aprovisionados
@@ -893,6 +1015,7 @@ def get_servicios_aprovisionados_por_ano():
         return jsonify({"error": str(e)}), 500
     
 @api.route('/servicios-activos', methods=['GET'])
+@jwt_required()
 def get_servicios_activos():
     try:
         # Filtrar servicios activos (excluyendo "Retirado")
@@ -904,6 +1027,7 @@ def get_servicios_activos():
         return jsonify({"error": str(e)}), 500
     
 @api.route('/exportar-datos-completos', methods=['GET'])
+@jwt_required()
 def exportar_datos_completos():
     try:
         # Obtener todos los clientes con sus servicios
@@ -927,6 +1051,7 @@ def exportar_datos_completos():
     
 #acciones generales
 @api.route('/upload-document/<entity_type>/<int:entity_id>', methods=['POST'])
+@jwt_required()
 def upload_document(entity_type, entity_id):
     try:
         if 'file' not in request.files:
@@ -966,6 +1091,7 @@ def upload_document(entity_type, entity_id):
 
        
 @api.route('/<entity_type>/<int:entity_id>/document-exists', methods=['GET'])
+@jwt_required()
 def check_document_exists(entity_type, entity_id):
     try:
         if entity_type == "client":
@@ -992,6 +1118,7 @@ def check_document_exists(entity_type, entity_id):
         return jsonify({"error": str(e)}), 500
 # Ruta para eliminar un documento por su ID
 @api.route('/delete-document/<int:document_id>', methods=['DELETE'])
+@jwt_required()
 def delete_document(document_id):
     try:
         documento = Documento.query.filter_by(id=document_id).first()
@@ -1059,6 +1186,7 @@ def correct_client_type(client_type):
         return "Privada"  # Default value if no close match
     
 @api.route('/upload-excel', methods=['POST'])
+@jwt_required()
 def upload_excel():
     try:
         # Obtener datos del cuerpo JSON

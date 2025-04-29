@@ -1,913 +1,856 @@
 const getState = ({ getStore, getActions, setStore }) => {
-  // Check authentication state from session storage on load
-  const isAuthenticated = sessionStorage.getItem("isAuthenticated") === "true";
-  const storedUser = JSON.parse(sessionStorage.getItem("user")); // Retrieve user data from session storage
+  // Check authentication state AND token from session storage on load
+  const storedToken = sessionStorage.getItem("jwt_token");
+  const storedUser = JSON.parse(sessionStorage.getItem("user"));
+  const isAuthenticated = !!storedToken; // Is authenticated if token exists
+
+  // Helper function to get headers with Authorization token for JSON requests
+  const getAuthHeaders = () => {
+    const token = sessionStorage.getItem("jwt_token");
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    return headers;
+  };
+
+  // Helper function to handle fetch responses, including 401
+  const handleApiResponse = async (response) => {
+    if (response.status === 401) {
+      // Unauthorized: Token is invalid or expired
+      console.error("Unauthorized access (401). Logging out.");
+      getActions().LogOut(); // Call logout action
+      // Optionally redirect to login page here or let components handle it
+      throw new Error("Unauthorized"); // Throw error to stop further processing
+    }
+    if (!response.ok) {
+      // Handle other errors
+      const errorData = await response.json().catch(() => ({})); // Try to parse error JSON
+      console.error(
+        `API Error ${response.status}:`,
+        errorData.message || errorData.error || response.statusText // Check for 'error' key too
+      );
+      throw new Error(errorData.message || errorData.error || `HTTP error ${response.status}`);
+    }
+    // For 204 No Content or similar success responses without body
+    if (response.status === 204 || response.headers.get("Content-Length") === "0") {
+        return null; // Or return { success: true } or similar
+    }
+    try {
+        return await response.json(); // Parse JSON for successful responses with body
+    } catch (e) {
+        // Handle cases where response is OK but body is not valid JSON
+        console.error("Failed to parse JSON response:", e);
+        throw new Error("Invalid JSON response from server");
+    }
+  };
+
+  // Construct the base API URL
+  const API_URL = process.env.REACT_APP_BACKEND_URL + "/api"; // Add /api prefix
 
   return {
     store: {
       message: null,
-      isAuthenticated: isAuthenticated, // Initialize with session storage value
-      user: storedUser || null, // Initialize user state with stored user data
-      users: [], // Add users state
-      currentClient: [], // Add currentClient state
-      clientData: [], // Add clientData state
-      totalServices: 0, // Add totalServices state
-      totalClients: 0, // Add totalClients state
+      isAuthenticated: isAuthenticated, // Initialize based on token presence
+      user: storedUser || null,
+      users: [],
+      currentClient: [],
+      clientData: [],
+      totalServices: 0,
+      totalClients: 0,
       clientCountsByType: {},
-      serviceCountsByType: {}, // Add servicesCountsByType state
-      serviceCountsByClientType: {}, // Add servicesCountsByClientType state
+      serviceCountsByType: {},
+      serviceCountsByClientType: {},
       topServices: [],
       newServicesCurrentMonth: [],
       newServicesLastMonth: [],
       aprovisionados: [],
       activeServiceCount: 0,
-      documentName: [], // Add document state
-      documentId: null, // Add document ID state
+      documentName: [],
+      documentId: null,
       serviceCountsByPlatform: [],
       newServicesMonthlyTrend: [],
     },
 
     actions: {
+      // ==============================
       // Autenticación
+      // ==============================
       login: async (username, password) => {
-        const store = getStore();
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/login`,
+            `${API_URL}/login`, // Use API_URL
             {
               method: "POST",
-              headers: {
+              headers: { // No auth header needed for login
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({ username, password }),
             }
           );
+          // Login response needs specific handling (check for token)
           if (response.ok) {
             const data = await response.json();
-            setStore({ user: data.user, isAuthenticated: true });
-            sessionStorage.setItem("isAuthenticated", "true"); // Store authentication state in session storage
-            sessionStorage.setItem("user", JSON.stringify(data.user)); // Store user data in session storage
-            console.log("Autenticado", data.user); // Update isAuthenticated
-            return data;
+            if (data.access_token && data.user) { // Check if token and user are present
+                // Store token and user data
+                sessionStorage.setItem("jwt_token", data.access_token);
+                sessionStorage.setItem("user", JSON.stringify(data.user));
+                setStore({ user: data.user, isAuthenticated: true });
+                console.log("Login successful. Token stored.");
+                return data; // Return data including token and user
+            } else {
+                // Handle case where login is OK but response format is wrong
+                console.error("Login response missing token or user data:", data);
+                getActions().LogOut();
+                throw new Error("Login failed: Invalid server response.");
+            }
           } else {
-            setStore({ isAuthenticated: false }); // Set to false on login failure
-            console.error("Login failed");
+             // Handle specific login failure (e.g., 401 Invalid Credentials)
+             const errorData = await response.json().catch(() => ({}));
+             console.error("Login failed:", errorData.message || response.statusText);
+             getActions().LogOut(); // Ensure clean state on failure
+             throw new Error(errorData.message || "Invalid credentials");
           }
         } catch (error) {
-          console.log("Error during login", error);
+          console.error("Error during login:", error);
+          getActions().LogOut(); // Ensure clean state on error
+          throw error; // Re-throw error for component handling
         }
       },
-      LogOut: async () => {
-        const store = getStore;
+
+      LogOut: () => {
+        // Clear token and user data from storage and store
+        sessionStorage.removeItem("jwt_token");
+        sessionStorage.removeItem("user");
         setStore({ user: null, isAuthenticated: false });
-        sessionStorage.removeItem("isAuthenticated"); // Remove authentication state from session storage
-        sessionStorage.removeItem("user"); // Remove user data from session storage
-        console.log("User logged out");
+        console.log("User logged out. Token removed.");
+        // Optionally redirect to login page here using react-router-dom's navigate
       },
+
+      // ==============================
       // Gestión de Usuarios
+      // ==============================
       addUser: async (user) => {
-        const store = getStore();
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/users`,
+            `${API_URL}/users`,
             {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
+              headers: getAuthHeaders(),
               body: JSON.stringify(user),
             }
           );
-          if (response.ok) {
-            const data = await response.json();
-            setStore({ users: [...store.users, data.user] });
-            console.log("User added", data.user);
-            return data;
-          } else {
-            console.error("Failed to add user");
+          const data = await handleApiResponse(response);
+          if (data && data.user) {
+             const store = getStore();
+             setStore({ users: [...store.users, data.user] });
+             console.log("User added", data.user);
+             return data;
           }
         } catch (error) {
-          console.log("Error during user addition", error);
+          console.error("Error during user addition:", error);
+          throw error;
         }
       },
+
       editUser: async (userId, updatedUser) => {
-        const store = getStore();
         try {
+          const payload = { ...updatedUser };
+          if (!payload.password) {
+            delete payload.password;
+          }
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/users/${userId}`,
+            `${API_URL}/users/${userId}`,
             {
               method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(updatedUser),
+              headers: getAuthHeaders(),
+              body: JSON.stringify(payload),
             }
           );
-          if (response.ok) {
-            const data = await response.json();
+          const data = await handleApiResponse(response);
+          if (data && data.user) {
+            const store = getStore();
             const updatedUsers = store.users.map((user) =>
               user.id === userId ? data.user : user
             );
             setStore({ users: updatedUsers });
+            if (store.user && store.user.id === userId) {
+                setStore({ user: data.user });
+                sessionStorage.setItem("user", JSON.stringify(data.user));
+            }
             console.log("User edited", data.user);
             return data;
-          } else {
-            console.error("Failed to edit user");
           }
         } catch (error) {
-          console.log("Error during user editing", error);
+          console.error("Error during user editing:", error);
+          throw error;
         }
       },
 
-      fetchUserData: async () => {
-        const store = getStore();
+      fetchUserData: async () => { // Fetches list of OTHER users (for Admin)
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/users`,
+            `${API_URL}/users`,
             {
               method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-              },
+              headers: getAuthHeaders(),
             }
           );
-          if (response.ok) {
-            const data = await response.json();
+          const data = await handleApiResponse(response); // data is expected to be an array
+          if (Array.isArray(data)) {
+            const store = getStore();
             const loggedInUser = store.user;
-            const filteredUsers = data.filter(
-              (user) => user.id !== loggedInUser.id
-            );
+            const filteredUsers = loggedInUser ? data.filter(user => user.id !== loggedInUser.id) : data;
             setStore({ users: filteredUsers });
             return filteredUsers;
-          } else {
-            console.error("Failed to fetch users data");
           }
+           return [];
         } catch (error) {
-          console.log("Error during fetching users data", error);
+          console.error("Error during fetching users data:", error);
+          return [];
         }
       },
+
       deleteUser: async (userId) => {
-        const store = getStore();
-        try {
+         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/users/${userId}`,
+            `${API_URL}/users/${userId}`,
             {
               method: "DELETE",
-              headers: {
-                "Content-Type": "application/json",
-              },
+              headers: getAuthHeaders(), // Use JSON headers even for DELETE if backend expects/handles it
             }
           );
-          if (response.ok) {
-            const updatedUsers = store.users.filter(
-              (user) => user.id !== userId
-            );
-            setStore({ users: updatedUsers });
-            console.log("User deleted");
+          // Handle potential 204 No Content before calling handleApiResponse's JSON parsing
+          if (response.status === 204) {
+              console.log("User deleted successfully (204)");
+              const store = getStore();
+              const updatedUsers = store.users.filter((user) => user.id !== userId);
+              setStore({ users: updatedUsers });
+              return { message: "User deleted successfully" };
           }
+          // Use handleApiResponse for other cases (200 OK with body, 401, other errors)
+          const data = await handleApiResponse(response);
+          const store = getStore();
+          const updatedUsers = store.users.filter((user) => user.id !== userId);
+          setStore({ users: updatedUsers });
+          console.log("User deleted");
+          return data || { message: "User deleted successfully" }; // Return parsed data or default message
+
         } catch (error) {
-          console.log("Error during user deletion", error);
+          console.error("Error during user deletion:", error);
+          throw error;
         }
       },
-      // Agregar y Consultar Clientes
-      addClientData: async (data) => {
+
+      // ==============================
+      // Clientes
+      // ==============================
+      addClientData: async (clientPayload) => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/add_client`,
+            `${API_URL}/add_client/`, // Note the trailing slash if your backend requires it
             {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(data),
+              headers: getAuthHeaders(),
+              body: JSON.stringify(clientPayload),
             }
           );
-          if (response.ok) {
-            const data = await response.json();
-            return data;
-          } else {
-            console.error("Failed to add client data");
-          }
+          const data = await handleApiResponse(response);
+          // Optionally update state if needed, e.g., refetch client list
+          return data;
         } catch (error) {
-          console.log("Error during adding client data", error);
+          console.error("Error during adding client data:", error);
+          throw error;
         }
       },
-      fetchClientData: async (name) => {
+
+      fetchClientData: async (name = "") => { // Default name to empty string
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/client-consult/${name}`
+            `${API_URL}/client-consult/?name=${encodeURIComponent(name)}`,
+            {
+                method: "GET",
+                headers: getAuthHeaders()
+            }
           );
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          const data = await response.json();
-          return data;
+          const data = await handleApiResponse(response); // Expects an array
+          // setStore({ clientData: data || [] }); // Optionally update store
+          return data || [];
         } catch (error) {
           console.error("Error fetching client data:", error);
           return [];
         }
       },
+
       fetchClientSuggestions: async (query) => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/client-suggestions/?query=${query}`
+            `${API_URL}/client-suggestions/?query=${encodeURIComponent(query)}`,
+             {
+                method: "GET",
+                headers: getAuthHeaders()
+            }
           );
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          const data = await response.json();
-          return data;
+          const data = await handleApiResponse(response); // Expects an array
+          return data || [];
         } catch (error) {
           console.error("Error fetching client suggestions:", error);
           return [];
         }
       },
+
       getClientCountsByType: async () => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/client-counts-by-type`
+            `${API_URL}/client-counts-by-type`,
+             {
+                method: "GET",
+                headers: getAuthHeaders()
+            }
           );
-          if (response.ok) {
-            const data = await response.json();
-            setStore({ clientCountsByType: data });
-          } else {
-            console.error("Failed to get client counts by type");
-          }
+          const data = await handleApiResponse(response); // Expects an object
+          setStore({ clientCountsByType: data || {} });
+          return data || {};
         } catch (error) {
           console.log("Error during getting client counts by type", error);
+          setStore({ clientCountsByType: {} }); // Reset on error
+          return {};
         }
       },
+
       getTotalClients: async () => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/clientes/total`
+            `${API_URL}/clientes/total`,
+             {
+                method: "GET",
+                headers: getAuthHeaders()
+            }
           );
-          if (response.ok) {
-            const data = await response.json();
-            setStore({ totalClients: data.total });
-          }
+          const data = await handleApiResponse(response); // Expects { total: number }
+          setStore({ totalClients: data?.total || 0 });
+          return data?.total || 0;
         } catch (error) {
           console.log("Error fetching total clients", error);
+          setStore({ totalClients: 0 });
+          return 0;
         }
       },
+
       getClientById: async (clientId) => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/clientes/${clientId}`,
+            `${API_URL}/clientes/${clientId}`,
             {
               method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-              },
+              headers: getAuthHeaders(),
             }
           );
-          if (response.ok) {
-            const data = await response.json();
-            return data;
-          } else {
-            console.error("Failed to get client data");
-          }
+          const data = await handleApiResponse(response); // Expects client object
+          // setStore({ currentClient: data }); // Optionally update store
+          return data;
         } catch (error) {
-          console.log("Error during getting client data", error);
+          console.log("Error during getting client data by ID:", error);
+          throw error;
         }
       },
+
       getClientbyTipo: async (tipo) => {
-        const store = getStore;
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/clients_tipo?tipo=${tipo}`,
+            `${API_URL}/clients_tipo?tipo=${encodeURIComponent(tipo)}`,
             {
               method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-              },
+              headers: getAuthHeaders(),
             }
           );
-          if (response.ok) {
-            const data = await response.json();
-            setStore({ clientData: data });
-            return data;
-          } else {
-            console.error("Failed to get client data");
-          }
+          const data = await handleApiResponse(response); // Expects array
+          setStore({ clientData: data || [] });
+          return data || [];
         } catch (error) {
-          console.log("Error during getting client data", error);
-        }
-      },
-      // Actualizar y Eliminar Clientes
-      updateClientData: async (clientId, clientData) => {
-        try {
-          // Validar que clientId sea un número válido
-          if (!clientId || typeof clientId !== "number") {
-            throw new Error("Invalid client ID. It must be a number.");
-          }
-
-          // Validar que clientData sea un objeto no vacío
-          if (
-            !clientData ||
-            typeof clientData !== "object" ||
-            Object.keys(clientData).length === 0
-          ) {
-            throw new Error(
-              "Invalid client data. It must be a non-empty object."
-            );
-          }
-
-          // Realizar la solicitud PUT
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/clients/${clientId}`,
-            {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(clientData),
-            }
-          );
-
-          // Manejar respuestas no exitosas
-          if (!response.ok) {
-            const errorData = await response.json(); // Intentar obtener detalles del error del backend
-            throw new Error(
-              `Failed to update client: ${
-                errorData.message || response.statusText
-              }`
-            );
-          }
-
-          // Procesar la respuesta exitosa
-          const data = await response.json();
-
-          // Actualizar el estado global con los datos actualizados
-          setStore({ client: data });
-
-          // Devolver los datos actualizados para su uso en el componente que llama a esta función
-          return { success: true, data };
-        } catch (error) {
-          // Registrar el error en la consola y devolver un objeto con detalles
-          console.error("Error during updating client data:", error.message);
-          return { success: false, message: error.message };
-        }
-      },
-      deleteClientAndServices: async (clientId) => {
-        const store = getStore;
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/clients/${clientId}`,
-            {
-              method: "DELETE",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-
-          // Manejar respuestas no exitosas
-          if (!response.ok) {
-            const errorData = await response.json(); // Intentar obtener detalles del error del backend
-            throw new Error(
-              `Failed to delete user and services: ${
-                errorData.message || response.statusText
-              }`
-            );
-          }
-         
-          // Si la respuesta es exitosa, devolver un objeto indicando el éxito
-          return { success: true };
-        } catch (error) {
-          // Registrar el error en la consola y devolver un objeto con detalles
-          console.error(
-            "Error during deleting user and services:",
-            error.message
-          );
-          return { success: false, message: error.message };
-        }
-      },
-      // Acciones Combinadas
-      addClientAndServiceData: async (clientData, serviceData) => {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/add_client_and_service`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ ...clientData, ...serviceData }),
-            }
-          );
-          if (!response.ok) {
-            throw new Error("Failed to add client and service data");
-          }
-          const result = await response.json();
-          console.log("Client and service data added successfully:", result);
-        } catch (error) {
-          console.error("Error adding client and service DATA:", error);
-        }
-      },
-      // Agregar y Consultar Servicios
-      addServiceData: async (data) => {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/add_service`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(data),
-            }
-          );
-          if (response.ok) {
-            const data = await response.json();
-            return data;
-          } else {
-            console.error("Failed to add service data");
-          }
-        } catch (error) {
-          console.log("Error during adding service data", error);
-        }
-      },
-      getServicebyClient: async (clientId) => {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/servicios-by-cliente/${clientId}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          if (response.ok) {
-            const data = await response.json();
-            const activeServices = data.services.filter(
-              (service) => service.estado_servicio !== "Retirado"
-            );
-            setStore({ activeServiceCount: activeServices.length });
-
-            return data.services; // Retorna los servicios directamente
-          } else {
-            console.error("Failed to get service data");
-            throw new Error("Failed to fetch services");
-          }
-        } catch (error) {
-          console.error("Error during getting service data", error);
-          throw error; // Propaga el error para manejarlo en el componente
-        }
-      },
-      getServicesByClientType: async (clientType) => {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/services_by_client_type/${clientType}`
-          );
-          if (response.ok) {
-            const data = await response.json();
-            return data;
-          } else {
-            console.error("Failed to fetch services by client type");
-          }
-        } catch (error) {
-          console.log("Error fetching services by client type", error);
-        }
-      },
-      getServiceById: async (serviceId) => {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/servicios/${serviceId}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          if (response.ok) {
-            const data = await response.json();
-            return data;
-          }
-        } catch (error) {
-          console.log("Error during getting service data", error);
-        }
-      },
-      getTopServices: async () => {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/top-services`
-          );
-          if (response.ok) {
-            const data = await response.json();
-            setStore({ topServices: data });
-          } else {
-            console.error("Failed to get top services");
-          }
-        } catch (error) {
-          console.log("Error during getting top services", error);
-        }
-      },
-      getTotalServices: async () => {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/servicios/total`
-          );
-          if (response.ok) {
-            const data = await response.json();
-            setStore({ totalServices: data.total });
-          }
-        } catch (error) {
-          console.log("Error fetching total services", error);
-        }
-      },
-      getServiceCountsByType: async () => {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/service-counts-by-type`
-          );
-          if (response.ok) {
-            const data = await response.json();
-            if (Object.keys(data).length === 0) {
-              console.warn("No service counts data available");
-              setStore({ serviceCountsByType: {} });
-            } else {
-              setStore({ serviceCountsByType: data });
-            }
-          } else {
-            console.error("Failed to get service counts by type");
-          }
-        } catch (error) {
-          console.log("Error during getting service counts by type", error);
-        }
-      },
-      getServiceCountsByClientType: async (clientType) => {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/service-counts-by-client-type/${clientType}`
-          );
-          if (response.ok) {
-            const data = await response.json();
-            const currentCounts = getStore().serviceCountsByClientType || {}; // Obtener el estado actual
-            currentCounts[clientType] = data.total_count || 0; // Actualizar el conteo para el tipo de cliente
-            setStore({ serviceCountsByClientType: currentCounts }); // Guardar el estado actualizado
-            return data.total_count || 0;
-          } else {
-            console.error("Failed to fetch service counts by client type");
-          }
-        } catch (error) {
-          console.log("Error fetching service counts by client type", error);
-        }
-      },
-      getClientServiceCounts: async () => {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/service-counts-by-type`
-          );
-          if (response.ok) {
-            const data = await response.json();
-            setStore({ clientServiceCounts: data });
-          } else {
-            console.error("Failed to get client service counts");
-          }
-        } catch (error) {
-          console.log("Error during getting client service counts", error);
-        }
-      },
-      getServiceCountsByPlatform: async () => {
-        const store = getStore();
-        try {
-            const response = await fetch(
-                `${process.env.REACT_APP_BACKEND_URL}/service-counts-by-platform`, // Asegúrate que la URL base esté correcta
-                {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        // Si necesitas autenticación, agrega el encabezado Authorization aquí
-                        // "Authorization": `Bearer ${store.token}` // Ejemplo si usas tokens JWT
-                    },
-                }
-            );
-
-            if (response.ok) {
-                const data = await response.json();
-                // Guardar los datos en el store
-                setStore({ serviceCountsByPlatform: data });
-                console.log("Datos de conteo por plataforma obtenidos:", data);
-                return data; // Devuelve los datos por si se necesitan directamente
-            } else if (response.status === 404) {
-                // Manejar el caso donde no hay datos
-                console.warn("No se encontraron datos de servicios por plataforma.");
-                setStore({ serviceCountsByPlatform: [] }); // Asegura que el estado quede vacío
-                return [];
-            } else {
-                // Manejar otros errores HTTP
-                const errorData = await response.json();
-                console.error("Error al obtener conteo por plataforma:", response.status, errorData);
-                setStore({ serviceCountsByPlatform: [] }); // Limpiar en caso de error
-                return { error: true, message: errorData.error || `Error ${response.status}` };
-            }
-        } catch (error) {
-            // Manejar errores de red u otros errores inesperados
-            console.error("Error de red o inesperado al obtener conteo por plataforma:", error);
-            setStore({ serviceCountsByPlatform: [] }); // Limpiar en caso de error
-            return { error: true, message: error.message };
-        }
-    },
-
-      getAprovisionados: async () => {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/aprovisionados`
-          );
-          if (response.ok) {
-            const data = await response.json();
-            setStore({ aprovisionados: data });
-            return data;
-          } else {
-            console.error("Failed to get aprovisionados");
-            return [];
-          }
-        } catch (error) {
-          console.log("Error during getting aprovisionados", error);
+          console.log("Error during getting client data by type:", error);
+          setStore({ clientData: [] });
           return [];
         }
       },
 
+      updateClientData: async (clientId, clientData) => {
+        if (!clientId || typeof clientId !== "number" || !clientData || typeof clientData !== "object" || Object.keys(clientData).length === 0) {
+            console.error("Invalid input for updateClientData");
+            throw new Error("Invalid input for updating client data.");
+        }
+        try {
+          const response = await fetch(
+            `${API_URL}/clients/${clientId}`, // Backend uses /clients/:id for PUT
+            {
+              method: "PUT",
+              headers: getAuthHeaders(),
+              body: JSON.stringify(clientData),
+            }
+          );
+          const data = await handleApiResponse(response); // Expects updated client object
+          // Optionally update store if needed (e.g., if clientData list is stored)
+          console.log("Client updated successfully:", data);
+          return { success: true, data };
+        } catch (error) {
+          console.error("Error during updating client data:", error.message);
+          return { success: false, message: error.message }; // Return error object
+        }
+      },
+
+      deleteClientAndServices: async (clientId) => {
+        if (!clientId || typeof clientId !== "number") {
+            console.error("Invalid input for deleteClientAndServices");
+            throw new Error("Invalid client ID.");
+        }
+        try {
+          const response = await fetch(
+            `${API_URL}/clients/${clientId}`, // Backend uses /clients/:id for DELETE
+            {
+              method: "DELETE",
+              headers: getAuthHeaders(), // Send auth header
+            }
+          );
+           // Handle potential 204 No Content before calling handleApiResponse's JSON parsing
+          if (response.status === 204) {
+              console.log("Client and services deleted successfully (204)");
+              // Optionally update store (e.g., remove client from a list)
+              return { success: true, message: "Client and associated services deleted successfully" };
+          }
+          const data = await handleApiResponse(response); // Expects { message: "..." } on 200 OK
+          // Optionally update store
+          return { success: true, message: data?.message || "Deleted successfully" };
+        } catch (error) {
+          console.error("Error during deleting client and services:", error.message);
+          return { success: false, message: error.message };
+        }
+      },
+
+      // ==============================
+      // Servicios
+      // ==============================
+      addServiceData: async (servicePayload) => {
+        try {
+          const response = await fetch(
+            `${API_URL}/add_service/`, // Note the trailing slash
+            {
+              method: "POST",
+              headers: getAuthHeaders(),
+              body: JSON.stringify(servicePayload),
+            }
+          );
+          const data = await handleApiResponse(response); // Expects { message: "...", service: {...} }
+          // Optionally update state
+          return data;
+        } catch (error) {
+          console.log("Error during adding service data", error);
+          throw error;
+        }
+      },
+
+      getServicebyClient: async (clientId) => {
+        try {
+          const response = await fetch(
+            `${API_URL}/servicios-by-cliente/${clientId}`,
+            {
+              method: "GET",
+              headers: getAuthHeaders(),
+            }
+          );
+          const data = await handleApiResponse(response); // Expects { message: "...", services: [...] }
+          const services = data?.services || [];
+          const activeServices = services.filter(
+            (service) => service.estado_servicio !== "Retirado"
+          );
+          setStore({ activeServiceCount: activeServices.length });
+          return services; // Return the full list
+        } catch (error) {
+          console.error("Error during getting service data by client:", error);
+          setStore({ activeServiceCount: 0 }); // Reset count on error
+          throw error;
+        }
+      },
+
+      getServicesByClientType: async (clientType) => {
+        try {
+          const response = await fetch(
+            `${API_URL}/services_by_client_type/${encodeURIComponent(clientType)}`,
+             {
+                method: "GET",
+                headers: getAuthHeaders()
+            }
+          );
+          const data = await handleApiResponse(response); // Expects array [{ tipo_servicio: "...", cantidad: ... }]
+          return data || [];
+        } catch (error) {
+          console.log("Error fetching services by client type", error);
+          return [];
+        }
+      },
+
+      getServiceById: async (serviceId) => {
+        try {
+          const response = await fetch(
+            `${API_URL}/servicios/${serviceId}`,
+            {
+              method: "GET",
+              headers: getAuthHeaders(),
+            }
+          );
+          const data = await handleApiResponse(response); // Expects service object
+          return data;
+        } catch (error) {
+          console.log("Error during getting service data by ID:", error);
+          throw error;
+        }
+      },
+
+      getTopServices: async () => {
+        try {
+          const response = await fetch(
+            `${API_URL}/top-services`,
+             {
+                method: "GET",
+                headers: getAuthHeaders()
+            }
+          );
+          const data = await handleApiResponse(response); // Expects array [{ tipo_servicio: "...", count: ... }]
+          setStore({ topServices: data || [] });
+          return data || [];
+        } catch (error) {
+          console.log("Error during getting top services", error);
+          setStore({ topServices: [] });
+          return [];
+        }
+      },
+
+      getTotalServices: async () => {
+        try {
+          const response = await fetch(
+            `${API_URL}/servicios/total`,
+             {
+                method: "GET",
+                headers: getAuthHeaders()
+            }
+          );
+          const data = await handleApiResponse(response); // Expects { total: number }
+          setStore({ totalServices: data?.total || 0 });
+          return data?.total || 0;
+        } catch (error) {
+          console.log("Error fetching total services", error);
+          setStore({ totalServices: 0 });
+          return 0;
+        }
+      },
+
+      getServiceCountsByType: async () => { // Counts grouped by ClientType and ServiceType
+        try {
+          const response = await fetch(
+            `${API_URL}/service-counts-by-type`,
+             {
+                method: "GET",
+                headers: getAuthHeaders()
+            }
+          );
+          const data = await handleApiResponse(response); // Expects nested object { ClientType: { ServiceType: count } }
+          setStore({ serviceCountsByType: data || {} });
+          return data || {};
+        } catch (error) {
+          console.log("Error during getting service counts by type", error);
+          setStore({ serviceCountsByType: {} });
+          return {};
+        }
+      },
+
+      getServiceCountsByClientType: async (clientType) => { // Total count for a specific ClientType
+        try {
+          const response = await fetch(
+            `${API_URL}/service-counts-by-client-type/${encodeURIComponent(clientType)}`,
+             {
+                method: "GET",
+                headers: getAuthHeaders()
+            }
+          );
+          const data = await handleApiResponse(response); // Expects { total_count: number }
+          const currentCounts = getStore().serviceCountsByClientType || {};
+          currentCounts[clientType] = data?.total_count || 0;
+          setStore({ serviceCountsByClientType: currentCounts });
+          return data?.total_count || 0;
+        } catch (error) {
+          console.log("Error fetching service counts for client type", clientType, error);
+          // Optionally update store to reflect error for this client type
+          return 0;
+        }
+      },
+
+      // This seems redundant with getServiceCountsByType, maybe remove?
+      // getClientServiceCounts: async () => { ... }
+
+      getServiceCountsByPlatform: async () => {
+        try {
+            const response = await fetch(
+                `${API_URL}/service-counts-by-platform`,
+                {
+                    method: "GET",
+                    headers: getAuthHeaders(),
+                }
+            );
+            const data = await handleApiResponse(response); // Expects array [{ nombre_plataforma: "...", count: ... }]
+            setStore({ serviceCountsByPlatform: data || [] });
+            console.log("Datos de conteo por plataforma obtenidos:", data);
+            return data || [];
+        } catch (error) {
+            console.error("Error al obtener conteo por plataforma:", error);
+            setStore({ serviceCountsByPlatform: [] });
+            return { error: true, message: error.message }; // Return error object
+        }
+    },
+
+      // getAprovisionados: async () => { ... } // Endpoint /aprovisionados doesn't exist in routes.py
+
       getNewServicesCurrentMonth: async () => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/new-services-current-month`
+            `${API_URL}/new-services-current-month`,
+             {
+                method: "GET",
+                headers: getAuthHeaders()
+            }
           );
-          if (response.ok) {
-            const data = await response.json();
-            setStore({ newServicesCurrentMonth: data });
-          } else {
-            console.error("Failed to get new services for the current month");
-          }
+          const data = await handleApiResponse(response); // Expects array of service objects with client info
+          setStore({ newServicesCurrentMonth: data || [] });
+          return data || [];
         } catch (error) {
-          console.log(
-            "Error during getting new services for the current month",
-            error
-          );
+          console.log("Error getting new services for current month", error);
+          setStore({ newServicesCurrentMonth: [] });
+          return [];
         }
       },
+
       getNewServicesPastMonth: async () => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/new-services-last-month`
+            `${API_URL}/new-services-last-month`,
+             {
+                method: "GET",
+                headers: getAuthHeaders()
+            }
           );
-          if (response.ok) {
-            const data = await response.json();
-            setStore({ newServicesLastMonth: data });
-          } else {
-            console.error("Failed to get new services for the current month");
-          }
+          const data = await handleApiResponse(response); // Expects array of service objects
+          setStore({ newServicesLastMonth: data || [] });
+          return data || [];
         } catch (error) {
-          console.log(
-            "Error during getting new services for the current month",
-            error
-          );
+          console.log("Error getting new services for last month", error);
+          setStore({ newServicesLastMonth: [] });
+          return [];
         }
       },
 
-      // Actualizar y Eliminar Servicios
       updateServiceData: async (serviceId, serviceData) => {
+         if (!serviceId || typeof serviceId !== "number" || !serviceData || typeof serviceData !== "object" || Object.keys(serviceData).length === 0) {
+            console.error("Invalid input for updateServiceData");
+            throw new Error("Invalid input for updating service data.");
+        }
         try {
-          // Validar que serviceId sea un número válido
-          if (!serviceId || typeof serviceId !== "number") {
-            throw new Error("Invalid service ID. It must be a number.");
-          }
-
-          // Validar que serviceData sea un objeto no vacío
-          if (
-            !serviceData ||
-            typeof serviceData !== "object" ||
-            Object.keys(serviceData).length === 0
-          ) {
-            throw new Error(
-              "Invalid service data. It must be a non-empty object."
-            );
-          }
-
-          // Realizar la solicitud PUT
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/servicios/${serviceId}`,
+            `${API_URL}/servicios/${serviceId}`,
             {
               method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
+              headers: getAuthHeaders(),
               body: JSON.stringify(serviceData),
             }
           );
-
-          // Manejar respuestas no exitosas
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || "Failed to update service data");
-          }
-
-          // Procesar la respuesta exitosa
-          const data = await response.json();
+          const data = await handleApiResponse(response); // Expects { message: "...", service: {...} }
+          // Optionally update service in local state if needed
           return data;
         } catch (error) {
           console.error("Error during updating service data:", error.message);
-          return { error: true, message: error.message };
+          return { error: true, message: error.message }; // Return error object
         }
       },
-      deleteService: async (serviceId) => {
-        try {
-          // Validar que serviceId sea un número válido
-          if (!serviceId || typeof serviceId !== "number") {
-            throw new Error("Invalid service ID. It must be a number.");
-          }
 
+      deleteService: async (serviceId) => {
+         if (!serviceId || typeof serviceId !== "number") {
+            console.error("Invalid input for deleteService");
+            throw new Error("Invalid service ID.");
+        }
+        try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/services/${serviceId}`,
+            `${API_URL}/services/${serviceId}`, // Backend uses /services/:id for DELETE
             {
               method: "DELETE",
-              headers: {
-                "Content-Type": "application/json",
-              },
+              headers: getAuthHeaders(),
             }
           );
-
-          // Manejar respuestas no exitosas
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || "Failed to delete service");
+           // Handle potential 204 No Content
+          if (response.status === 204) {
+              console.log("Service deleted successfully (204)");
+              // Optionally update store (e.g., remove service from a list)
+              return { success: true, message: "Servicio eliminado con éxito" };
           }
-
-          // Si la respuesta es exitosa, devolver un objeto indicando el éxito
-          return { success: true };
+          const data = await handleApiResponse(response); // Expects { message: "..." } on 200 OK
+          // Optionally update store
+          return { success: true, message: data?.message || "Deleted successfully" };
         } catch (error) {
           console.error("Error during deleting service:", error.message);
           return { success: false, message: error.message };
         }
       },
+
       getServiciosRetiradosPorMes: async (month, year) => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/servicios-retirados-por-mes?month=${month}&year=${year}`
+            `${API_URL}/servicios-retirados-por-mes?month=${month}&year=${year}`,
+             {
+                method: "GET",
+                headers: getAuthHeaders()
+            }
           );
-          if (!response.ok) {
-            throw new Error("Error al obtener servicios retirados");
-          }
-          return await response.json();
+          const data = await handleApiResponse(response); // Expects array
+          return data || [];
         } catch (error) {
           console.error("Error fetching servicios retirados:", error);
           return [];
         }
       },
+
       getNewServicesMonthlyTrend: async () => {
-        const store = getStore();
-        // Define el endpoint del backend para esta consulta
-        const endpoint = `${process.env.REACT_APP_BACKEND_URL}/new-services-monthly`; // <-- Asegúrate de crear este endpoint en Flask
-
         try {
-            const response = await fetch(endpoint, {
+            const response = await fetch(`${API_URL}/new-services-monthly`, {
                 method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    // Si necesitas autenticación, agrega el encabezado Authorization aquí
-                    // "Authorization": `Bearer ${store.token}`
-                },
+                headers: getAuthHeaders(),
             });
-
-            if (response.ok) {
-                const data = await response.json();
-                // Ordenar los datos por mes por si el backend no lo hace
-                const sortedData = data.sort((a, b) => {
-                    if (a.month < b.month) return -1;
-                    if (a.month > b.month) return 1;
-                    return 0;
-                });
-                setStore({ newServicesMonthlyTrend: sortedData });
-                console.log("Tendencia mensual de nuevos servicios obtenida:", sortedData);
-                return sortedData;
-            } else if (response.status === 404) {
-                console.warn("No se encontraron datos de tendencia mensual de nuevos servicios.");
-                setStore({ newServicesMonthlyTrend: [] });
-                return [];
-            } else {
-                const errorData = await response.json();
-                console.error("Error al obtener tendencia mensual:", response.status, errorData);
-                setStore({ newServicesMonthlyTrend: [] });
-                return { error: true, message: errorData.error || `Error ${response.status}` };
-            }
+            const data = await handleApiResponse(response); // Expects array [{ month: "YYYY-MM", count: ... }]
+            const sortedData = (data || []).sort((a, b) => a.month.localeCompare(b.month));
+            setStore({ newServicesMonthlyTrend: sortedData });
+            console.log("Tendencia mensual de nuevos servicios obtenida:", sortedData);
+            return sortedData;
         } catch (error) {
-            console.error("Error de red o inesperado al obtener tendencia mensual:", error);
+            console.error("Error al obtener tendencia mensual:", error);
             setStore({ newServicesMonthlyTrend: [] });
-            return { error: true, message: error.message };
+            return { error: true, message: error.message }; // Return error object
         }
     },
+
       getServiciosAprovisionadosPorMes: async (month, year) => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/servicios-aprovisionados-por-mes?month=${month}&year=${year}`
+            `${API_URL}/servicios-aprovisionados-por-mes?month=${month}&year=${year}`,
+             {
+                method: "GET",
+                headers: getAuthHeaders()
+            }
           );
-          if (!response.ok) {
-            throw new Error("Error al obtener servicios aprovisionados");
-          }
-          return await response.json();
+          const data = await handleApiResponse(response); // Expects array
+          return data || [];
         } catch (error) {
-          console.error("Error fetching servicios aprovisionados:", error);
+          console.error("Error fetching servicios aprovisionados por mes:", error);
           return [];
         }
       },
+
       getServiciosAprovisionadosPorMesAnual: async (year) => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/servicios-aprovisionados-por-mes-anual?year=${year}`
+            `${API_URL}/servicios-aprovisionados-por-mes-anual?year=${year}`,
+             {
+                method: "GET",
+                headers: getAuthHeaders()
+            }
           );
-          if (!response.ok) {
-            throw new Error(
-              "Error al obtener servicios aprovisionados por mes"
-            );
-          }
-          return await response.json();
+          const data = await handleApiResponse(response); // Expects array [{ mes: ..., servicios: [...] }]
+          return data || [];
         } catch (error) {
-          console.error(
-            "Error fetching servicios aprovisionados por mes:",
-            error
-          );
+          console.error("Error fetching servicios aprovisionados por mes anual:", error);
           return [];
         }
       },
+
       getServiciosAprovisionadosPorAno: async () => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/servicios-aprovisionados-por-ano`
+            `${API_URL}/servicios-aprovisionados-por-ano`,
+             {
+                method: "GET",
+                headers: getAuthHeaders()
+            }
           );
-          if (!response.ok) {
-            throw new Error(
-              "Error al obtener servicios aprovisionados por año"
-            );
-          }
-          return await response.json();
+          const data = await handleApiResponse(response); // Expects array [{ ano: ..., servicios: [...] }]
+          return data || [];
         } catch (error) {
-          console.error(
-            "Error fetching servicios aprovisionados por año:",
-            error
-          );
+          console.error("Error fetching servicios aprovisionados por año:", error);
           return [];
         }
       },
+
       getServiciosActivos: async () => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/servicios-activos`,
+            `${API_URL}/servicios-activos`,
             {
               method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-              },
+              headers: getAuthHeaders(),
             }
           );
-          if (response.ok) {
-            const data = await response.json();
-            return data;
-          } else {
-            console.error("Failed to get active services");
-            throw new Error("Failed to fetch active services");
-          }
+          const data = await handleApiResponse(response); // Expects array of service objects
+          return data || [];
         } catch (error) {
           console.error("Error during getting active services", error);
           throw error;
         }
       },
 
-      getCompleteClientServices: async () => {
+      getCompleteClientServices: async () => { // For export
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/exportar-datos-completos`
+            `${API_URL}/exportar-datos-completos`,
+             {
+                method: "GET",
+                headers: getAuthHeaders()
+            }
           );
-          if (!response.ok) {
-            throw new Error("Error al obtener el datos completos");
-          }
-          return await response.json();
+          const data = await handleApiResponse(response); // Expects { clientes: [...], servicios: [...] }
+          return data || { clientes: [], servicios: [] };
         } catch (error) {
-          console.error("Error fetching datos completos:", error);
-          return [];
+          console.error("Error fetching complete data:", error);
+          return { clientes: [], servicios: [] };
         }
       },
-      //Acciones generales
-      // Document handling actions
+
+      // ==============================
+      // Acciones Generales (Documentos, Excel)
+      // ==============================
       uploadDocument: async (entityType, entityId, formData) => {
         try {
+          const token = sessionStorage.getItem("jwt_token");
+          const headers = {}; // Don't set Content-Type for FormData
+          if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+          }
+
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/upload-document/${entityType}/${entityId}`,
+            `${API_URL}/upload-document/${entityType}/${entityId}`,
             {
               method: "POST",
+              headers: headers, // Use custom headers without Content-Type
               body: formData,
             }
           );
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || "Failed to upload document");
-          }
-
-          const data = await response.json();
-          return data;
+          // Need to handle response carefully, might not be JSON on error
+           if (response.status === 401) {
+                console.error("Unauthorized access (401). Logging out.");
+                getActions().LogOut();
+                throw new Error("Unauthorized");
+            }
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                console.error(`API Error ${response.status}:`, errorData.error || response.statusText);
+                throw new Error(errorData.error || `HTTP error ${response.status}`);
+            }
+           const data = await response.json(); // Assume success returns JSON
+           return data; // Expects { message: "...", document_id: ... }
         } catch (error) {
           console.error("Error uploading document:", error);
           throw error;
@@ -917,72 +860,71 @@ const getState = ({ getStore, getActions, setStore }) => {
       checkDocumentExists: async (entityType, entityId) => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/${entityType}/${entityId}/document-exists`,
+            `${API_URL}/${entityType}/${entityId}/document-exists`,
             {
               method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-              },
+              headers: getAuthHeaders(),
             }
           );
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(
-              errorData.error || "Failed to check document existence"
-            );
-          }
-
-          const data = await response.json();
+          const data = await handleApiResponse(response); // Expects { exists: boolean, document_name: "...", document_id: ... }
           setStore({
-            documentName: data.document_name,
-            documentId: data.document_id, // Almacenar el ID del documento
+            documentName: data?.document_name || null, // Use null if undefined
+            documentId: data?.document_id || null,
           });
-          return data.exists; // Retornar si el documento existe
+          return data?.exists || false;
         } catch (error) {
           console.error("Error checking document existence:", error);
+          setStore({ documentName: null, documentId: null }); // Reset on error
           throw error;
         }
       },
 
       downloadDocument: async (documentId) => {
+        // Downloading files doesn't typically use handleApiResponse as it expects Blob, not JSON
         try {
+          const token = sessionStorage.getItem("jwt_token");
+          const headers = {};
+          if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+          }
+
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/download-document/${documentId}`,
+            // Assuming backend route exists for download by ID, adjust if needed
+            `${API_URL}/download-document/${documentId}`, // You might need to create this endpoint
             {
               method: "GET",
+              headers: headers,
             }
           );
 
+          if (response.status === 401) {
+             console.error("Unauthorized access (401). Logging out.");
+             getActions().LogOut();
+             throw new Error("Unauthorized");
+          }
           if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || "Failed to download document");
+            // Try to get error message if backend sends JSON error for downloads
+            const errorData = await response.json().catch(() => ({}));
+            console.error(`API Error ${response.status}:`, errorData.error || response.statusText);
+            throw new Error(errorData.error || `Failed to download document (${response.status})`);
           }
 
-          // Obtener el nombre del archivo del encabezado Content-Disposition
-          const contentDisposition = response.headers.get(
-            "content-disposition"
-          );
-          let fileName = "documento_descargado"; // Valor predeterminado
-          if (contentDisposition && contentDisposition.includes("filename=")) {
-            fileName = contentDisposition
-              .split("filename=")[1]
-              .split(";")[0]
-              .replace(/['"]/g, ""); // Eliminar comillas
+          const contentDisposition = response.headers.get("content-disposition");
+          let fileName = "documento_descargado";
+          if (contentDisposition?.includes("filename=")) {
+            fileName = contentDisposition.split("filename=")[1].split(";")[0].replace(/['"]/g, "");
           }
 
-          // Convertir la respuesta a un blob
           const blob = await response.blob();
           const url = window.URL.createObjectURL(blob);
-
-          // Crear un enlace temporal para descargar el archivo
           const a = document.createElement("a");
           a.href = url;
-          a.download = fileName; // Usar el nombre del archivo obtenido
+          a.download = fileName;
           document.body.appendChild(a);
           a.click();
           a.remove();
           window.URL.revokeObjectURL(url);
+
         } catch (error) {
           console.error("Error downloading document:", error);
           throw error;
@@ -992,18 +934,20 @@ const getState = ({ getStore, getActions, setStore }) => {
       deleteDocument: async (documentId) => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/delete-document/${documentId}`,
+            `${API_URL}/delete-document/${documentId}`,
             {
               method: "DELETE",
+              headers: getAuthHeaders(),
             }
           );
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || "Failed to delete document");
+           // Handle potential 204 No Content
+          if (response.status === 204) {
+              console.log("Document deleted successfully (204)");
+              setStore({ documentName: null, documentId: null }); // Clear store state
+              return { message: "Document deleted successfully" };
           }
-
-          const data = await response.json();
+          const data = await handleApiResponse(response); // Expects { message: "..." } on 200 OK
+          setStore({ documentName: null, documentId: null }); // Clear store state
           return data;
         } catch (error) {
           console.error("Error deleting document:", error);
@@ -1011,40 +955,32 @@ const getState = ({ getStore, getActions, setStore }) => {
         }
       },
 
-      uploadExcelData: async (data, estadoServicio) => {
+      uploadExcelData: async (excelData, estadoServicio) => {
         try {
-          // Ensure 'rif' is a string
-          const transformedData = data.map(item => ({
+          const transformedData = excelData.map(item => ({
             ...item,
-            rif: String(item.rif), // Convert rif to string
+            rif: String(item.rif),
           }));
 
           const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/upload-excel`,
+            `${API_URL}/upload-excel`,
             {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
+              headers: getAuthHeaders(),
               body: JSON.stringify({ data: transformedData, estado_servicio: estadoServicio }),
             }
           );
-          if (!response.ok) {
-            const errorData = await response.json();
-            console.error("Server error details:", errorData);
-            throw new Error("Network response was not ok: " + (errorData.error || ""));
-          }
-          const result = await response.json();
-          console.log("Data uploaded successfully:", result);
+          const result = await handleApiResponse(response); // Expects { message: "...", skipped_duplicates: ..., skipped_missing_rif: ... }
+          console.log("Excel Data uploaded successfully:", result);
           return result;
         } catch (error) {
-          console.error("Error uploading data:", error);
-          throw error; // Re-throw for handling in the component
+          console.error("Error uploading excel data:", error);
+          throw error;
         }
       },
 
-    },
-  };
-};
+    }, // End actions
+  }; // End return
+}; // End getState
 
 export default getState;
