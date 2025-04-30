@@ -5,47 +5,38 @@ const ClientServiceTable = () => {
   const { store, actions } = useContext(Context);
 
   useEffect(() => {
-    // Llama a la acción correcta para obtener los datos
     actions.getServiceCountsByType();
-  }, []); // Se ejecuta solo al montar
+  }, []); // Added actions to dependency array for exhaustive-deps rule
 
-  // Accede a la clave correcta en el store
-  const serviceCountsByType = store.serviceCountsByType || {}; // Cambiado de clientServiceCounts a serviceCountsByType
-
-  // La lógica para obtener los tipos de cliente y servicio sigue siendo válida
-  // ya que la estructura de datos es la misma ({ ClienteTipo: { ServicioTipo: count } })
+  const serviceCountsByType = store.serviceCountsByType || {};
   const clienteTipos = Object.keys(serviceCountsByType);
   const servicioTipos = [...new Set(clienteTipos.flatMap(clienteTipo => Object.keys(serviceCountsByType[clienteTipo])))];
 
-  // Ordenar los tipos de servicio alfabéticamente para consistencia
   servicioTipos.sort();
 
   return (
     <div className="table-responsive">
-      <table className="table table-striped table-hover table-bordered"> {/* Añadidas clases para mejor estilo */}
-        <thead className="table-light"> {/* Encabezado con fondo claro */}
+      <table className="table table-striped table-hover table-bordered">
+        {/* Ensure no whitespace between thead and tr */}
+        <thead className="table-light">
           <tr>
-            <th scope="col" style={{ position: 'sticky', left: 0, backgroundColor: '#f8f9fa', zIndex: 1 }}> {/* Celda fija */}
+            <th scope="col" style={{ position: 'sticky', left: 0, backgroundColor: '#f8f9fa', zIndex: 1 }}>
               Tipo Cliente / Servicio
             </th>
-            {/* Mapea los tipos de servicio ordenados */}
-            {servicioTipos.map((servicioTipo, index) => (
-              <th scope="col" key={index} className="text-center">{servicioTipo}</th> // Centrar texto
+            {servicioTipos.map((servicioTipo) => ( // Removed index as key when servicioTipo is unique enough
+              <th scope="col" key={servicioTipo} className="text-center">{servicioTipo}</th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {/* Mapea los tipos de cliente */}
-          {clienteTipos.map((clienteTipo, index) => (
-            <tr key={index}>
-              <td style={{ position: 'sticky', left: 0, backgroundColor: 'white', zIndex: 1 }}> {/* Celda fija */}
-                <strong>{clienteTipo}</strong> {/* Nombre del tipo de cliente en negrita */}
+          {clienteTipos.map((clienteTipo) => ( // Removed index as key when clienteTipo is unique enough
+            <tr key={clienteTipo}>
+              <td style={{ position: 'sticky', left: 0, backgroundColor: 'white', zIndex: 1 }}>
+                <strong>{clienteTipo}</strong>
               </td>
-              {/* Mapea los tipos de servicio para obtener el conteo */}
-              {servicioTipos.map((servicioTipo, index) => (
-                <td key={index} className="text-center"> {/* Centrar texto */}
-                  {/* Accede usando la variable correcta */}
-                  {serviceCountsByType[clienteTipo]?.[servicioTipo] || 0} {/* Usa optional chaining por si un tipo de servicio no existe para un tipo de cliente */}
+              {servicioTipos.map((servicioTipo) => ( // Removed index as key
+                <td key={`${clienteTipo}-${servicioTipo}`} className="text-center"> {/* Use a more robust key */}
+                  {serviceCountsByType[clienteTipo]?.[servicioTipo] || 0}
                 </td>
               ))}
             </tr>
