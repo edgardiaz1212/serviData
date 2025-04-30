@@ -42,7 +42,8 @@ def login_user():
     if user and user.check_password(password_text):
         access_token = create_access_token(identity=user.id) # Usamos user.id como identidad
 
-        return jsonify({"message": "Login successful", "user": user.serialize()}), 200
+        return jsonify(access_token=access_token, user=user.serialize()), 200 # Modificado
+
     else:
         # Invalid credentials (user not found or password incorrect)
         return jsonify({"message": "Invalid credentials"}), 401
@@ -240,7 +241,6 @@ def client_suggestions():
         return jsonify([cliente.serialize() for cliente in clientes]), 200
 
 @api.route('/clientes/total', methods=['GET'])
-@jwt_required()
 def get_total_clients():
     total_clients = Cliente.query.count()
     return jsonify({"total": total_clients}), 200
@@ -424,7 +424,6 @@ def get_all_services():
     return jsonify([service.serialize() for service in services]), 200
 
 @api.route('/servicios/total', methods=['GET'])
-@jwt_required()
 def get_total_services():
     total_services = Servicio.query.count()
     return jsonify({"total": total_services}), 200

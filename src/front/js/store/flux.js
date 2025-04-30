@@ -48,7 +48,7 @@ const getState = ({ getStore, getActions, setStore }) => {
   };
 
   // Construct the base API URL
-  const API_URL = process.env.REACT_APP_BACKEND_URL + "/api"; // Add /api prefix
+  const API_URL = process.env.REACT_APP_BACKEND_URL; // Add /api prefix
 
   return {
     store: {
@@ -590,26 +590,33 @@ const getState = ({ getStore, getActions, setStore }) => {
 
       getServiceCountsByPlatform: async () => {
         try {
+            // Usa API_URL que ya incluye /api
             const response = await fetch(
-                `${API_URL}/service-counts-by-platform`,
+                `${API_URL}/service-counts-by-platform`, // Correcto: usa API_URL
                 {
                     method: "GET",
-                    headers: getAuthHeaders(),
+                    headers: getAuthHeaders(), // Correcto: usa el helper para autenticación
                 }
             );
-            const data = await handleApiResponse(response); // Expects array [{ nombre_plataforma: "...", count: ... }]
-            setStore({ serviceCountsByPlatform: data || [] });
+            // Usa el helper para manejar la respuesta (incluye 401, errores, parsing JSON)
+            const data = await handleApiResponse(response); // Correcto: usa el helper
+
+            // Guarda los datos en el store (data será null si la respuesta es 204 o vacía)
+            setStore({ serviceCountsByPlatform: data || [] }); // Correcto: guarda en la clave correcta del store
             console.log("Datos de conteo por plataforma obtenidos:", data);
-            return data || [];
+            return data || []; // Devuelve los datos o un array vacío
+
         } catch (error) {
-            console.error("Error al obtener conteo por plataforma:", error);
-            setStore({ serviceCountsByPlatform: [] });
-            return { error: true, message: error.message }; // Return error object
+            // El manejo de errores (incluyendo 401 -> logout) ya ocurre en handleApiResponse
+            // Aquí solo logueamos el error final y reseteamos el store
+            console.error("Error al obtener conteo por plataforma (acción final):", error);
+            setStore({ serviceCountsByPlatform: [] }); // Limpiar en caso de error
+            // No es necesario retornar un objeto de error aquí, handleApiResponse ya lanzó el error.
+            // Si un componente necesita saber del error, debe usar try/catch al llamar a esta acción.
+            // throw error; // Puedes re-lanzar si los componentes necesitan manejarlo explícitamente
+            return []; // O simplemente retornar vacío en caso de error para los gráficos
         }
     },
-
-      // getAprovisionados: async () => { ... } // Endpoint /aprovisionados doesn't exist in routes.py
-
       getNewServicesCurrentMonth: async () => {
         try {
           const response = await fetch(

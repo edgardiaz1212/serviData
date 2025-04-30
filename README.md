@@ -47,7 +47,7 @@ ServiData is a full-stack web application that provides a backend API built with
    python src/app.py
    ```
 
-   The backend server will run on `http://localhost:3002`.
+   The backend server will run on `http://localhost:3001`.
 
 ### Frontend Setup
 

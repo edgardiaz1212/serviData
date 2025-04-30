@@ -8,14 +8,14 @@ import ClientServiceTable from "../component/ClientServiceTable.jsx";
 import "../../styles/resumen.css";
 import ClientServicesBarChart from "../component/ClientServicesBarChart.jsx";
 import PlatformServiceBarChart from "../component/PlatformServiceBarChart.jsx";
-import NewServicesLineChart from "../component/NewServicesLineChart.jsx"; // <-- 1. Importar el nuevo gráfico
+import NewServicesLineChart from "../component/NewServicesLineChart.jsx";
 
 const Resumen = () => {
   const { store, actions } = useContext(Context);
 
   // Cargar todos los datos necesarios al montar el componente
   useEffect(() => {
-    // Llamadas existentes
+    // Llamadas existentes (¡Correcto! No hay llamada a getClientServiceCounts)
     actions.getServiceCountsByClientType("Pública");
     actions.getServiceCountsByClientType("Privada");
     actions.getTotalServices();
@@ -23,9 +23,7 @@ const Resumen = () => {
     actions.getNewServicesCurrentMonth();
     actions.getNewServicesPastMonth();
     actions.getServiceCountsByPlatform();
-    // --- Nueva llamada ---
-    actions.getNewServicesMonthlyTrend(); // <-- 2. Llamar a la nueva acción
-    // --- Fin Nueva llamada ---
+    actions.getNewServicesMonthlyTrend();
   }, []); // El array vacío asegura que se ejecute solo una vez
 
   // Cálculos para las tarjetas (sin cambios)
@@ -166,7 +164,7 @@ const Resumen = () => {
               </div>
               <div className="col-md-6">
                 <div className="card h-100">
-                  <div className="card-body d-flex flex-column">                    {/* <-- 3. Renderizar el nuevo gráfico --> */}
+                  <div className="card-body d-flex flex-column">
                     <NewServicesLineChart />
                   </div>
                 </div>

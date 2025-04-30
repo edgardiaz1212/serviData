@@ -26,17 +26,16 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true); // Inicia feedback
     try {
+      // Llama a la acción de login
       const response = await actions.login(username, password);
-      if (response) {
-        toast.success("¡Bienvenido!");
-        // La redirección ya ocurre en el useEffect
-      } else {
-        // El error específico debería venir del action si es posible
-        toast.error("Usuario o contraseña incorrectos.");
+          if (response) {
+          toast.success("¡Bienvenido!");
+          
       }
+     
     } catch (error) {
       console.error("Login error:", error);
-      toast.error("Ocurrió un error al intentar iniciar sesión.");
+       toast.error(error.message || "Ocurrió un error al intentar iniciar sesión.");
     } finally {
       setIsLoading(false); // Termina feedback
     }
