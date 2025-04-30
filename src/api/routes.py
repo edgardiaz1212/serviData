@@ -41,7 +41,8 @@ def login_user():
 
     # Check if user exists AND if the provided password is correct
     if user and user.check_password(password_text):
-        access_token = create_access_token(identity=user.id) # Usamos user.id como identidad
+        identity_str = str(user.id)
+        access_token = create_access_token(identity=identity_str) # Usamos user.id como identidad
 
         return jsonify(access_token=access_token, user=user.serialize()), 200 # Modificado
 
@@ -58,8 +59,15 @@ def create_user():
     if not requesting_user or requesting_user.role != 'Admin':
        return jsonify({"message": "Admin privileges required"}), 403
     
-    data = request.get_json()
-    print(f"Received data for /api/users: {request.get_json()}") # <-- AÑADIR ESTO
+    try:
+        raw_data = request.data.decode('utf-8')
+        logging.debug(f"Raw request data: {raw_data}")
+        logging.debug(f"Request headers: {dict(request.headers)}")
+        data = request.get_json()
+    except Exception as e:
+        logging.error(f"Error parsing JSON: {str(e)}")
+        return jsonify({"message": "Invalid JSON format"}), 400
+
     if not data:
         # Asegurarse que el JSON no esté vacío
         return jsonify({"message": "Request body cannot be empty JSON"}), 400

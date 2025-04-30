@@ -7,9 +7,7 @@ const getState = ({ getStore, getActions, setStore }) => {
   // Helper function to get headers with Authorization token for JSON requests
   const getAuthHeaders = () => {
     const token = sessionStorage.getItem("jwt_token");
-    const headers = {
-      "Content-Type": "application/json",
-    };
+    const headers = {};
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -48,8 +46,8 @@ const getState = ({ getStore, getActions, setStore }) => {
   };
 
   // Construct the base API URL
-  const API_URL = process.env.REACT_APP_BACKEND_URL; // Add /api prefix
-
+  const API_URL = process.env.REACT_APP_BACKEND_URL + "/api" // Add /api prefix
+  console.log("API URL being used:", API_URL);
   return {
     store: {
       message: null,
@@ -132,8 +130,9 @@ const getState = ({ getStore, getActions, setStore }) => {
       // ==============================
       // Gestión de Usuarios
       // ==============================
-      addUser: async (user) => {
+addUser: async (user) => {
         try {
+          console.log("addUser called with user object:", user);
           const response = await fetch(
             `${API_URL}/users`,
             {
@@ -143,6 +142,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             }
           );
           const data = await handleApiResponse(response);
+          console.log(data);
           if (data && data.user) {
              const store = getStore();
              setStore({ users: [...store.users, data.user] });
@@ -189,16 +189,23 @@ const getState = ({ getStore, getActions, setStore }) => {
         }
       },
 
-      fetchUserData: async () => { // Fetches list of OTHER users (for Admin)
+      fetchUserData: async () => {
         try {
-          const response = await fetch(
-            `${API_URL}/users`,
-            {
-              method: "GET",
-              headers: getAuthHeaders(),
-            }
-          );
-          const data = await handleApiResponse(response); // data is expected to be an array
+          const token = sessionStorage.getItem("jwt_token");
+          if (!token) {
+            console.error("No token found");
+            return [];
+          }
+      
+          const response = await fetch(`${API_URL}/users`, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+      
+          const data = await handleApiResponse(response);
+      
           if (Array.isArray(data)) {
             const store = getStore();
             const loggedInUser = store.user;
@@ -206,7 +213,9 @@ const getState = ({ getStore, getActions, setStore }) => {
             setStore({ users: filteredUsers });
             return filteredUsers;
           }
-           return [];
+      
+          return [];
+      
         } catch (error) {
           console.error("Error during fetching users data:", error);
           return [];
