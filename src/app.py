@@ -4,13 +4,14 @@ from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
 from api.utils import APIException, generate_sitemap
-from api.models import db # Asegúrate que User esté importado aquí o sea accesible
+from api.models import db 
 from api.routes import api # Importa tu blueprint
 from api.admin import setup_admin
 from api.commands import setup_commands
 
-# Importar JWTManager
+# Importar JWTManager y timedelta
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, JWTManager
+from datetime import timedelta 
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../public/')
@@ -35,6 +36,13 @@ CORS(app)
 # NECESITAS configurar una clave secreta. ¡Cámbiala por una segura y mantenla secreta!
 # Puedes usar os.urandom(24).hex() para generar una. Guárdala como variable de entorno.
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "super-secret-dev-key") # ¡CAMBIAR EN PRODUCCIÓN!
+
+# Configura la duración del token de acceso a 2 horas
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=2) # <-- AÑADE ESTA LÍNEA
+
+# Opcional: Configura también la duración del token de refresco si lo usas
+# app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
+
 jwt = JWTManager(app) # Inicializa JWTManager
 
 # add the admin
