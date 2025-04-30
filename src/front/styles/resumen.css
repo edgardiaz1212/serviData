@@ -1,15 +1,149 @@
-.card{border-radius: 35px;
-    background: #ffffff;
-   
-                }
-.card-text{font-size: 1.0rem;
+/* src/front/styles/resumen.css */
+
+/* Variables de color (ajusta estos colores a tu gusto) */
+:root {
+    --primary-bg: #f8f9fa; /* Un gris muy claro para fondos */
+    --card-bg: #ffffff;
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Sombra más suave */
+    --card-border-radius: 12px; /* Bordes más redondeados */
+    --text-primary: #212529; /* Negro estándar */
+    --text-secondary: #6c757d; /* Gris para texto secundario */
+    --accent-color: #0d6efd; /* Azul de Bootstrap como acento */
+    --chart-container-height: 350px; /* Altura estándar para contenedores de gráficos */
+  }
+  
+  body {
+    background-color: var(--primary-bg); /* Aplicar fondo general */
+  }
+  
+  /* Estilo para el contenedor principal de la página */
+  .resumen-container {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+  
+  /* Estilo base para todas las tarjetas */
+  .card {
+    border: none; /* Quitar borde por defecto */
+    border-radius: var(--card-border-radius);
+    background: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    height: 100%; /* Asegurar que las tarjetas en una fila tengan la misma altura */
+    display: flex; /* Facilitar alineación interna */
+    flex-direction: column; /* Alinear contenido verticalmente */
+  }
+  
+  
+  /* Efecto hover sutil */
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  }
+  
+  .card-body {
+    padding: 1.5rem; /* Más padding interno */
+    flex-grow: 1; /* Permitir que el body crezca para llenar la tarjeta */
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Estilos para las tarjetas de KPIs (las pequeñas superiores) */
+  .kpi-card { /* Añade esta regla específica para las KPI cards */
+    min-height: 130px; /* <<--- AÑADE ESTA LÍNEA */
+    /* Puedes ajustar el valor (ej: 120px, 140px) según veas necesario */
+  }
+  .kpi-card .card-body { /* Asegúrate que el card-body también sea flexible */
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Para que ocupe el espacio disponible en la tarjeta */
+}
+
+.kpi-card .card-title {
+    font-size: 0.85rem;
     font-weight: 500;
-    color: #000000;
-    text-align: center;
-    
-    }
-.card-title{font-size: 1rem;
-    font-weight: 400;
-    color: #000000;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
     text-align: left;
+    /* Opcional: definir una altura mínima también para el título si el texto varía mucho */
+    /* min-height: 2.5em; */ /* Ajusta según el tamaño de fuente y el número de líneas esperado */
+  }
+  
+  .kpi-card .card-text {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: right;
+    margin-top: auto; /* Empuja el texto hacia abajo */
+  }
+  
+  /* Estilos para las tarjetas que contienen gráficos o tablas */
+  .chart-card .card-title,
+  .table-card .card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    text-align: center; /* Centrar títulos de gráficos/tablas */
+  }
+  
+  /* Contenedor específico para gráficos para controlar altura */
+  .chart-container {
+    position: relative; /* Necesario para Chart.js responsive */
+    height: var(--chart-container-height); /* Altura fija */
+    flex-grow: 1; /* Ocupar espacio disponible */
+    min-height: 250px; /* Altura mínima */
+  }
+  
+  /* Ajustes para la tabla Top Servicios */
+  .top-services-table-container {
+    flex-grow: 1; /* Ocupar espacio */
+    overflow-y: auto; /* Scroll si es necesario */
+    max-height: calc(var(--chart-container-height) * 2 + 2rem); /* Ajustar altura máxima relativa a otras filas */
+  }
+  
+  .top-services-table-container .table {
+    margin-bottom: 0; /* Quitar margen inferior de la tabla dentro del contenedor */
+  }
+  
+  /* Ajustes para la tabla ClientServiceTable */
+  .client-service-table-card .card-body {
+     padding: 0; /* Quitar padding si la tabla ocupa todo */
+  }
+  .client-service-table-card .table {
+    margin-bottom: 0;
+  }
+  /* Asegurar que las celdas sticky funcionen bien con bordes redondeados */
+  .client-service-table-card .table th:first-child,
+  .client-service-table-card .table td:first-child {
+    border-top-left-radius: var(--card-border-radius);
+    border-bottom-left-radius: var(--card-border-radius);
+  }
+  /* (Opcional) Estilo para la cabecera de la página */
+  .page-header {
+    background-color: var(--card-bg);
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--card-shadow);
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  
+  /* Media query para ajustar padding en pantallas pequeñas */
+  @media (max-width: 768px) {
+    .card-body {
+      padding: 1rem;
     }
+    .kpi-card .card-text {
+      font-size: 1.5rem;
+    }
+    .chart-card .card-title,
+    .table-card .card-title {
+      font-size: 1rem;
+    }
+    .chart-container {
+       height: 300px; /* Reducir altura en móviles */
+    }
+  }
+  
