@@ -10,7 +10,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 from sqlalchemy import func, extract
 import logging
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 import logging
 from fuzzywuzzy import fuzz, process
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
@@ -28,6 +28,7 @@ CORS(api)
 
 @api.route('/login', methods=['POST'])
 def login_user():
+    
     data = request.get_json()
     username = data.get('username')
     password_text = data.get('password') # Get the plain text password from request
@@ -51,37 +52,68 @@ def login_user():
 @api.route('/users', methods=['POST'])
 @jwt_required()
 def create_user():
+    
     current_user_id = get_jwt_identity()
     requesting_user = User.query.get(current_user_id)
     if not requesting_user or requesting_user.role != 'Admin':
        return jsonify({"message": "Admin privileges required"}), 403
-
+    
     data = request.get_json()
+    print(f"Received data for /api/users: {request.get_json()}") # <-- AÑADIR ESTO
+    if not data:
+        # Asegurarse que el JSON no esté vacío
+        return jsonify({"message": "Request body cannot be empty JSON"}), 400
+
     username = data.get('username')
     password_text = data.get('password')
     role = data.get('role')
 
-    if not username or not password_text:
-         return jsonify({"message": "Username and password are required"}), 400
+    # --- Validación Explícita Mejorada ---
+    missing_fields = []
+    if not username:
+        missing_fields.append("username")
+    if not password_text:
+        missing_fields.append("password")
+    if not role:
+        missing_fields.append("role")
 
+    if missing_fields:
+         # Usar 400 Bad Request para entradas faltantes
+         return jsonify({"message": f"Missing required fields: {', '.join(missing_fields)}"}), 400
+
+    # --- Validación Opcional de Valor de Rol ---
+    if role not in ['Admin', 'User']:
+        # Usar 400 Bad Request o 422 si se prefiere para valor inválido
+        return jsonify({"message": "Invalid role specified. Must be 'Admin' or 'User'."}), 400
+    # --- Fin Validación ---
+
+
+    # Verificar si el usuario ya existe (después de validar campos básicos)
     existing_user = User.query.filter_by(username=username).first()
     if existing_user:
-        return jsonify({"message": "Username already exists"}), 409
+        return jsonify({"message": "Username already exists"}), 409 # 409 Conflict
 
+    # Crear el nuevo usuario administrador
     new_user = User(username=username, role=role)
-    new_user.set_password(password_text)
+    new_user.set_password(password_text) # Hashear la contraseña
 
     try:
         db.session.add(new_user)
         db.session.commit()
+        # Devolver el usuario creado (sin contraseña)
         return jsonify({"message": "User created successfully", "user": new_user.serialize()}), 201
+    except IntegrityError as ie: # Captura errores de integridad específicos (como NOT NULL si fallara)
+        db.session.rollback()
+        logging.error(f"Database integrity error creating user '{username}': {str(ie)}")
+        # Podrías devolver 422 aquí si quieres mapear IntegrityError a eso, pero 500 es común
+        return jsonify({"message": f"Database integrity error: {str(ie)}"}), 500
     except SQLAlchemyError as e:
-         # ... (manejo de errores)
-         return jsonify({"message": "Error creating user"}), 500
-  
+         db.session.rollback()
+         logging.error(f"Database error creating user '{username}': {str(e)}")
+         return jsonify({"message": "Error creating user in database"}), 500 # Error genérico DB
     except Exception as e:
         db.session.rollback()
-        logging.error(f"Unexpected error creating user: {str(e)}")
+        logging.error(f"Unexpected error creating user '{username}': {str(e)}")
         return jsonify({"message": "An unexpected error occurred"}), 500
 
 
