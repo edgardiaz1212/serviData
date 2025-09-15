@@ -15,6 +15,7 @@ class Cliente(db.Model):
     razon_social = db.Column(db.String, nullable=False) # Added nullable
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    fecha_creacion_cliente = db.Column(db.DateTime, nullable=True)  # Custom creation date for client
 
     documentos = db.relationship("Documento", back_populates="cliente", cascade="all, delete-orphan") # Added cascade
     servicios = db.relationship("Servicio", back_populates="cliente", cascade="all, delete-orphan") # Added cascade
@@ -27,6 +28,7 @@ class Cliente(db.Model):
             'tipo': self.tipo,
             'rif': self.rif,
             'razon_social': self.razon_social,
+            'fecha_creacion_cliente': self.fecha_creacion_cliente.isoformat() if self.fecha_creacion_cliente else None,
             # 'documentos': [doc.serialize_basic() for doc in self.documentos], # Consider a basic serialization
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
@@ -69,6 +71,7 @@ class Servicio(db.Model):
     comentarios = db.Column(db.String)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    fecha_creacion_servicio = db.Column(db.DateTime, nullable=True)  # Custom creation date for service
 
     documentos = db.relationship("Documento", back_populates="servicio", cascade="all, delete-orphan") # Added cascade
     cliente = db.relationship("Cliente", back_populates="servicios")
@@ -119,6 +122,7 @@ class Servicio(db.Model):
             "ubicacion_sala": self.ubicacion_sala,
             "observaciones": self.observaciones,
             "comentarios": self.comentarios,
+            "fecha_creacion_servicio": self.fecha_creacion_servicio.isoformat() if self.fecha_creacion_servicio else None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
             # 'documentos': [doc.serialize_basic() for doc in self.documentos], # Consider basic serialization

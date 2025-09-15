@@ -14,6 +14,7 @@ function InputClienteServicio({ onSubmit }) {
     rif: "",
     razon_social: "",
     tipo: "",
+    fecha_creacion_cliente: "", // Add client creation date
   });
 
   const [serviceData, setServiceData] = useState({
@@ -48,6 +49,7 @@ function InputClienteServicio({ onSubmit }) {
     ipam: "",
     observaciones: "",
     comentarios: "",
+    fecha_creacion_servicio: "", // Add service creation date
   });
 
   const handleClientChange = (e) => {
@@ -151,6 +153,19 @@ function InputClienteServicio({ onSubmit }) {
             <option value="Privada">Privada</option>
           </select>
           <div className="invalid-feedback">Seleccione Tipo.</div>
+        </div>
+        <div className="col-md-4">
+          <label htmlFor="validationFechaCreacionCliente" className="form-label">
+            Fecha de Creación del Cliente
+          </label>
+          <input
+            className="form-control"
+            type="date"
+            name="fecha_creacion_cliente"
+            value={clientData.fecha_creacion_cliente}
+            onChange={handleClientChange}
+            id="validationFechaCreacionCliente"
+          />
         </div>
 
         <DatosServicio

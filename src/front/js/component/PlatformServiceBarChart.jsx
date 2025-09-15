@@ -50,6 +50,7 @@ const PlatformServiceBarChart = () => {
     // Opciones de la gráfica
     const chartOptions = {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
             legend: {
                 position: 'top', // Posición de la leyenda
@@ -102,7 +103,11 @@ const PlatformServiceBarChart = () => {
         // return null;
     }
 
-    return <Bar options={chartOptions} data={chartData} />;
+    return (
+        <div className="chart-container">
+            <Bar options={chartOptions} data={chartData} />
+        </div>
+    );
 };
 
 export default PlatformServiceBarChart;

@@ -48,6 +48,17 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
+          <label htmlFor="fecha_creacion_servicio" className="form-label">Fecha de Creación del Servicio</label>
+          <input
+            type="date"
+            name="fecha_creacion_servicio"
+            value={serviceData.fecha_creacion_servicio}
+            onChange={handleChange}
+            className="form-control"
+            id="fecha_creacion_servicio"
+          />
+        </div>
+        <div className="col-md-6 mb-3">
           <label htmlFor="facturado" className="form-label">Facturado</label>
           <input
             type="text"

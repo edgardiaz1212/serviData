@@ -37,15 +37,17 @@
   
   /* Efecto hover sutil */
   .card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-1px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
   }
   
   .card-body {
     padding: 1.5rem; /* Más padding interno */
-    flex-grow: 1; /* Permitir que el body crezca para llenar la tarjeta */
-    display: flex;
+    
+    
     flex-direction: column;
+    position:relative;
+    height: 100%
   }
   
   /* Estilos para las tarjetas de KPIs (las pequeñas superiores) */

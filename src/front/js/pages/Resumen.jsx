@@ -9,6 +9,9 @@ import "../../styles/resumen.css";
 import ClientServicesBarChart from "../component/ClientServicesBarChart.jsx";
 import PlatformServiceBarChart from "../component/PlatformServiceBarChart.jsx";
 import NewServicesLineChart from "../component/NewServicesLineChart.jsx";
+import NewServicesQuarterlyLineChart from "../component/NewServicesQuarterlyLineChart.jsx";
+import NewServicesYearlyLineChart from "../component/NewServicesYearlyLineChart.jsx";
+import ServiceGrowthProjectionChart from "../component/ServiceGrowthProjectionChart.jsx";
 
 const Resumen = () => {
   const { store, actions } = useContext(Context);
@@ -24,6 +27,9 @@ const Resumen = () => {
     actions.getNewServicesPastMonth();
     actions.getServiceCountsByPlatform();
     actions.getNewServicesMonthlyTrend();
+    actions.getNewServicesQuarterlyTrend();
+    actions.getNewServicesYearlyTrend();
+    actions.getServiceGrowthProjection();
   }, []); // El array vacío asegura que se ejecute solo una vez
 
   // Cálculos para las tarjetas (sin cambios)
@@ -154,7 +160,7 @@ const Resumen = () => {
             </div>
 
             {/* Fila 3: Bar (Plataforma) + Line (Tendencia Mensual) */}
-            <div className="row p-2">
+            <div className="row p-2 ">
               <div className="col-md-6">
                 <div className="card h-100">
                   <div className="card-body d-flex flex-column">
@@ -170,6 +176,26 @@ const Resumen = () => {
                 </div>
               </div>
             </div>
+
+            {/* Fila 4: Tendencia Trimestral + Tendencia Anual */}
+            <div className="row p-2">
+              <div className="col-md-6">
+                <div className="card h-100">
+                  <div className="card-body d-flex flex-column">
+                    <NewServicesQuarterlyLineChart />
+                  </div>
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="card h-100">
+                  <div className="card-body d-flex flex-column">
+                    <NewServicesYearlyLineChart />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+         
 
           </div>
           {/* --- Fin Columna Izquierda/Principal --- */}
@@ -188,7 +214,16 @@ const Resumen = () => {
           {/* --- Fin Columna Derecha --- */}
         </div>
         {/* --- Fin Gráficos y Tablas --- */}
-
+   {/* Fila 5: Proyección de Crecimiento */}
+            <div className="row p-2">
+              <div className="col-md-12">
+                <div className="card h-100">
+                  <div className="card-body d-flex flex-column">
+                    <ServiceGrowthProjectionChart />
+                  </div>
+                </div>
+              </div>
+            </div>
 
         {/* --- Tabla Inferior (Servicios por Cliente) --- */}
         <div className="row mt-2">

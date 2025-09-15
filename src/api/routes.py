@@ -260,7 +260,7 @@ def get_client_by_id(client_id):
 def get_clients_by_type():
     tipo = request.args.get('tipo')
     if tipo:
-        clients = Cliente.query.filter_by(tipo=tipo).all()
+        clients = Cliente.query.filter(Cliente.tipo == tipo).all()
     else:
         clients = Cliente.query.all()
     if not clients:
@@ -310,6 +310,8 @@ def update_client(client_id):
             cliente.rif = data['rif']
         if 'razon_social' in data:
             cliente.razon_social = data['razon_social']
+        if 'fecha_creacion_cliente' in data:
+            cliente.fecha_creacion_cliente = data['fecha_creacion_cliente']
         db.session.commit()
         return jsonify(cliente.serialize()), 200
     except Exception as e:
@@ -519,9 +521,11 @@ def update_service(service_id):
             # Información de Hardware/Infraestructura
             'hostname', 'nombre_servidor', 'nombre_nodo', 'nombre_plataforma', 'ram', 'hdd', 'cpu', 'datastore',
             # Red e IP
-            'ip_privada','ip_publica' 'vlan', 'ipam',
+            'ip_privada', 'ip_publica', 'vlan', 'ipam',
             # Observaciones y Comentarios
-            'observaciones', 'comentarios'
+            'observaciones', 'comentarios',
+            # Fechas de creación
+            'fecha_creacion_servicio'
         ]
 
         # Actualizar solo los campos permitidos
@@ -674,16 +678,18 @@ def get_new_services_monthly_trend():
     """
     try:
         # Consulta para contar servicios agrupados por año y mes de creación
+        # Usar fecha_creacion_servicio si existe, sino created_at
+        creation_date = func.coalesce(Servicio.fecha_creacion_servicio, Servicio.created_at)
         monthly_trend = db.session.query(
-            extract('year', Servicio.created_at).label('year'),
-            extract('month', Servicio.created_at).label('month'),
+            extract('year', creation_date).label('year'),
+            extract('month', creation_date).label('month'),
             func.count(Servicio.id).label('count')
         ).group_by(
-            extract('year', Servicio.created_at),
-            extract('month', Servicio.created_at)
+            extract('year', creation_date),
+            extract('month', creation_date)
         ).order_by(
-            extract('year', Servicio.created_at),
-            extract('month', Servicio.created_at)
+            extract('year', creation_date),
+            extract('month', creation_date)
         ).all()
 
         # Formatear los resultados para la respuesta JSON en formato 'YYYY-MM'
@@ -711,6 +717,147 @@ def get_new_services_monthly_trend():
         logging.error(f"Error inesperado al obtener tendencia mensual: {str(e)}")
         return jsonify({"error": "Ocurrió un error inesperado", "details": str(e)}), 500
 
+@api.route('/new-services-quarterly', methods=['GET'])
+@jwt_required()
+def get_new_services_quarterly_trend():
+    """
+    Calcula y devuelve el número de servicios creados por trimestre y año.
+    Ideal para una gráfica de líneas mostrando la tendencia trimestral.
+    """
+    try:
+        # Consulta para contar servicios agrupados por año y trimestre de creación
+        # Usar fecha_creacion_servicio si existe, sino created_at
+        creation_date = func.coalesce(Servicio.fecha_creacion_servicio, Servicio.created_at)
+        quarterly_trend = db.session.query(
+            extract('year', creation_date).label('year'),
+            ((extract('month', creation_date) - 1) // 3 + 1).label('quarter'),
+            func.count(Servicio.id).label('count')
+        ).group_by(
+            extract('year', creation_date),
+            ((extract('month', creation_date) - 1) // 3 + 1)
+        ).order_by(
+            extract('year', creation_date),
+            ((extract('month', creation_date) - 1) // 3 + 1)
+        ).all()
+
+        # Formatear los resultados para la respuesta JSON en formato 'YYYY-QN'
+        result = [
+            {'quarter': f"{int(year)}-Q{int(quarter)}", 'count': count}
+            for year, quarter, count in quarterly_trend
+        ]
+
+        # Verificar si hay datos
+        if not result:
+            return jsonify([]), 200
+
+        return jsonify(result), 200
+
+    except SQLAlchemyError as e:
+        logging.error(f"Error de base de datos al obtener tendencia trimestral: {str(e)}")
+        return jsonify({"error": "Error de base de datos", "details": str(e)}), 500
+    except Exception as e:
+        logging.error(f"Error inesperado al obtener tendencia trimestral: {str(e)}")
+        return jsonify({"error": "Ocurrió un error inesperado", "details": str(e)}), 500
+
+@api.route('/new-services-yearly', methods=['GET'])
+@jwt_required()
+def get_new_services_yearly_trend():
+    """
+    Calcula y devuelve el número de servicios creados por año.
+    Ideal para una gráfica de líneas mostrando la tendencia anual.
+    """
+    try:
+        # Consulta para contar servicios agrupados por año de creación
+        # Usar fecha_creacion_servicio si existe, sino created_at
+        creation_date = func.coalesce(Servicio.fecha_creacion_servicio, Servicio.created_at)
+        yearly_trend = db.session.query(
+            extract('year', creation_date).label('year'),
+            func.count(Servicio.id).label('count')
+        ).group_by(
+            extract('year', creation_date)
+        ).order_by(
+            extract('year', creation_date)
+        ).all()
+
+        # Formatear los resultados para la respuesta JSON
+        result = [
+            {'year': int(year), 'count': count}
+            for year, count in yearly_trend
+        ]
+
+        # Verificar si hay datos
+        if not result:
+            return jsonify([]), 200
+
+        return jsonify(result), 200
+
+    except SQLAlchemyError as e:
+        logging.error(f"Error de base de datos al obtener tendencia anual: {str(e)}")
+        return jsonify({"error": "Error de base de datos", "details": str(e)}), 500
+    except Exception as e:
+        logging.error(f"Error inesperado al obtener tendencia anual: {str(e)}")
+        return jsonify({"error": "Ocurrió un error inesperado", "details": str(e)}), 500
+
+@api.route('/service-growth-projection', methods=['GET'])
+@jwt_required()
+def get_service_growth_projection():
+    """
+    Calcula la proyección de crecimiento de servicios basada en la tendencia mensual.
+    Devuelve la tendencia actual y proyecciones para los próximos 6 meses.
+    """
+    try:
+        # Obtener datos de los últimos 12 meses
+        # Usar fecha_creacion_servicio si existe, sino created_at
+        creation_date = func.coalesce(Servicio.fecha_creacion_servicio, Servicio.created_at)
+        last_year = datetime.now() - timedelta(days=365)
+        monthly_data = db.session.query(
+            extract('year', creation_date).label('year'),
+            extract('month', creation_date).label('month'),
+            func.count(Servicio.id).label('count')
+        ).filter(creation_date >= last_year).group_by(
+            extract('year', creation_date),
+            extract('month', creation_date)
+        ).order_by(
+            extract('year', creation_date),
+            extract('month', creation_date)
+        ).all()
+
+        # Calcular tasas de crecimiento
+        growth_rates = []
+        for i in range(1, len(monthly_data)):
+            prev = monthly_data[i-1][2]
+            curr = monthly_data[i][2]
+            if prev > 0:
+                growth = ((curr - prev) / prev) * 100
+                growth_rates.append(growth)
+
+        avg_growth = sum(growth_rates) / len(growth_rates) if growth_rates else 0
+
+        # Proyectar los próximos 6 meses
+        last_count = monthly_data[-1][2] if monthly_data else 0
+        projections = []
+        current_date = datetime.now()
+        for i in range(1, 7):
+            projected_date = current_date + timedelta(days=30*i)
+            projected_count = last_count * (1 + avg_growth / 100) ** i
+            projections.append({
+                'month': f"{projected_date.year}-{projected_date.month:02d}",
+                'count': int(projected_count)
+            })
+
+        return jsonify({
+            'current_trend': [{'month': f"{int(y)}-{int(m):02d}", 'count': c} for y, m, c in monthly_data],
+            'projections': projections,
+            'avg_growth_rate': avg_growth
+        }), 200
+
+    except SQLAlchemyError as e:
+        logging.error(f"Error de base de datos al obtener proyección de crecimiento: {str(e)}")
+        return jsonify({"error": "Error de base de datos", "details": str(e)}), 500
+    except Exception as e:
+        logging.error(f"Error inesperado al obtener proyección de crecimiento: {str(e)}")
+        return jsonify({"error": "Ocurrió un error inesperado", "details": str(e)}), 500
+
 @api.route('/new-services-current-month', methods=['GET'])
 @jwt_required()
 def get_new_services_current_month():
@@ -725,9 +872,10 @@ def get_new_services_current_month():
             start_of_next_month = start_of_month.replace(month=current_date.month + 1)
 
         # Consulta para obtener servicios nuevos en el mes actual junto con todos los datos del cliente
+        # Usar fecha_creacion_servicio si existe, sino created_at
         new_services = db.session.query(Servicio, Cliente).join(Cliente).filter(
-            Servicio.created_at >= start_of_month,  # Usar created_at para filtrar por fecha de creación
-            Servicio.created_at < start_of_next_month
+            func.coalesce(Servicio.fecha_creacion_servicio, Servicio.created_at) >= start_of_month,
+            func.coalesce(Servicio.fecha_creacion_servicio, Servicio.created_at) < start_of_next_month
         ).all()
 
         result = [
@@ -812,10 +960,11 @@ def get_new_services_last_month():
         first_day_current_month = first_day_current_month
 
         # Consulta para obtener servicios nuevos en el mes pasado
+        # Usar fecha_creacion_servicio si existe, sino created_at
         new_services = Servicio.query.filter(
             Servicio.estado_servicio == 'Nuevo',
-            Servicio.updated_at >= first_day_last_month,
-            Servicio.updated_at < first_day_current_month
+            func.coalesce(Servicio.fecha_creacion_servicio, Servicio.created_at) >= first_day_last_month,
+            func.coalesce(Servicio.fecha_creacion_servicio, Servicio.created_at) < first_day_current_month
         ).all()
 
         # Verificar si hay servicios nuevos
@@ -840,10 +989,15 @@ def add_client_and_service():
         razon_social = data.get('razon_social')
         estado_servicio = data.get('estado_servicio', 'Nuevo')
 
+        fecha_creacion_cliente = data.get('fecha_creacion_cliente')
+        fecha_creacion_servicio = data.get('fecha_creacion_servicio')
+
         # Crear o obtener el cliente
         cliente = Cliente.query.filter_by(rif=rif).first()
         if not cliente:
             cliente = Cliente(tipo=tipo, rif=rif, razon_social=razon_social)
+            if fecha_creacion_cliente:
+                cliente.fecha_creacion_cliente = fecha_creacion_cliente
             db.session.add(cliente)
             db.session.commit()
 
@@ -896,6 +1050,8 @@ def add_client_and_service():
 
             cliente_id=cliente.id,
         )
+        if fecha_creacion_servicio:
+            servicio.fecha_creacion_servicio = fecha_creacion_servicio
         db.session.add(servicio)
         db.session.commit()
 

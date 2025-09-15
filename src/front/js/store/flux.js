@@ -27,6 +27,9 @@ const getState = ({ getStore, getActions, setStore }) => {
       documentId: null, // Add document ID state
       serviceCountsByPlatform: [],
       newServicesMonthlyTrend: [],
+      newServicesQuarterlyTrend: [],
+      newServicesYearlyTrend: [],
+      serviceGrowthProjection: {},
     },
     actions: {
       // Autenticación
@@ -697,6 +700,54 @@ const getState = ({ getStore, getActions, setStore }) => {
           }
         } catch (error) {
           console.log("Error during getting new services monthly trend", error);
+        }
+      },
+      // Obtener tendencia trimestral de nuevos servicios
+      getNewServicesQuarterlyTrend: async () => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/new-services-quarterly`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setStore({ newServicesQuarterlyTrend: data });
+          } else {
+            console.error("Failed to get new services quarterly trend");
+          }
+        } catch (error) {
+          console.log("Error during getting new services quarterly trend", error);
+        }
+      },
+      // Obtener tendencia anual de nuevos servicios
+      getNewServicesYearlyTrend: async () => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/new-services-yearly`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setStore({ newServicesYearlyTrend: data });
+          } else {
+            console.error("Failed to get new services yearly trend");
+          }
+        } catch (error) {
+          console.log("Error during getting new services yearly trend", error);
+        }
+      },
+      // Obtener proyección de crecimiento de servicios para los próximos 6 meses
+      getServiceGrowthProjection: async () => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/service-growth-projection`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setStore({ serviceGrowthProjection: data });
+          } else {
+            console.error("Failed to get service growth projection");
+          }
+        } catch (error) {
+          console.log("Error during getting service growth projection", error);
         }
       },
       // Obtener servicios aprovisionados por mes

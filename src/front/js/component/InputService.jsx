@@ -41,6 +41,7 @@ function InputService({ clientData }) {
     ipam: "",
     observaciones: "",
     comentarios: "",
+    fecha_creacion_servicio: "", // Add service creation date
   });
 
     const handleChange = (e) => {
