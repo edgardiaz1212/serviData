@@ -159,8 +159,28 @@ const Resumen = () => {
               </div>
             </div>
 
-            {/* Fila 3: Bar (Plataforma) + Line (Tendencia Mensual) */}
-            <div className="row p-2 ">
+      
+         
+
+          </div>
+          {/* --- Fin Columna Izquierda/Principal --- */}
+
+          {/* Columna Derecha (Tabla Top Servicios) */}
+          <div className="col-lg-3"> {/* Ajustado a col-lg-3 */}
+            <div className="card h-100">
+              <div className="card-body d-flex flex-column">
+                <h5 className="card-title">Top Servicios</h5>
+                <div className="flex-grow-1" style={{ overflowY: 'auto' }}> {/* Permite scroll si la tabla es muy larga */}
+                   <TopServicesTable />
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* --- Fin Columna Derecha --- */}
+        </div>
+
+      {/* Fila 3: Bar (Plataforma) + Line (Tendencia Mensual) */}
+      <div className="row p-2 ">
               <div className="col-md-6">
                 <div className="card h-100">
                   <div className="card-body d-flex flex-column">
@@ -195,24 +215,8 @@ const Resumen = () => {
               </div>
             </div>
 
-         
 
-          </div>
-          {/* --- Fin Columna Izquierda/Principal --- */}
 
-          {/* Columna Derecha (Tabla Top Servicios) */}
-          <div className="col-lg-3"> {/* Ajustado a col-lg-3 */}
-            <div className="card h-100">
-              <div className="card-body d-flex flex-column">
-                <h5 className="card-title">Top Servicios</h5>
-                <div className="flex-grow-1" style={{ overflowY: 'auto' }}> {/* Permite scroll si la tabla es muy larga */}
-                   <TopServicesTable />
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* --- Fin Columna Derecha --- */}
-        </div>
         {/* --- Fin Gráficos y Tablas --- */}
    {/* Fila 5: Proyección de Crecimiento */}
             <div className="row p-2">

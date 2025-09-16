@@ -81,6 +81,44 @@ ServiData is a full-stack web application that provides a backend API built with
 - Start the frontend development server (`npm start`) for development with hot reloading.
 - Access the application via the frontend URL (`http://localhost:3000`) or backend URL (`http://localhost:3002/servidata`).
 
+## Using the Custom Flask CLI Commands
+
+This project includes custom Flask CLI commands to help manage users and other tasks.
+
+### Create Admin User
+
+To create a new admin user, use the following command in your terminal:
+
+```bash
+flask create-admin
+```
+
+This command will prompt you to enter a username and password for the new admin user. The password must be at least 6 characters long.
+
+Make sure you have set the `FLASK_APP` environment variable to `src/app.py` before running the command:
+
+- On Windows (cmd):
+
+  ```cmd
+  set FLASK_APP=src/app.py
+  ```
+
+- On Unix/Linux/macOS:
+
+  ```bash
+  export FLASK_APP=src/app.py
+  ```
+
+### List Users
+
+To list all registered users, run:
+
+```bash
+flask list-users
+```
+
+This will display a table of users with their IDs, usernames, and roles.
+
 ## Additional Information
 
 - The backend automatically creates an admin user with username `admin` and password `administrator` on first run.
