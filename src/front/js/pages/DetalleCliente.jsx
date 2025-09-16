@@ -6,6 +6,7 @@ import ServiceCard from "../component/ServiceCard.jsx";
 import GenerarInformePDF from "../component/GenerarInformePDF.jsx"; // Importa el nuevo componente
 import ClientServicesPieChart from "../component/ClientServicesPieChart.jsx";
 import { FileText, Pencil, Building2, Landmark } from "lucide-react";
+import "../../styles/detallecliente.css";
 
 function DetalleCliente({ clientData: propClientData }) {
   const { clientId } = useParams();
@@ -35,6 +36,7 @@ function DetalleCliente({ clientData: propClientData }) {
         setClientData(client);
         const services = await actions.getServicebyClient(clientId);
         setServicesData(services || []);
+        console.log("Servicios recibidos para cliente:", services);
         const exists = await actions.checkDocumentExists("client", clientId);
         setHasDocument(exists);
       } catch (error) {
@@ -73,33 +75,41 @@ function DetalleCliente({ clientData: propClientData }) {
 
   return (
     <div className="container">
-      <div className="d-flex justify-content-between align-items-center">
+      <div className="flex justify-content-between align-items-center border-bottom mb-3 pb-2">
         <h3>Detalles del Cliente </h3>
         {store.user?.role === "Admin" && (
-          <button className="btn btn-primary" onClick={handleEditUserClick}>
-            <Pencil size={20} strokeWidth={1.75} />
+          <button
+            className="btn btn-primary fs-6"
+            onClick={handleEditUserClick}
+          >
+            <Pencil size={15} strokeWidth={1.75} />
             Editar Cliente
           </button>
         )}
       </div>
-      <div className="container border-bottom">
-        <div className="row justify-content-between p-3 ">
-          <div className="col-7">
-            <div className="d-flex align-items-center mb-2">
-              {clientData.tipo === "Privada" ? (
-                <Building2 className="h-6 w-6" />
-              ) : (
-                <Landmark className="h-6 w-6" />
-              )}
-              {clientData.tipo}
-            </div>
 
-            <h4>{clientData ? clientData.razon_social : ""}</h4>
+      <div className=" container ">
+        <div className="row client-header ">
+          <div className="col-9 ">
+            {clientData && (
+              <div className="p-2 mb-2 tipo-burbuja">
+                {clientData.tipo === "Privada" ? (
+                  <Building2 className="h-6 w-6 " />
+                ) : (
+                  <Landmark className="h-6 w-6" />
+                )}
+                {clientData.tipo}
+              </div>
+            )}
+
+            <div className="client-name">
+              {clientData ? clientData.razon_social : ""}
+            </div>
             {clientData && (
               <>
-                <p>
+                <div className="client-rif">
                   <strong>RIF:</strong> {clientData.rif}
-                </p>
+                </div>
                 <p>
                   <strong>Fecha de Contrato:</strong>{" "}
                   {clientData.fecha_creacion_cliente
@@ -110,27 +120,30 @@ function DetalleCliente({ clientData: propClientData }) {
                 </p>
               </>
             )}
-            <div className="border border-success rounded p-2 m-2">
-              {store.activeServiceCount} Servicios activos
+            <div className="services-count ">
+              <strong>{store.activeServiceCount} Servicios activos</strong>
             </div>
           </div>
 
-          <div className=" col-3 mt-3">
-            <ClientServicesPieChart servicesData={servicesData} />
+          {/* Gráfico de servicios */}
+          <div className="col-2 chart-container ">
+            <div className="pie-chart">
+              <ClientServicesPieChart servicesData={servicesData} />
+            </div>
           </div>
+
+          
         </div>
-        <button
-          className="btn btn-secondary"
-          onClick={() => setShowDocumentModal(true)}
-        >
-          Gestionar Documentos
-          <FileText />
-          {hasDocument && (
-            <span className="badge bg-success ms-2">Cargado</span>
-          )}
-          {!hasDocument && <span className="badge bg-danger ms-2">Vacío</span>}
-        </button>
       </div>
+      <button
+        className="mb-4  btn-documents"
+        onClick={() => setShowDocumentModal(true)}
+      >
+        Gestionar Documentos
+        <FileText />
+        {hasDocument && <span className="badge bg-success ms-2">Cargado</span>}
+        {!hasDocument && <span className="badge bg-danger ms-2">Vacío</span>}
+      </button>
       <div>
         <h5>Servicios</h5>
         <div className="form-group">

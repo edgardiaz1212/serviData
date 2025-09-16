@@ -2,6 +2,7 @@ import React from 'react';
 import { Pie } from 'react-chartjs-2';
 import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
 
+
 Chart.register(ArcElement, Tooltip, Legend);
 
 const ClientServicesPieChart = ({ servicesData }) => {
@@ -50,6 +51,7 @@ const ClientServicesPieChart = ({ servicesData }) => {
       legend: {
         position: 'bottom',
         labels: {
+          usePointStyle: true,
           font: {
             size: 10,
           },
@@ -71,8 +73,8 @@ const ClientServicesPieChart = ({ servicesData }) => {
   };
 
   return (
-    <div style={{ width: '200px', height: '200px',  }}>
-      <h6 className="text-center">Distribución de Servicios</h6>
+    <div style={{ width: '200px', height: '200px' }} >
+      <h6 className="text-center">Distribución de Servicios Activos</h6>
       <Pie data={data} options={options} />
     </div>
   );
