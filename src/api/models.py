@@ -137,6 +137,7 @@ class User(db.Model):
     role = db.Column(db.String)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc)) # Added created_at
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc)) # Added updated_at
+    last_login = db.Column(db.DateTime, nullable=True) # Added last_login field
 
     # Method to set the password (hashes it)
     def set_password(self, password_text):
@@ -158,6 +159,7 @@ class User(db.Model):
             'role': self.role,
             'created_at': self.created_at.isoformat() if self.created_at else None, # Serialize timestamps
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'last_login': self.last_login.isoformat() if self.last_login else None, # Serialize last_login
         }
 
 class Documento(db.Model):

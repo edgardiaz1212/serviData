@@ -28,7 +28,7 @@ CORS(api)
 
 @api.route('/login', methods=['POST'])
 def login_user():
-    
+
     data = request.get_json()
     username = data.get('username')
     password_text = data.get('password') # Get the plain text password from request
@@ -41,6 +41,10 @@ def login_user():
 
     # Check if user exists AND if the provided password is correct
     if user and user.check_password(password_text):
+        # Update last_login timestamp
+        user.last_login = datetime.now(timezone.utc)
+        db.session.commit()
+
         identity_str = str(user.id)
         access_token = create_access_token(identity=identity_str) # Usamos user.id como identidad
 
