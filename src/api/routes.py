@@ -223,6 +223,8 @@ def client_post():
         try:
             data = request.get_json()
             tipo = data.get('tipo')
+            # Correct client type to store without accent
+            tipo = correct_client_type(tipo)
             rif = data.get('rif')
             razon_social = data.get('razon_social')
             new_cliente = Cliente(tipo=tipo, rif=rif, razon_social=razon_social)
@@ -305,7 +307,7 @@ def update_client(client_id):
         if not cliente:
             return jsonify({"error": "Cliente no encontrado"}), 404
         if 'tipo' in data:
-            cliente.tipo = data['tipo']
+            cliente.tipo = correct_client_type(data['tipo'])
         if 'rif' in data:
             cliente.rif = data['rif']
         if 'razon_social' in data:
@@ -985,6 +987,7 @@ def add_client_and_service():
     try:
         data = request.get_json()
         tipo = data.get('tipo')
+        tipo = correct_client_type(tipo)
         rif = data.get('rif')
         razon_social = data.get('razon_social')
         estado_servicio = data.get('estado_servicio', 'Nuevo')
@@ -1362,15 +1365,15 @@ def correct_service_type(service_type):
     
 def correct_client_type(client_type):
     """
-    Corrects a client type to either 'Pública' or 'Privada' using fuzzy matching.
+    Corrects a client type to either 'Publica' or 'Privada' using fuzzy matching.
 
     Args:
         client_type (str): The client type to correct.
 
     Returns:
-        str: The corrected client type ('Pública' or 'Privada').
+        str: The corrected client type ('Publica' or 'Privada').
     """
-    valid_types = ['Pública', 'Privada']
+    valid_types = ['Publica', 'Privada']
     if not client_type:
         return "Privada"  # Default value if empty
 

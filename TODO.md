@@ -1,18 +1,6 @@
-# TODO: Agregar gráfica de torta y fecha de contrato en DetalleCliente
+# TODO: Fix service type "Pública" to "Publica" in API responses
 
-## Pasos a completar:
-
-1. **Crear componente ClientServicesPieChart.jsx**
-   - Crear un componente de gráfica de torta que muestre la distribución de servicios del cliente por tipo_servicio.
-   - Usar react-chartjs-2 con Pie chart.
-   - Recibir servicesData como prop y calcular los conteos.
-
-2. **Editar DetalleCliente.jsx**
-   - Agregar la fecha de creación del cliente (fecha_creacion_cliente) en la sección de datos del cliente.
-   - Importar y agregar el componente ClientServicesPieChart en la página, pasando servicesData.
-   - Asegurar que la gráfica sea pequeña (usar estilos apropiados).
-
-3. **Probar la implementación**
-   - Verificar que la fecha se muestre correctamente.
-   - Verificar que la gráfica renderice con los datos correctos.
-   - Ajustar estilos si es necesario.
+## Tasks
+- [x] Modify Servicio.serialize() in models.py to transform "Pública" to "Publica" for tipo_servicio
+- [x] Check and update direct returns of tipo_servicio in routes.py (e.g., get_new_services_current_month) - No changes needed
+- [ ] Test the changes to ensure frontend receives "Publica" without accent

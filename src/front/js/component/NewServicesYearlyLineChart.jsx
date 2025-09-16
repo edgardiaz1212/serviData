@@ -1,13 +1,12 @@
 // src/front/js/component/NewServicesYearlyLineChart.jsx
 import React, { useContext, useMemo } from 'react';
 import { Context } from "../store/appContext";
-import { Line } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
     CategoryScale,
     LinearScale,
-    PointElement,
-    LineElement,
+    BarElement,
     Title,
     Tooltip,
     Legend,
@@ -17,8 +16,7 @@ import {
 ChartJS.register(
     CategoryScale,
     LinearScale,
-    PointElement,
-    LineElement,
+    BarElement,
     Title,
     Tooltip,
     Legend,
@@ -48,9 +46,7 @@ const NewServicesYearlyLineChart = () => {
             {
                 label: 'Nuevos Servicios Aprovisionados',
                 data: processedData.dataPoints,
-                fill: false,
-                borderColor: 'rgb(255, 99, 132)',
-                tension: 0.1
+                backgroundColor: 'rgba(255, 99, 132, 0.5)',
             },
         ],
     };
@@ -109,7 +105,7 @@ const NewServicesYearlyLineChart = () => {
 
     return (
         <div style={{ position: 'relative', height: '300px' }}>
-            <Line options={chartOptions} data={chartData} />
+            <Bar options={chartOptions} data={chartData} />
         </div>
     );
 };

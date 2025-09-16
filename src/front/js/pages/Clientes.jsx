@@ -19,7 +19,7 @@ const Clientes = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleClientTypeChange = (event) => {
-    setClientType(event.target.id === 'btnradio1' ? 'Privada' : 'Pública');
+    setClientType(event.target.id === 'btnradio1' ? 'Privada' : 'Publica');
   };
 
   const handleSearchChange = (event) => {
@@ -37,7 +37,7 @@ const Clientes = () => {
           <input type="radio" className="btn-check" name="btnradio" id="btnradio1" autoComplete="off" checked={clientType === 'Privada'} onChange={handleClientTypeChange} />
           <label className="btn btn-outline-primary" htmlFor="btnradio1">Privada</label>
 
-          <input type="radio" className="btn-check" name="btnradio" id="btnradio2" autoComplete="off" checked={clientType === 'Pública'} onChange={handleClientTypeChange} />
+          <input type="radio" className="btn-check" name="btnradio" id="btnradio2" autoComplete="off" checked={clientType === 'Publica'} onChange={handleClientTypeChange} />
           <label className="btn btn-outline-primary" htmlFor="btnradio2">Pública</label>
         </div>
         <div className="input-group" style={{ maxWidth: '250px' }}>

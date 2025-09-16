@@ -19,7 +19,7 @@ const Resumen = () => {
   // Cargar todos los datos necesarios al montar el componente
   useEffect(() => {
     // Llamadas existentes (¡Correcto! No hay llamada a getClientServiceCounts)
-    actions.getServiceCountsByClientType("Pública");
+    actions.getServiceCountsByClientType("Publica");
     actions.getServiceCountsByClientType("Privada");
     actions.getTotalServices();
     actions.getTotalClients();
@@ -33,7 +33,7 @@ const Resumen = () => {
   }, []); // El array vacío asegura que se ejecute solo una vez
 
   // Cálculos para las tarjetas (sin cambios)
-  const publicServicesCount = store.serviceCountsByClientType?.["Pública"] || 0;
+  const publicServicesCount = store.serviceCountsByClientType?.["Publica"] || 0;
   const privateServicesCount =
     store.serviceCountsByClientType?.["Privada"] || 0;
   const newServicesCurrentMonthCount = (store.newServicesCurrentMonth || [])
@@ -56,7 +56,7 @@ const Resumen = () => {
           <div className="col-md-2">
             <div className="card">
               <div className="card-body">
-                <h5 className="card-title">Pública. Cantidad de servicios</h5>
+                <h5 className="card-title">Pública. Total de servicios</h5>
                 <p className="card-text text-end">{publicServicesCount}</p>
               </div>
             </div>
@@ -66,7 +66,7 @@ const Resumen = () => {
           <div className="col-md-2">
             <div className="card">
               <div className="card-body">
-                <h5 className="card-title">Privada. Cantidad de servicios</h5>
+                <h5 className="card-title">Privada. Total de servicios</h5>
                 <p className="card-text text-end">{privateServicesCount}</p>
               </div>
             </div>
@@ -146,7 +146,7 @@ const Resumen = () => {
               <div className="col-md-6">
                 <div className="card h-100">
                   <div className="card-body d-flex flex-column">
-                    <ClientServicesBarChart clientType="Pública" />
+                    <ClientServicesBarChart clientType="Publica" />
                   </div>
                 </div>
               </div>

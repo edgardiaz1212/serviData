@@ -96,7 +96,7 @@ class Servicio(db.Model):
             "estado_servicio": self.estado_servicio,
             "dominio": self.dominio,
             "dns_dominio": self.dns_dominio,
-            "tipo_servicio": self.tipo_servicio,
+            "tipo_servicio": self.tipo_servicio.replace("Pública", "Publica") if self.tipo_servicio else self.tipo_servicio,
             "plan_aprovisionado": self.plan_aprovisionado,
             "plan_servicio": self.plan_servicio,
             "plan_anterior": self.plan_anterior,
