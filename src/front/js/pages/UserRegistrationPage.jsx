@@ -364,7 +364,8 @@ const UserRegistrationPage = () => {
                             className="list-group-item d-flex justify-content-between align-items-center"
                         >
                             <span>
-                            <strong>{otherUser.username}</strong> ({otherUser.role})
+                            <strong>{otherUser.username}</strong> ({otherUser.role})<br />
+                            <small>Última conexión: {otherUser.last_login ? new Date(otherUser.last_login).toLocaleString('es-ES') : 'Nunca'}</small>
                             </span>
                             <div>
                                 <button
