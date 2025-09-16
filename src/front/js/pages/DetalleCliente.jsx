@@ -88,7 +88,7 @@ function DetalleCliente({ clientData: propClientData }) {
         )}
       </div>
 
-      <div className=" container ">
+      <div className=" container border-bottom bg-light ">
         <div className="row client-header ">
           <div className="col-9 ">
             {clientData && (
@@ -134,9 +134,9 @@ function DetalleCliente({ clientData: propClientData }) {
 
           
         </div>
-      </div>
+      
       <button
-        className="mb-4  btn-documents"
+        className="mb-4  btn-documents "
         onClick={() => setShowDocumentModal(true)}
       >
         Gestionar Documentos
@@ -144,10 +144,12 @@ function DetalleCliente({ clientData: propClientData }) {
         {hasDocument && <span className="badge bg-success ms-2">Cargado</span>}
         {!hasDocument && <span className="badge bg-danger ms-2">Vacío</span>}
       </button>
+</div>
+
       <div>
         <h5>Servicios</h5>
         <div className="form-group">
-          <label htmlFor="filter">Mostrar servicios:</label>
+          <label htmlFor="filter">Mostrando servicios:</label>
           <select
             id="filter"
             className="form-control col-3"
