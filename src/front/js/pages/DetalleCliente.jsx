@@ -7,11 +7,6 @@ import GenerarInformePDF from "../component/GenerarInformePDF.jsx"; // Importa e
 import ClientServicesPieChart from "../component/ClientServicesPieChart.jsx";
 import { FileText, Pencil, Building2, Landmark } from "lucide-react";
 
-
-
-
-
-
 function DetalleCliente({ clientData: propClientData }) {
   const { clientId } = useParams();
   const { store, actions } = useContext(Context);
@@ -28,7 +23,7 @@ function DetalleCliente({ clientData: propClientData }) {
 
   useEffect(() => {
     if (!store.isAuthenticated) {
-      navigate('/login', { replace: true });
+      navigate("/login", { replace: true });
     }
   }, [store.isAuthenticated, navigate]);
 
@@ -88,44 +83,40 @@ function DetalleCliente({ clientData: propClientData }) {
         )}
       </div>
       <div className="container border-bottom">
-        <div className="row justify-content-between p-2 border border-danger">
+        <div className="row justify-content-between p-3 ">
           <div className="col-7">
-          <h4>{clientData ? clientData.razon_social : ""}</h4>
+            <div className="d-flex align-items-center mb-2">
+              {clientData.tipo === "Privada" ? (
+                <Building2 className="h-6 w-6" />
+              ) : (
+                <Landmark className="h-6 w-6" />
+              )}
+              {clientData.tipo}
+            </div>
+
+            <h4>{clientData ? clientData.razon_social : ""}</h4>
             {clientData && (
               <>
-
-        
-          
-          <div className="flex items-center gap-2">
-            {clientData.tipo === "Privada" ? (
-              <Building2 className="h-6 w-6" />
-            ) : (
-              <Landmark className="h-6 w-6" />
-            )}
-           {clientData.tipo}
-          </div>
-          
-      
-      
-
-
-              
-                <p><strong>RIF:</strong> {clientData.rif}</p>
-                <p><strong>Razón Social:</strong> {clientData.razon_social}</p>
-                
-                <p><strong>Fecha de Contrato:</strong> {clientData.fecha_creacion_cliente ? new Date(clientData.fecha_creacion_cliente).toLocaleDateString('es-ES') : 'No disponible'}</p>
+                <p>
+                  <strong>RIF:</strong> {clientData.rif}
+                </p>
+                <p>
+                  <strong>Fecha de Contrato:</strong>{" "}
+                  {clientData.fecha_creacion_cliente
+                    ? new Date(
+                        clientData.fecha_creacion_cliente
+                      ).toLocaleDateString("es-ES")
+                    : "No disponible"}
+                </p>
               </>
             )}
+            <div className="border border-success rounded p-2 m-2">
+              {store.activeServiceCount} Servicios activos
+            </div>
           </div>
 
           <div className=" col-3 mt-3">
-          <ClientServicesPieChart servicesData={servicesData} />
-        </div>
-
-          <div className="col-2">
-            <div className="card text-bg-success text-center">
-              <div className="card-body">{store.activeServiceCount} Servicios activos</div>
-            </div>
+            <ClientServicesPieChart servicesData={servicesData} />
           </div>
         </div>
         <button
@@ -134,10 +125,11 @@ function DetalleCliente({ clientData: propClientData }) {
         >
           Gestionar Documentos
           <FileText />
-          {hasDocument && <span className="badge bg-success ms-2">Cargado</span>}
+          {hasDocument && (
+            <span className="badge bg-success ms-2">Cargado</span>
+          )}
           {!hasDocument && <span className="badge bg-danger ms-2">Vacío</span>}
         </button>
-       
       </div>
       <div>
         <h5>Servicios</h5>

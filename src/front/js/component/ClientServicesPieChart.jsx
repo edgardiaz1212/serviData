@@ -45,6 +45,7 @@ const ClientServicesPieChart = ({ servicesData }) => {
   };
 
   const options = {
+    cutout: '50%',
     plugins: {
       legend: {
         position: 'bottom',
@@ -70,7 +71,7 @@ const ClientServicesPieChart = ({ servicesData }) => {
   };
 
   return (
-    <div style={{ width: '200px', height: '200px' }}>
+    <div style={{ width: '200px', height: '200px',  }}>
       <h6 className="text-center">Distribución de Servicios</h6>
       <Pie data={data} options={options} />
     </div>
