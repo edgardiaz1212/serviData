@@ -1,5 +1,6 @@
 import React from 'react';
 import { servicios } from './TipoServicios';
+import { File, Settings, CheckCircle, DollarSign, Calendar, Clock, AlertTriangle, Cpu, HardDrive, MemoryStick, MapPin, Globe, Server, MessageSquare, Edit3 } from 'lucide-react';
 
 const DatosServicio = ({ serviceData, handleChange }) => {
   return (
@@ -7,7 +8,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
       <h3>Datos de Identificación y Contrato</h3>
       <div className="row">
         <div className="col-md-6 mb-3">
-          <label htmlFor="contrato" className="form-label">Contrato</label>
+          <label htmlFor="contrato" className="form-label"><File size={16} /> Contrato</label>
           <input
             type="text"
             name="contrato"
@@ -19,7 +20,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="tipo_servicio" className="form-label">Tipo de Servicio</label>
+          <label htmlFor="tipo_servicio" className="form-label"><Settings size={16} /> Tipo de Servicio</label>
           <select
             name="tipo_servicio"
             value={serviceData.tipo_servicio}
@@ -36,7 +37,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           </select>
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="estado_contrato" className="form-label">Estado del Contrato</label>
+          <label htmlFor="estado_contrato" className="form-label"><CheckCircle size={16} /> Estado del Contrato</label>
           <input
             type="text"
             name="estado_contrato"
@@ -48,7 +49,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="fecha_creacion_servicio" className="form-label">Fecha de Creación del Servicio</label>
+          <label htmlFor="fecha_creacion_servicio" className="form-label"><Calendar size={16} /> Fecha de Creación del Servicio</label>
           <input
             type="date"
             name="fecha_creacion_servicio"
@@ -59,7 +60,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="facturado" className="form-label">Facturado</label>
+          <label htmlFor="facturado" className="form-label"><DollarSign size={16} /> Facturado</label>
           <input
             type="text"
             name="facturado"
@@ -75,7 +76,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
       <h3>Información del Servicio/Plan</h3>
       <div className="row">
         <div className="col-md-6 mb-3">
-          <label htmlFor="plan_anterior" className="form-label">Plan Anterior</label>
+          <label htmlFor="plan_anterior" className="form-label"><AlertTriangle size={16} /> Plan Anterior</label>
           <input
             type="text"
             name="plan_anterior"
@@ -87,7 +88,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="plan_facturado" className="form-label">Plan Facturado</label>
+          <label htmlFor="plan_facturado" className="form-label"><DollarSign size={16} /> Plan Facturado</label>
           <input
             type="text"
             name="plan_facturado"
@@ -99,7 +100,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="plan_aprovisionado" className="form-label">Plan Aprovisionado</label>
+          <label htmlFor="plan_aprovisionado" className="form-label"><Settings size={16} /> Plan Aprovisionado</label>
           <input
             type="text"
             name="plan_aprovisionado"
@@ -111,7 +112,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="plan_servicio" className="form-label">Plan de Servicio</label>
+          <label htmlFor="plan_servicio" className="form-label"><CheckCircle size={16} /> Plan de Servicio</label>
           <input
             type="text"
             name="plan_servicio"
@@ -123,7 +124,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="descripcion" className="form-label">Descripción</label>
+          <label htmlFor="descripcion" className="form-label"><File size={16} /> Descripción</label>
           <input
             type="text"
             name="descripcion"
@@ -135,7 +136,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="form-group mt-3 col-md-6 mb-3">
-          <label htmlFor="estado_servicio">Estado del Servicio</label>
+          <label htmlFor="estado_servicio"><CheckCircle size={16} /> Estado del Servicio</label>
           <select
             className="form-control"
             id="estado_servicio"
@@ -154,7 +155,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
       <h3>Información de Dominio y DNS</h3>
       <div className="row">
         <div className="col-md-6 mb-3">
-          <label htmlFor="dominio" className="form-label">Dominio</label>
+          <label htmlFor="dominio" className="form-label"><Globe size={16} /> Dominio</label>
           <input
             type="text"
             name="dominio"
@@ -166,7 +167,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="dns_dominio" className="form-label">DNS del Dominio</label>
+          <label htmlFor="dns_dominio" className="form-label"><Server size={16} /> DNS del Dominio</label>
           <input
             type="text"
             name="dns_dominio"
@@ -182,7 +183,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
       <h3>Ubicación y Espacio Físico</h3>
       <div className="row">
         <div className="col-md-6 mb-3">
-          <label htmlFor="ubicacion" className="form-label">Ubicación</label>
+          <label htmlFor="ubicacion" className="form-label"><MapPin size={16} /> Ubicación</label>
           <input
             type="text"
             name="ubicacion"
@@ -194,7 +195,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="ubicacion_sala" className="form-label">Ubicación en la Sala</label>
+          <label htmlFor="ubicacion_sala" className="form-label"><MapPin size={16} /> Ubicación en la Sala</label>
           <input
             type="text"
             name="ubicacion_sala"
@@ -206,7 +207,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="cantidad_ru" className="form-label">Cantidad de RU</label>
+          <label htmlFor="cantidad_ru" className="form-label"><Settings size={16} /> Cantidad de RU</label>
           <input
             type="number"
             name="cantidad_ru"
@@ -218,7 +219,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="cantidad_m2" className="form-label">Cantidad de m2</label>
+          <label htmlFor="cantidad_m2" className="form-label"><Settings size={16} /> Cantidad de m2</label>
           <input
             type="number"
             name="cantidad_m2"
@@ -230,7 +231,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="cantidad_bastidores" className="form-label">Cantidad de Bastidores</label>
+          <label htmlFor="cantidad_bastidores" className="form-label"><Settings size={16} /> Cantidad de Bastidores</label>
           <input
             type="number"
             name="cantidad_bastidores"
@@ -246,7 +247,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
       <h3>Información de Hardware/Infraestructura</h3>
       <div className="row">
         <div className="col-md-6 mb-3">
-          <label htmlFor="hostname" className="form-label">Hostname</label>
+          <label htmlFor="hostname" className="form-label"><Server size={16} /> Hostname</label>
           <input
             type="text"
             name="hostname"
@@ -258,7 +259,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="nombre_servidor" className="form-label">Nombre del Servidor</label>
+          <label htmlFor="nombre_servidor" className="form-label"><Server size={16} /> Nombre del Servidor</label>
           <input
             type="text"
             name="nombre_servidor"
@@ -270,7 +271,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="nombre_nodo" className="form-label">Nombre del Nodo</label>
+          <label htmlFor="nombre_nodo" className="form-label"><Server size={16} /> Nombre del Nodo</label>
           <input
             type="text"
             name="nombre_nodo"
@@ -282,7 +283,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="nombre_plataforma" className="form-label">Nombre de la Plataforma</label>
+          <label htmlFor="nombre_plataforma" className="form-label"><Server size={16} /> Nombre de la Plataforma</label>
           <input
             type="text"
             name="nombre_plataforma"
@@ -294,7 +295,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="ram" className="form-label">RAM (GB)</label>
+          <label htmlFor="ram" className="form-label"><MemoryStick size={16} /> RAM (GB)</label>
           <input
             type="number"
             name="ram"
@@ -306,7 +307,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="hdd" className="form-label">HDD (GB)</label>
+          <label htmlFor="hdd" className="form-label"><HardDrive size={16} /> HDD (GB)</label>
           <input
             type="number"
             name="hdd"
@@ -318,7 +319,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="cpu" className="form-label">CPU (GHz)</label>
+          <label htmlFor="cpu" className="form-label"><Cpu size={16} /> CPU (GHz)</label>
           <input
             type="number"
             name="cpu"
@@ -330,7 +331,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="datastore" className="form-label">Datastore</label>
+          <label htmlFor="datastore" className="form-label"><HardDrive size={16} /> Datastore</label>
           <input
             type="text"
             name="datastore"
@@ -346,7 +347,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
       <h3>Red e IP</h3>
       <div className="row">
         <div className="col-md-6 mb-3">
-          <label htmlFor="ip_privada" className="form-label">IP Privada</label>
+          <label htmlFor="ip_privada" className="form-label"><Server size={16} /> IP Privada</label>
           <input
             type="text"
             name="ip_privada"
@@ -358,7 +359,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="ip_publica" className="form-label">IP Publica</label>
+          <label htmlFor="ip_publica" className="form-label"><Globe size={16} /> IP Publica</label>
           <input
             type="text"
             name="ip_publica"
@@ -370,7 +371,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="vlan" className="form-label">VLAN</label>
+          <label htmlFor="vlan" className="form-label"><Settings size={16} /> VLAN</label>
           <input
             type="text"
             name="vlan"
@@ -382,7 +383,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label htmlFor="ipam" className="form-label">IPAM</label>
+          <label htmlFor="ipam" className="form-label"><Settings size={16} /> IPAM</label>
           <input
             type="text"
             name="ipam"
@@ -398,7 +399,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
       <h3>Observaciones y Comentarios</h3>
       <div className="row">
         <div className="col-md-12 mb-3">
-          <label htmlFor="observaciones" className="form-label">Observaciones</label>
+          <label htmlFor="observaciones" className="form-label"><MessageSquare size={16} /> Observaciones</label>
           <textarea
             name="observaciones"
             value={serviceData.observaciones}
@@ -409,7 +410,7 @@ const DatosServicio = ({ serviceData, handleChange }) => {
           />
         </div>
         <div className="col-md-12 mb-3">
-          <label htmlFor="comentarios" className="form-label">Comentarios</label>
+          <label htmlFor="comentarios" className="form-label"><Edit3 size={16} /> Comentarios</label>
           <textarea
             name="comentarios"
             value={serviceData.comentarios}
