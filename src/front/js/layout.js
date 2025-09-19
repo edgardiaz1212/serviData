@@ -21,6 +21,9 @@ import Reportes from "./pages/Reportes.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import DCCELandingPage from "./pages/Home.jsx";
 import UnderConstruction from "./pages/UnderConstruction.jsx";
+import ProjectsPage from "./pages/ProjectsPage.jsx";
+import ProjectDetailPage from "./pages/ProjectDetailPage.jsx";
+import EditProjectPage from "./pages/EditProjectPage.jsx";
 
 const Layout = () => {
     const basename = process.env.REACT_APP_BASENAME_REACT || "";
@@ -47,6 +50,10 @@ const Layout = () => {
                             <Route path="/editar-cliente/:clientId" element={<EditarCliente />} />
                             <Route path="/aprovisionados" element={<Aprovisionados />} />
                             <Route path="/reportes" element={<Reportes />} />
+                            <Route path="/projects" element={<ProjectsPage />} />
+                            <Route path="/projects/new" element={<EditProjectPage />} />
+                            <Route path="/projects/:id" element={<ProjectDetailPage />} />
+                            <Route path="/projects/:id/edit" element={<EditProjectPage />} />
                             <Route path="/*" element={<NotFound />} />
                         </Routes>
                     </div>

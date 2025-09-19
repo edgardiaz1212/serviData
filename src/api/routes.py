@@ -1622,3 +1622,169 @@ def upload_excel():
         db.session.rollback()
         logging.error(f"An unexpected error occurred during Excel upload: {str(e)}", exc_info=True) # Log stack trace
         return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+
+# ------------------------------
+# Acciones para Proyectos
+# ------------------------------
+
+from api.models import Project, Phase, Activity
+
+@api.route('/projects', methods=['GET'])
+@jwt_required()
+def get_projects():
+    try:
+        projects = Project.query.all()
+        return jsonify([project.serialize() for project in projects]), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api.route('/projects', methods=['POST'])
+@jwt_required()
+def create_project():
+    try:
+        data = request.get_json()
+        name = data.get('name')
+        edt_structure = data.get('edt_structure')
+        num_phases = data.get('num_phases')
+        start_date = data.get('start_date')
+        end_date = data.get('end_date')
+        total_duration = data.get('total_duration')
+        phases_data = data.get('phases', [])
+
+        project = Project(
+            name=name,
+            edt_structure=edt_structure,
+            num_phases=num_phases,
+            start_date=datetime.fromisoformat(start_date) if start_date else None,
+            end_date=datetime.fromisoformat(end_date) if end_date else None,
+            total_duration=total_duration
+        )
+        db.session.add(project)
+        db.session.commit()
+
+        # Create phases and activities
+        for phase_data in phases_data:
+            phase = Phase(
+                project_id=project.id,
+                name=phase_data['name'],
+                order=phase_data['order'],
+                start_date=datetime.fromisoformat(phase_data['start_date']) if phase_data.get('start_date') else None,
+                end_date=datetime.fromisoformat(phase_data['end_date']) if phase_data.get('end_date') else None,
+                duration=phase_data['duration']
+            )
+            db.session.add(phase)
+            db.session.commit()
+
+            for activity_data in phase_data.get('activities', []):
+                activity = Activity(
+                    phase_id=phase.id,
+                    description=activity_data['description'],
+                    duration=activity_data['duration'],
+                    predecessors=activity_data.get('predecessors'),
+                    planned_start=datetime.fromisoformat(activity_data['planned_start']) if activity_data.get('planned_start') else None,
+                    planned_end=datetime.fromisoformat(activity_data['planned_end']) if activity_data.get('planned_end') else None,
+                    planned_percent=activity_data.get('planned_percent', 0.0),
+                    real_compliance=activity_data.get('real_compliance', 0.0)
+                )
+                db.session.add(activity)
+            db.session.commit()
+
+        # Calculate planned % for activities
+        calculate_planned_percentages(project.id)
+
+        return jsonify({"message": "Project created successfully", "project": project.serialize()}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+@api.route('/projects/<int:project_id>', methods=['GET'])
+@jwt_required()
+def get_project(project_id):
+    try:
+        project = Project.query.get(project_id)
+        if not project:
+            return jsonify({"message": "Project not found"}), 404
+        return jsonify(project.serialize()), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api.route('/projects/<int:project_id>', methods=['PUT'])
+@jwt_required()
+def update_project(project_id):
+    try:
+        data = request.get_json()
+        project = Project.query.get(project_id)
+        if not project:
+            return jsonify({"message": "Project not found"}), 404
+
+        # Update project fields
+        for key, value in data.items():
+            if key in ['name', 'edt_structure', 'num_phases', 'total_duration', 'status']:
+                setattr(project, key, value)
+            elif key in ['start_date', 'end_date'] and value:
+                setattr(project, key, datetime.fromisoformat(value))
+
+        db.session.commit()
+        return jsonify({"message": "Project updated successfully", "project": project.serialize()}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+@api.route('/projects/<int:project_id>', methods=['DELETE'])
+@jwt_required()
+def delete_project(project_id):
+    try:
+        project = Project.query.get(project_id)
+        if not project:
+            return jsonify({"message": "Project not found"}), 404
+        db.session.delete(project)
+        db.session.commit()
+        return jsonify({"message": "Project deleted successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+@api.route('/projects/<int:project_id>/activities/<int:activity_id>/progress', methods=['PUT'])
+@jwt_required()
+def update_activity_progress(project_id, activity_id):
+    try:
+        data = request.get_json()
+        real_compliance = data.get('real_compliance', 0.0)
+
+        activity = Activity.query.get(activity_id)
+        if not activity:
+            return jsonify({"message": "Activity not found"}), 404
+
+        activity.real_compliance = real_compliance
+        activity.real_percent = real_compliance * activity.planned_percent
+        activity.deviation = activity.real_percent - activity.planned_percent
+
+        # Update accumulated deviation for the project
+        update_accumulated_deviations(project_id)
+
+        db.session.commit()
+        return jsonify({"message": "Activity progress updated successfully", "activity": activity.serialize()}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+def calculate_planned_percentages(project_id):
+    project = Project.query.get(project_id)
+    if not project:
+        return
+
+    total_duration = sum(activity.duration for phase in project.phases for activity in phase.activities)
+    if total_duration == 0:
+        return
+
+    for phase in project.phases:
+        for activity in phase.activities:
+            activity.planned_percent = (activity.duration / total_duration) * 100
+    db.session.commit()
+
+def update_accumulated_deviations(project_id):
+    activities = Activity.query.join(Phase).filter(Phase.project_id == project_id).all()
+    total_deviation = sum(activity.deviation for activity in activities)
+    for activity in activities:
+        activity.accumulated_deviation = total_deviation
+    db.session.commit()

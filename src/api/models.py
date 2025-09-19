@@ -198,3 +198,101 @@ class Documento(db.Model):
             'tamaño': self.tamaño,
             'created_at': self.created_at.isoformat() if self.created_at else None,
         }
+
+class Project(db.Model):
+    __tablename__ = 'projects'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    edt_structure = db.Column(db.String)  # Hierarchical EDT structure
+    num_phases = db.Column(db.Integer, nullable=False)
+    start_date = db.Column(db.DateTime)
+    end_date = db.Column(db.DateTime)
+    total_duration = db.Column(db.Integer)  # Total days
+    status = db.Column(db.String, default="En progreso")  # Completed, Near completion, etc.
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+    phases = db.relationship("Phase", back_populates="project", cascade="all, delete-orphan")
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'edt_structure': self.edt_structure,
+            'num_phases': self.num_phases,
+            'start_date': self.start_date.isoformat() if self.start_date else None,
+            'end_date': self.end_date.isoformat() if self.end_date else None,
+            'total_duration': self.total_duration,
+            'status': self.status,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'phases': [phase.serialize() for phase in self.phases]
+        }
+
+class Phase(db.Model):
+    __tablename__ = 'phases'
+    id = db.Column(db.Integer, primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id', ondelete='CASCADE'), nullable=False)
+    name = db.Column(db.String, nullable=False)
+    order = db.Column(db.Integer, nullable=False)
+    start_date = db.Column(db.DateTime)
+    end_date = db.Column(db.DateTime)
+    duration = db.Column(db.Integer)  # Days
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+    project = db.relationship("Project", back_populates="phases")
+    activities = db.relationship("Activity", back_populates="phase", cascade="all, delete-orphan")
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'project_id': self.project_id,
+            'name': self.name,
+            'order': self.order,
+            'start_date': self.start_date.isoformat() if self.start_date else None,
+            'end_date': self.end_date.isoformat() if self.end_date else None,
+            'duration': self.duration,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'activities': [activity.serialize() for activity in self.activities]
+        }
+
+class Activity(db.Model):
+    __tablename__ = 'activities'
+    id = db.Column(db.Integer, primary_key=True)
+    phase_id = db.Column(db.Integer, db.ForeignKey('phases.id', ondelete='CASCADE'), nullable=False)
+    description = db.Column(db.String, nullable=False)
+    duration = db.Column(db.Integer, nullable=False)  # Days
+    predecessors = db.Column(db.String)  # Comma-separated IDs
+    planned_start = db.Column(db.DateTime)
+    planned_end = db.Column(db.DateTime)
+    planned_percent = db.Column(db.Float)  # Calculated
+    real_compliance = db.Column(db.Float, default=0.0)  # 0-100%
+    real_percent = db.Column(db.Float, default=0.0)  # Calculated
+    deviation = db.Column(db.Float, default=0.0)  # real_percent - planned_percent
+    accumulated_deviation = db.Column(db.Float, default=0.0)
+    status = db.Column(db.String, default="Pendiente")
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+    phase = db.relationship("Phase", back_populates="activities")
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'phase_id': self.phase_id,
+            'description': self.description,
+            'duration': self.duration,
+            'predecessors': self.predecessors,
+            'planned_start': self.planned_start.isoformat() if self.planned_start else None,
+            'planned_end': self.planned_end.isoformat() if self.planned_end else None,
+            'planned_percent': self.planned_percent,
+            'real_compliance': self.real_compliance,
+            'real_percent': self.real_percent,
+            'deviation': self.deviation,
+            'accumulated_deviation': self.accumulated_deviation,
+            'status': self.status,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+        }
