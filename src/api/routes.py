@@ -16,6 +16,51 @@ from fuzzywuzzy import fuzz, process
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 
+def _recalculate_project_progress(project):
+    """
+    Recalculates the real progress for the entire project based on phases and activities.
+    Updates avance_real for activities, phases, and the project.
+    """
+    try:
+        total_project_progress = 0.0
+        total_phase_weight = 0.0
+
+        for phase in project.phases:
+            # Calculate phase progress based on activities
+            total_phase_progress = 0.0
+            total_activity_weight = 0.0
+
+            for activity in phase.activities:
+                # Update activity real progress: cumplimiento_real * weight
+                activity.avance_real = (activity.cumplimiento_real / 100.0) * activity.weight
+                # Calculate deviation: real progress - planned weight
+                activity.desviacion = activity.avance_real - activity.weight
+
+                # Accumulate for phase calculation
+                total_phase_progress += activity.avance_real
+                total_activity_weight += activity.weight
+
+            # Update phase real progress (weighted average of activities)
+            if total_activity_weight > 0:
+                phase.avance_real = total_phase_progress
+            else:
+                phase.avance_real = 0.0
+
+            # Accumulate for project calculation
+            total_project_progress += phase.avance_real * (phase.weight / 100.0)
+            total_phase_weight += phase.weight
+
+        # Update project real progress (weighted average of phases)
+        if total_phase_weight > 0:
+            project.avance_real = total_project_progress
+        else:
+            project.avance_real = 0.0
+
+    except Exception as e:
+        logging.error(f"Error recalculating project progress: {str(e)}")
+        # Don't raise exception to avoid breaking the update operation
+
+
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -122,7 +167,9 @@ def create_project():
                     end_date=activity_data.get('end_date'),
                     predecessors=activity_data.get('predecessors'),
                     weight=activity_data.get('weight', 0.0),
-                    avance_real=activity_data.get('avance_real', 0.0)
+                    cumplimiento_real=activity_data.get('cumplimiento_real', 0.0),
+                    avance_real=activity_data.get('avance_real', 0.0),
+                    desviacion=activity_data.get('desviacion', 0.0)
                 )
                 db.session.add(activity)
             db.session.commit()
@@ -145,6 +192,31 @@ def update_project(project_id):
         for field in ['name', 'description', 'start_date', 'end_date', 'status', 'avance_real']:
             if field in data:
                 setattr(project, field, data[field])
+
+        # Update phases if provided
+        if 'phases' in data:
+            for phase_data in data['phases']:
+                phase_id = phase_data.get('id')
+                if phase_id:
+                    phase = Phase.query.get(phase_id)
+                    if phase and phase.project_id == project_id:
+                        for field in ['name', 'wbs_code', 'start_date', 'end_date', 'weight', 'avance_real']:
+                            if field in phase_data:
+                                setattr(phase, field, phase_data[field])
+
+                        # Update activities if provided
+                        if 'activities' in phase_data:
+                            for activity_data in phase_data['activities']:
+                                activity_id = activity_data.get('id')
+                                if activity_id:
+                                    activity = Activity.query.get(activity_id)
+                                    if activity and activity.phase_id == phase.id:
+                                        for field in ['name', 'wbs_code', 'duration_days', 'start_date', 'end_date', 'predecessors', 'weight', 'cumplimiento_real', 'avance_real', 'desviacion']:
+                                            if field in activity_data:
+                                                setattr(activity, field, activity_data[field])
+
+        # Recalculate project progress after updates
+        _recalculate_project_progress(project)
 
         db.session.commit()
         return jsonify(project.serialize()), 200

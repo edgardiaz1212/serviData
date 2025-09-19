@@ -218,8 +218,10 @@ class Activity(db.Model):
     start_date = db.Column(db.Date)
     end_date = db.Column(db.Date)
     predecessors = db.Column(db.String)  # Comma-separated list of predecessor activity IDs or WBS codes
-    weight = db.Column(db.Float, default=0.0)  # Weight of the activity in phase
-    avance_real = db.Column(db.Float, default=0.0)  # Real progress percentage
+    weight = db.Column(db.Float, default=0.0)  # Planned percentage (calculated automatically)
+    cumplimiento_real = db.Column(db.Float, default=0.0)  # Real completion percentage (0, 25, 50, 75, 100)
+    avance_real = db.Column(db.Float, default=0.0)  # Real progress percentage (calculated as cumplimiento_real * weight)
+    desviacion = db.Column(db.Float, default=0.0)  # Deviation (calculated as avance_real - weight)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
@@ -236,7 +238,9 @@ class Activity(db.Model):
             'end_date': self.end_date.isoformat() if self.end_date else None,
             'predecessors': self.predecessors,
             'weight': self.weight,
+            'cumplimiento_real': self.cumplimiento_real,
             'avance_real': self.avance_real,
+            'desviacion': self.desviacion,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }

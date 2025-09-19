@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Context } from '../store/appContext';
 import { useParams, Link } from 'react-router-dom';
+import ProjectProgressChart from '../component/project/ProjectProgressChart';
 
 const ProjectDetailPage = () => {
     const { store, actions } = useContext(Context);
@@ -106,6 +107,13 @@ const ProjectDetailPage = () => {
                                     <strong>Fecha de Fin:</strong> {project.end_date ? new Date(project.end_date).toLocaleDateString() : 'N/A'}
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <div className="card mb-4">
+                        <div className="card-body">
+                            <h5 className="card-title">Curva S - Avance del Proyecto</h5>
+                            <ProjectProgressChart project={project} />
                         </div>
                     </div>
 
