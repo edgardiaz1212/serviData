@@ -92,6 +92,93 @@ const getState = ({ getStore, getActions, setStore }) => {
 
         return fetch(url, { ...options, headers });
       },
+
+      // Fetch all projects
+      fetchProjects: async () => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/projects`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          } else {
+            console.error("Failed to fetch projects");
+            return null;
+          }
+        } catch (error) {
+          console.error("Error fetching projects:", error);
+          return null;
+        }
+      },
+      // Fetch project by ID
+      fetchProjectById: async (projectId) => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/projects/${projectId}`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          } else {
+            console.error("Failed to fetch project");
+            return null;
+          }
+        } catch (error) {
+          console.error("Error fetching project:", error);
+          return null;
+        }
+      },
+      // Create new project
+      createProject: async (projectData) => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/projects`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(projectData),
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          } else {
+            console.error("Failed to create project");
+            return null;
+          }
+        } catch (error) {
+          console.error("Error creating project:", error);
+          return null;
+        }
+      },
+      // Update existing project
+      updateProject: async (projectId, projectData) => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/projects/${projectId}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(projectData),
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          } else {
+            console.error("Failed to update project");
+            return null;
+          }
+        } catch (error) {
+          console.error("Error updating project:", error);
+          return null;
+        }
+      },
       // Gestión de Usuarios
       addUser: async (user) => {
         try {

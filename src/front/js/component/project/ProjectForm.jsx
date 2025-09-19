@@ -108,10 +108,10 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+        <form onSubmit={handleSubmit}>
+            <div className="row g-3 mb-4">
+                <div className="col-12 col-md-6">
+                    <label className="form-label fw-medium">
                         Nombre del Proyecto
                     </label>
                     <input
@@ -119,12 +119,12 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="form-control"
                         required
                     />
                 </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                <div className="col-12 col-md-6">
+                    <label className="form-label fw-medium">
                         Estructura EDT
                     </label>
                     <input
@@ -132,12 +132,12 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
                         name="edt_structure"
                         value={formData.edt_structure}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="form-control"
                         required
                     />
                 </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                <div className="col-12 col-md-6">
+                    <label className="form-label fw-medium">
                         Número de Fases
                     </label>
                     <input
@@ -145,13 +145,13 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
                         name="num_phases"
                         value={formData.num_phases}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="form-control"
                         min="1"
                         required
                     />
                 </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                <div className="col-12 col-md-6">
+                    <label className="form-label fw-medium">
                         Duración Total (días)
                     </label>
                     <input
@@ -159,13 +159,13 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
                         name="total_duration"
                         value={formData.total_duration}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="form-control"
                         min="0"
                         required
                     />
                 </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                <div className="col-12 col-md-6">
+                    <label className="form-label fw-medium">
                         Fecha de Inicio
                     </label>
                     <input
@@ -173,11 +173,11 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
                         name="start_date"
                         value={formData.start_date}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="form-control"
                     />
                 </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                <div className="col-12 col-md-6">
+                    <label className="form-label fw-medium">
                         Fecha de Fin
                     </label>
                     <input
@@ -185,202 +185,206 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
                         name="end_date"
                         value={formData.end_date}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="form-control"
                     />
                 </div>
             </div>
 
             <div>
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-medium text-gray-900">Fases</h3>
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <h3 className="h4 fw-semibold text-dark">Fases</h3>
                     <button
                         type="button"
                         onClick={addPhase}
-                        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                        className="btn btn-success"
                     >
                         Agregar Fase
                     </button>
                 </div>
 
                 {formData.phases.map((phase, phaseIndex) => (
-                    <div key={phaseIndex} className="border border-gray-200 rounded-lg p-4 mb-4">
-                        <div className="flex justify-between items-center mb-4">
-                            <h4 className="text-md font-medium">Fase {phaseIndex + 1}</h4>
-                            <button
-                                type="button"
-                                onClick={() => removePhase(phaseIndex)}
-                                className="text-red-600 hover:text-red-800"
-                            >
-                                Eliminar
-                            </button>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Nombre
-                                </label>
-                                <input
-                                    type="text"
-                                    value={phase.name}
-                                    onChange={(e) => handlePhaseChange(phaseIndex, 'name', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Orden
-                                </label>
-                                <input
-                                    type="number"
-                                    value={phase.order}
-                                    onChange={(e) => handlePhaseChange(phaseIndex, 'order', parseInt(e.target.value))}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    min="1"
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Duración (días)
-                                </label>
-                                <input
-                                    type="number"
-                                    value={phase.duration}
-                                    onChange={(e) => handlePhaseChange(phaseIndex, 'duration', parseInt(e.target.value))}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    min="0"
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Fecha Inicio
-                                </label>
-                                <input
-                                    type="date"
-                                    value={phase.start_date ? phase.start_date.split('T')[0] : ''}
-                                    onChange={(e) => handlePhaseChange(phaseIndex, 'start_date', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Fecha Fin
-                                </label>
-                                <input
-                                    type="date"
-                                    value={phase.end_date ? phase.end_date.split('T')[0] : ''}
-                                    onChange={(e) => handlePhaseChange(phaseIndex, 'end_date', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <div className="flex justify-between items-center mb-2">
-                                <h5 className="text-sm font-medium text-gray-700">Actividades</h5>
+                    <div key={phaseIndex} className="card border mb-4">
+                        <div className="card-body">
+                            <div className="d-flex justify-content-between align-items-center mb-4">
+                                <h4 className="h5 fw-medium mb-0">Fase {phaseIndex + 1}</h4>
                                 <button
                                     type="button"
-                                    onClick={() => addActivity(phaseIndex)}
-                                    className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                                    onClick={() => removePhase(phaseIndex)}
+                                    className="btn btn-link text-danger p-0"
                                 >
-                                    Agregar Actividad
+                                    Eliminar
                                 </button>
                             </div>
 
-                            {phase.activities && phase.activities.map((activity, activityIndex) => (
-                                <div key={activityIndex} className="border border-gray-100 rounded p-3 mb-2 bg-gray-50">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <span className="text-sm font-medium">Actividad {activityIndex + 1}</span>
-                                        <button
-                                            type="button"
-                                            onClick={() => removeActivity(phaseIndex, activityIndex)}
-                                            className="text-red-600 hover:text-red-800 text-sm"
-                                        >
-                                            Eliminar
-                                        </button>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                                Descripción
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={activity.description}
-                                                onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'description', e.target.value)}
-                                                className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                                Duración (días)
-                                            </label>
-                                            <input
-                                                type="number"
-                                                value={activity.duration}
-                                                onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'duration', parseInt(e.target.value))}
-                                                className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                                min="0"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                                Predecesores
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={activity.predecessors || ''}
-                                                onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'predecessors', e.target.value)}
-                                                className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                                Inicio Planificado
-                                            </label>
-                                            <input
-                                                type="date"
-                                                value={activity.planned_start ? activity.planned_start.split('T')[0] : ''}
-                                                onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'planned_start', e.target.value)}
-                                                className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                                Fin Planificado
-                                            </label>
-                                            <input
-                                                type="date"
-                                                value={activity.planned_end ? activity.planned_end.split('T')[0] : ''}
-                                                onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'planned_end', e.target.value)}
-                                                className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            />
-                                        </div>
-                                    </div>
+                            <div className="row g-3 mb-4">
+                                <div className="col-12 col-md-4">
+                                    <label className="form-label fw-medium">
+                                        Nombre
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={phase.name}
+                                        onChange={(e) => handlePhaseChange(phaseIndex, 'name', e.target.value)}
+                                        className="form-control"
+                                        required
+                                    />
                                 </div>
-                            ))}
+                                <div className="col-12 col-md-4">
+                                    <label className="form-label fw-medium">
+                                        Orden
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={phase.order}
+                                        onChange={(e) => handlePhaseChange(phaseIndex, 'order', parseInt(e.target.value))}
+                                        className="form-control"
+                                        min="1"
+                                        required
+                                    />
+                                </div>
+                                <div className="col-12 col-md-4">
+                                    <label className="form-label fw-medium">
+                                        Duración (días)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={phase.duration}
+                                        onChange={(e) => handlePhaseChange(phaseIndex, 'duration', parseInt(e.target.value))}
+                                        className="form-control"
+                                        min="0"
+                                        required
+                                    />
+                                </div>
+                                <div className="col-12 col-md-6">
+                                    <label className="form-label fw-medium">
+                                        Fecha Inicio
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={phase.start_date ? phase.start_date.split('T')[0] : ''}
+                                        onChange={(e) => handlePhaseChange(phaseIndex, 'start_date', e.target.value)}
+                                        className="form-control"
+                                    />
+                                </div>
+                                <div className="col-12 col-md-6">
+                                    <label className="form-label fw-medium">
+                                        Fecha Fin
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={phase.end_date ? phase.end_date.split('T')[0] : ''}
+                                        onChange={(e) => handlePhaseChange(phaseIndex, 'end_date', e.target.value)}
+                                        className="form-control"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <div className="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 className="fw-medium text-muted mb-0">Actividades</h5>
+                                    <button
+                                        type="button"
+                                        onClick={() => addActivity(phaseIndex)}
+                                        className="btn btn-primary btn-sm"
+                                    >
+                                        Agregar Actividad
+                                    </button>
+                                </div>
+
+                                {phase.activities && phase.activities.map((activity, activityIndex) => (
+                                    <div key={activityIndex} className="card border mb-2 bg-light">
+                                        <div className="card-body p-3">
+                                            <div className="d-flex justify-content-between align-items-center mb-2">
+                                                <span className="fw-medium">Actividad {activityIndex + 1}</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeActivity(phaseIndex, activityIndex)}
+                                                    className="btn btn-link text-danger p-0"
+                                                >
+                                                    Eliminar
+                                                </button>
+                                            </div>
+
+                                            <div className="row g-3">
+                                                <div className="col-12 col-md-6">
+                                                    <label className="form-label fw-medium small">
+                                                        Descripción
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        value={activity.description}
+                                                        onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'description', e.target.value)}
+                                                        className="form-control form-control-sm"
+                                                        required
+                                                    />
+                                                </div>
+                                                <div className="col-12 col-md-6">
+                                                    <label className="form-label fw-medium small">
+                                                        Duración (días)
+                                                    </label>
+                                                    <input
+                                                        type="number"
+                                                        value={activity.duration}
+                                                        onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'duration', parseInt(e.target.value))}
+                                                        className="form-control form-control-sm"
+                                                        min="0"
+                                                        required
+                                                    />
+                                                </div>
+                                                <div className="col-12 col-md-6">
+                                                    <label className="form-label fw-medium small">
+                                                        Predecesores
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        value={activity.predecessors || ''}
+                                                        onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'predecessors', e.target.value)}
+                                                        className="form-control form-control-sm"
+                                                    />
+                                                </div>
+                                                <div className="col-12 col-md-6">
+                                                    <label className="form-label fw-medium small">
+                                                        Inicio Planificado
+                                                    </label>
+                                                    <input
+                                                        type="date"
+                                                        value={activity.planned_start ? activity.planned_start.split('T')[0] : ''}
+                                                        onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'planned_start', e.target.value)}
+                                                        className="form-control form-control-sm"
+                                                    />
+                                                </div>
+                                                <div className="col-12 col-md-6">
+                                                    <label className="form-label fw-medium small">
+                                                        Fin Planificado
+                                                    </label>
+                                                    <input
+                                                        type="date"
+                                                        value={activity.planned_end ? activity.planned_end.split('T')[0] : ''}
+                                                        onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'planned_end', e.target.value)}
+                                                        className="form-control form-control-sm"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 ))}
             </div>
 
-            <div className="flex justify-end space-x-4">
+            <div className="d-flex justify-content-end gap-2">
                 <button
                     type="button"
                     onClick={onCancel}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                    className="btn btn-outline-secondary"
                 >
                     Cancelar
                 </button>
                 <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    className="btn btn-primary"
                 >
                     {project ? 'Actualizar Proyecto' : 'Crear Proyecto'}
                 </button>

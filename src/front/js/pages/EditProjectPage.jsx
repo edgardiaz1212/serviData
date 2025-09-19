@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Context } from '../store/appContext.js';
 import ProjectForm from '../component/project/ProjectForm.jsx';
 import { ArrowLeft, Save } from 'lucide-react';
 
 const EditProjectPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { actions } = useContext(Context);
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -22,9 +24,8 @@ const EditProjectPage = () => {
 
     const fetchProject = async () => {
         try {
-            const response = await fetch(`/api/projects/${id}`);
-            if (response.ok) {
-                const data = await response.json();
+            const data = await actions.fetchProjectById(id);
+            if (data) {
                 setProject(data);
             } else {
                 console.error('Error fetching project');
@@ -39,19 +40,14 @@ const EditProjectPage = () => {
     const handleSave = async (formData) => {
         setSaving(true);
         try {
-            const url = isNewProject ? '/api/projects' : `/api/projects/${id}`;
-            const method = isNewProject ? 'POST' : 'PUT';
+            let savedProject;
+            if (isNewProject) {
+                savedProject = await actions.createProject(formData);
+            } else {
+                savedProject = await actions.updateProject(id, formData);
+            }
 
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
-            });
-
-            if (response.ok) {
-                const savedProject = await response.json();
+            if (savedProject) {
                 navigate(`/projects/${savedProject.id}`);
             } else {
                 console.error('Error saving project');
@@ -75,41 +71,47 @@ const EditProjectPage = () => {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="d-flex justify-content-center align-items-center" style={{ height: '400px' }}>
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Cargando...</span>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="flex justify-between items-center mb-8">
-                <div className="flex items-center gap-4">
+        <div className="container-fluid px-4 py-4">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <div className="d-flex align-items-center gap-3">
                     <button
                         onClick={handleCancel}
-                        className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
+                        className="btn btn-link d-flex align-items-center gap-2 text-muted p-0"
                     >
                         <ArrowLeft size={20} />
                         Volver
                     </button>
-                    <h1 className="text-3xl font-bold text-gray-900">
+                    <h1 className="h1 fw-bold text-dark mb-0">
                         {isNewProject ? 'Crear Nuevo Proyecto' : 'Editar Proyecto'}
                     </h1>
                 </div>
                 {saving && (
-                    <div className="flex items-center gap-2 text-blue-600">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                    <div className="d-flex align-items-center gap-2 text-primary">
+                        <div className="spinner-border spinner-border-sm text-primary" role="status">
+                            <span className="visually-hidden">Cargando...</span>
+                        </div>
                         Guardando...
                     </div>
                 )}
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
-                <ProjectForm
-                    project={project}
-                    onSave={handleSave}
-                    onCancel={handleCancel}
-                />
+            <div className="card shadow-sm">
+                <div className="card-body">
+                    <ProjectForm
+                        project={project}
+                        onSave={handleSave}
+                        onCancel={handleCancel}
+                    />
+                </div>
             </div>
         </div>
     );
