@@ -119,6 +119,16 @@ flask list-users
 
 This will display a table of users with their IDs, usernames, and roles.
 
+### Seed Database
+
+To populate the database with test data including clients, services, and an example project, run:
+
+```bash
+flask seed-database
+```
+
+This command executes the SQL statements in `seed_test_data.sql`, inserting sample data for development and testing purposes.
+
 ## Additional Information
 
 - The backend automatically creates an admin user with username `admin` and password `administrator` on first run.

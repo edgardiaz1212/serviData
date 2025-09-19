@@ -77,13 +77,22 @@ def setup_commands(app):
             click.echo(click.style(f"An error occurred while listing users: {str(e)}", fg='red'))
             log.error("Error listing users.", exc_info=True)
 
-    # Puedes añadir más comandos aquí, por ejemplo:
-    # @app.cli.command("seed-database")
-    # @with_appcontext
-    # def seed_database():
-    #     """Adds initial data to the database for development."""
-    #     click.echo("Seeding database...")
-    #     # Aquí iría la lógica para crear Clientes, Servicios, etc. de ejemplo
-    #     click.echo("Database seeded.")
+    @app.cli.command("seed-database")
+    @with_appcontext
+    def seed_database():
+        """Adds initial data to the database from seed_test_data.sql."""
+        from sqlalchemy import text
+        log.info("Seeding database from seed_test_data.sql...")
+        try:
+            with open('seed_test_data.sql', 'r') as f:
+                sql = f.read()
+            db.session.execute(text(sql))
+            db.session.commit()
+            click.echo(click.style("Database seeded successfully.", fg='green'))
+            log.info("Database seeded successfully.")
+        except Exception as e:
+            db.session.rollback()
+            click.echo(click.style(f"An error occurred while seeding database: {str(e)}", fg='red'))
+            log.error("Error seeding database.", exc_info=True)
 
 # No necesitas llamar a setup_commands aquí. Se llamará desde app.py

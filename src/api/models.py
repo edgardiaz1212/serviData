@@ -1,35 +1,59 @@
-# c:\Users\Edgar\Documents\GitHub\serviData\src\api\models.py
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timezone
 from sqlalchemy import LargeBinary
 # Import hashing functions
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from sqlalchemy.orm import relationship
+
 db = SQLAlchemy()
+
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password_hash = db.Column(db.String(256), nullable=False)
+    role = db.Column(db.String(20), nullable=False)  # e.g., 'Admin', 'User'
+    last_login = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'role': self.role,
+            'last_login': self.last_login.isoformat() if self.last_login else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+        }
 
 class Cliente(db.Model):
     __tablename__ = 'clientes'
     id = db.Column(db.Integer, primary_key=True)
-    tipo = db.Column(db.String)
-    rif = db.Column(db.String, unique=True, nullable=False) # Added unique and nullable
-    razon_social = db.Column(db.String, nullable=False) # Added nullable
+    tipo = db.Column(db.String(50), nullable=False)  # e.g., 'Publica', 'Privada'
+    rif = db.Column(db.String(20), unique=True, nullable=False)
+    razon_social = db.Column(db.String(200), nullable=False)
+    fecha_creacion_cliente = db.Column(db.Date)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
-    fecha_creacion_cliente = db.Column(db.DateTime, nullable=True)  # Custom creation date for client
 
-    documentos = db.relationship("Documento", back_populates="cliente", cascade="all, delete-orphan") # Added cascade
-    servicios = db.relationship("Servicio", back_populates="cliente", cascade="all, delete-orphan") # Added cascade
+    servicios = relationship("Servicio", back_populates="cliente", cascade="all, delete-orphan")
+    documentos = relationship("Documento", back_populates="cliente", cascade="all, delete-orphan")
 
     def serialize(self):
-        # Avoid serializing documents here if it causes excessive data load,
-        # fetch them separately if needed via a specific endpoint.
         return {
             'id': self.id,
             'tipo': self.tipo,
             'rif': self.rif,
             'razon_social': self.razon_social,
             'fecha_creacion_cliente': self.fecha_creacion_cliente.isoformat() if self.fecha_creacion_cliente else None,
-            # 'documentos': [doc.serialize_basic() for doc in self.documentos], # Consider a basic serialization
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }
@@ -37,129 +61,184 @@ class Cliente(db.Model):
 class Servicio(db.Model):
     __tablename__ = 'servicios'
     id = db.Column(db.Integer, primary_key=True)
-    cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id', ondelete='CASCADE'), nullable=False) # Added ondelete and nullable
-    contrato = db.Column(db.String)
-    estado_contrato = db.Column(db.String)
-    estado_servicio = db.Column(db.String, default="Nuevo", nullable=False) # Added nullable
-    dominio = db.Column(db.String)
-    dns_dominio = db.Column(db.String)
-    tipo_servicio = db.Column(db.String, nullable=False) # Added nullable
-    plan_aprovisionado = db.Column(db.String)
-    plan_servicio = db.Column(db.String)
-    plan_anterior = db.Column(db.String)
-    plan_facturado = db.Column(db.String)
-    facturado = db.Column(db.String)
-    descripcion = db.Column(db.String)
-    hostname = db.Column(db.String)
-    ip_privada = db.Column(db.String)
-    ip_publica = db.Column(db.String)
-    vlan = db.Column(db.String)
-    ipam = db.Column(db.String)
-    datastore = db.Column(db.String)
-    nombre_servidor = db.Column(db.String)
-    nombre_nodo = db.Column(db.String)
-    nombre_plataforma = db.Column(db.String)
-    ram = db.Column(db.Integer)
-    hdd = db.Column(db.Integer)
-    cpu = db.Column(db.Integer)
-    cantidad_ru = db.Column(db.Integer)
-    cantidad_m2 = db.Column(db.Integer)
-    cantidad_bastidores =db.Column(db.Integer)
-    ubicacion = db.Column(db.String)
-    ubicacion_sala = db.Column(db.String)
-    observaciones = db.Column(db.String)
-    comentarios = db.Column(db.String)
+    # Identificación y Contrato
+    contrato = db.Column(db.String(100))
+    tipo_servicio = db.Column(db.String(100))
+    estado_contrato = db.Column(db.String(50))
+    facturado = db.Column(db.String(10))
+    # Información del Servicio/Plan
+    plan_anterior = db.Column(db.String(100))
+    plan_facturado = db.Column(db.String(100))
+    plan_aprovisionado = db.Column(db.String(100))
+    plan_servicio = db.Column(db.String(100))
+    descripcion = db.Column(db.Text)
+    estado_servicio = db.Column(db.String(50), default='Nuevo')
+    # Información de Dominio y DNS
+    dominio = db.Column(db.String(100))
+    dns_dominio = db.Column(db.String(100))
+    # Ubicación y Espacio Físico
+    ubicacion = db.Column(db.String(100))
+    ubicacion_sala = db.Column(db.String(100))
+    cantidad_ru = db.Column(db.Integer, default=0)
+    cantidad_m2 = db.Column(db.Integer, default=0)
+    cantidad_bastidores = db.Column(db.Integer, default=0)
+    # Información de Hardware/Infraestructura
+    hostname = db.Column(db.String(100))
+    nombre_servidor = db.Column(db.String(100))
+    nombre_nodo = db.Column(db.String(100))
+    nombre_plataforma = db.Column(db.String(100))
+    ram = db.Column(db.Integer, default=0)
+    hdd = db.Column(db.Integer, default=0)
+    cpu = db.Column(db.Integer, default=0)
+    datastore = db.Column(db.String(100))
+    # Red e IP
+    ip_privada = db.Column(db.String(50))
+    ip_publica = db.Column(db.String(50))
+    vlan = db.Column(db.String(50))
+    ipam = db.Column(db.String(50))
+    # Observaciones y Comentarios
+    observaciones = db.Column(db.Text)
+    comentarios = db.Column(db.Text)
+    # Fechas
+    fecha_creacion_servicio = db.Column(db.Date)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
-    fecha_creacion_servicio = db.Column(db.DateTime, nullable=True)  # Custom creation date for service
+    # Foreign Key
+    cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'), nullable=False)
 
-    documentos = db.relationship("Documento", back_populates="servicio", cascade="all, delete-orphan") # Added cascade
-    cliente = db.relationship("Cliente", back_populates="servicios")
-
-    def serialize(self):
-        # Serialize basic client info to avoid recursion depth issues
-        client_info = None
-        if self.cliente:
-            client_info = {
-                'id': self.cliente.id,
-                'rif': self.cliente.rif,
-                'razon_social': self.cliente.razon_social,
-                'tipo': self.cliente.tipo
-            }
-
-        return {
-            "id": self.id,
-            "cliente": client_info, # Use basic client info
-            "cliente_id": self.cliente_id,
-            "contrato": self.contrato,
-            "estado_contrato": self.estado_contrato,
-            "estado_servicio": self.estado_servicio,
-            "dominio": self.dominio,
-            "dns_dominio": self.dns_dominio,
-            "tipo_servicio": self.tipo_servicio.replace("Pública", "Publica") if self.tipo_servicio else self.tipo_servicio,
-            "plan_aprovisionado": self.plan_aprovisionado,
-            "plan_servicio": self.plan_servicio,
-            "plan_anterior": self.plan_anterior,
-            "plan_facturado": self.plan_facturado,
-            "facturado": self.facturado,
-            "descripcion": self.descripcion,
-            "hostname": self.hostname,
-            "ip_privada": self.ip_privada,
-            "ip_publica": self.ip_publica,
-            "vlan": self.vlan,
-            "ipam": self.ipam,
-            "datastore": self.datastore,
-            "nombre_servidor": self.nombre_servidor,
-            "nombre_nodo": self.nombre_nodo,
-            "nombre_plataforma": self.nombre_plataforma,
-            "ram": self.ram,
-            "hdd": self.hdd,
-            "cpu": self.cpu,
-            "cantidad_ru": self.cantidad_ru,
-            "cantidad_m2": self.cantidad_m2,
-            "cantidad_bastidores": self.cantidad_bastidores,
-            "ubicacion": self.ubicacion,
-            "ubicacion_sala": self.ubicacion_sala,
-            "observaciones": self.observaciones,
-            "comentarios": self.comentarios,
-            "fecha_creacion_servicio": self.fecha_creacion_servicio.isoformat() if self.fecha_creacion_servicio else None,
-            "created_at": self.created_at.isoformat() if self.created_at else None,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
-            # 'documentos': [doc.serialize_basic() for doc in self.documentos], # Consider basic serialization
-        }
-
-class User(db.Model):
-    __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String, unique=True, nullable=False) # Added nullable=False
-    # This column will store the HASH of the password, not the password itself
-    password = db.Column(db.String, nullable=False) # Added nullable=False
-    role = db.Column(db.String)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc)) # Added created_at
-    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc)) # Added updated_at
-    last_login = db.Column(db.DateTime, nullable=True) # Added last_login field
-
-    # Method to set the password (hashes it)
-    def set_password(self, password_text):
-        """Hashes the password and stores it."""
-        # The method parameter controls the complexity and salt length.
-        # 'pbkdf2:sha256' is a good default.
-        self.password = generate_password_hash(password_text, method='pbkdf2:sha256')
-
-    # Method to check the password
-    def check_password(self, password_text):
-        """Checks if the provided password matches the stored hash."""
-        return check_password_hash(self.password, password_text)
+    cliente = relationship("Cliente", back_populates="servicios")
+    documentos = relationship("Documento", back_populates="servicio", cascade="all, delete-orphan")
 
     def serialize(self):
-        # IMPORTANT: DO NOT serialize the password hash
         return {
             'id': self.id,
-            'username': self.username,
-            'role': self.role,
-            'created_at': self.created_at.isoformat() if self.created_at else None, # Serialize timestamps
+            'contrato': self.contrato,
+            'tipo_servicio': self.tipo_servicio,
+            'estado_contrato': self.estado_contrato,
+            'facturado': self.facturado,
+            'plan_anterior': self.plan_anterior,
+            'plan_facturado': self.plan_facturado,
+            'plan_aprovisionado': self.plan_aprovisionado,
+            'plan_servicio': self.plan_servicio,
+            'descripcion': self.descripcion,
+            'estado_servicio': self.estado_servicio,
+            'dominio': self.dominio,
+            'dns_dominio': self.dns_dominio,
+            'ubicacion': self.ubicacion,
+            'ubicacion_sala': self.ubicacion_sala,
+            'cantidad_ru': self.cantidad_ru,
+            'cantidad_m2': self.cantidad_m2,
+            'cantidad_bastidores': self.cantidad_bastidores,
+            'hostname': self.hostname,
+            'nombre_servidor': self.nombre_servidor,
+            'nombre_nodo': self.nombre_nodo,
+            'nombre_plataforma': self.nombre_plataforma,
+            'ram': self.ram,
+            'hdd': self.hdd,
+            'cpu': self.cpu,
+            'datastore': self.datastore,
+            'ip_privada': self.ip_privada,
+            'ip_publica': self.ip_publica,
+            'vlan': self.vlan,
+            'ipam': self.ipam,
+            'observaciones': self.observaciones,
+            'comentarios': self.comentarios,
+            'fecha_creacion_servicio': self.fecha_creacion_servicio.isoformat() if self.fecha_creacion_servicio else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
-            'last_login': self.last_login.isoformat() if self.last_login else None, # Serialize last_login
+            'cliente_id': self.cliente_id,
+        }
+
+class Project(db.Model):
+    __tablename__ = 'projects'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    description = db.Column(db.String)
+    start_date = db.Column(db.Date)
+    end_date = db.Column(db.Date)
+    status = db.Column(db.String)  # e.g. 'completed', 'near completion', 'current phase'
+    avance_real = db.Column(db.Float, default=0.0)  # Real progress percentage
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+    phases = relationship("Phase", back_populates="project", cascade="all, delete-orphan")
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'start_date': self.start_date.isoformat() if self.start_date else None,
+            'end_date': self.end_date.isoformat() if self.end_date else None,
+            'status': self.status,
+            'avance_real': self.avance_real,
+            'phases': [phase.serialize() for phase in self.phases],
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+        }
+
+class Phase(db.Model):
+    __tablename__ = 'phases'
+    id = db.Column(db.Integer, primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id', ondelete='CASCADE'), nullable=False)
+    name = db.Column(db.String, nullable=False)
+    wbs_code = db.Column(db.String)  # Work Breakdown Structure code
+    start_date = db.Column(db.Date)
+    end_date = db.Column(db.Date)
+    weight = db.Column(db.Float, default=0.0)  # Weight of the phase in project
+    avance_real = db.Column(db.Float, default=0.0)  # Real progress percentage
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+    project = relationship("Project", back_populates="phases")
+    activities = relationship("Activity", back_populates="phase", cascade="all, delete-orphan")
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'project_id': self.project_id,
+            'name': self.name,
+            'wbs_code': self.wbs_code,
+            'start_date': self.start_date.isoformat() if self.start_date else None,
+            'end_date': self.end_date.isoformat() if self.end_date else None,
+            'weight': self.weight,
+            'avance_real': self.avance_real,
+            'activities': [activity.serialize() for activity in self.activities],
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+        }
+
+class Activity(db.Model):
+    __tablename__ = 'activities'
+    id = db.Column(db.Integer, primary_key=True)
+    phase_id = db.Column(db.Integer, db.ForeignKey('phases.id', ondelete='CASCADE'), nullable=False)
+    name = db.Column(db.String, nullable=False)
+    wbs_code = db.Column(db.String)  # Work Breakdown Structure code
+    duration_days = db.Column(db.Integer)
+    start_date = db.Column(db.Date)
+    end_date = db.Column(db.Date)
+    predecessors = db.Column(db.String)  # Comma-separated list of predecessor activity IDs or WBS codes
+    weight = db.Column(db.Float, default=0.0)  # Weight of the activity in phase
+    avance_real = db.Column(db.Float, default=0.0)  # Real progress percentage
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+    phase = relationship("Phase", back_populates="activities")
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'phase_id': self.phase_id,
+            'name': self.name,
+            'wbs_code': self.wbs_code,
+            'duration_days': self.duration_days,
+            'start_date': self.start_date.isoformat() if self.start_date else None,
+            'end_date': self.end_date.isoformat() if self.end_date else None,
+            'predecessors': self.predecessors,
+            'weight': self.weight,
+            'avance_real': self.avance_real,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }
 
 class Documento(db.Model):

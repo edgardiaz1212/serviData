@@ -21,3 +21,21 @@ INSERT INTO servicios (cliente_id, contrato, estado_contrato, estado_servicio, t
 (5, 'CON-5-1', 'Activo', 'Nuevo', 'Cloud', 'Cloud para Empresa Publica E', 'host-5-1.example.com', '192.168.5.10', 8, 200, 4, '2025-07-20 00:00:00'),
 (5, 'CON-5-2', 'Activo', 'Nuevo', 'VPS', 'VPS adicional para Empresa Publica E', 'host-5-2.example.com', '192.168.5.11', 4, 100, 2, '2025-08-10 00:00:00'),
 (5, 'CON-5-3', 'Suspendido', 'Nuevo', 'Dedicated Server', 'Servidor dedicado para Empresa Publica E', 'host-5-3.example.com', '192.168.5.12', 12, 300, 6, '2025-09-05 00:00:00');
+
+-- Insert example project
+INSERT INTO projects (name, description, start_date, end_date, status, avance_real) VALUES
+('Proyecto Ejemplo', 'Descripción del proyecto ejemplo para gestión de proyectos', '2025-01-01', '2025-12-31', 'En Progreso', 50.0);
+
+-- Insert phases for the example project (assuming project_id=1)
+INSERT INTO phases (project_id, name, wbs_code, start_date, end_date, weight, avance_real) VALUES
+(1, 'Fase 1: Planificación', '1.1', '2025-01-01', '2025-03-31', 30.0, 100.0),
+(1, 'Fase 2: Desarrollo', '1.2', '2025-04-01', '2025-06-30', 40.0, 50.0),
+(1, 'Fase 3: Implementación', '1.3', '2025-07-01', '2025-12-31', 30.0, 0.0);
+
+-- Insert activities for phases (assuming phase_ids 1,2,3)
+INSERT INTO activities (phase_id, name, wbs_code, duration_days, start_date, end_date, predecessors, weight, avance_real) VALUES
+(1, 'Actividad 1.1.1: Análisis de Requisitos', '1.1.1', 30, '2025-01-01', '2025-01-31', '', 50.0, 100.0),
+(1, 'Actividad 1.1.2: Diseño del Sistema', '1.1.2', 60, '2025-02-01', '2025-03-31', '1.1.1', 50.0, 100.0),
+(2, 'Actividad 1.2.1: Desarrollo del Backend', '1.2.1', 30, '2025-04-01', '2025-04-30', '', 50.0, 100.0),
+(2, 'Actividad 1.2.2: Desarrollo del Frontend', '1.2.2', 60, '2025-05-01', '2025-06-30', '1.2.1', 50.0, 0.0),
+(3, 'Actividad 1.3.1: Pruebas y Despliegue', '1.3.1', 90, '2025-07-01', '2025-09-30', '', 100.0, 0.0);

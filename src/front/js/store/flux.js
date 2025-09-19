@@ -30,6 +30,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       newServicesQuarterlyTrend: [],
       newServicesYearlyTrend: [],
       serviceGrowthProjection: {},
+      projects: [],
     },
     actions: {
       // Autenticación
@@ -966,6 +967,111 @@ const getState = ({ getStore, getActions, setStore }) => {
         } catch (error) {
           console.error("Error uploading data:", error);
           throw error;
+        }
+      },
+      // Project Management Actions
+      fetchProjects: async () => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/projects`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setStore({ projects: data });
+            return data;
+          } else {
+            console.error("Failed to fetch projects");
+          }
+        } catch (error) {
+          console.log("Error during fetching projects", error);
+        }
+      },
+      getProjectById: async (projectId) => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/projects/${projectId}`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          } else {
+            console.error("Failed to get project");
+          }
+        } catch (error) {
+          console.log("Error during getting project", error);
+        }
+      },
+      createProject: async (projectData) => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/projects`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(projectData),
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            const store = getStore();
+            setStore({ projects: [...store.projects, data] });
+            return data;
+          } else {
+            console.error("Failed to create project");
+          }
+        } catch (error) {
+          console.log("Error during creating project", error);
+        }
+      },
+      updateProject: async (projectId, projectData) => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/projects/${projectId}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(projectData),
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            const store = getStore();
+            const updatedProjects = store.projects.map((project) =>
+              project.id === projectId ? data : project
+            );
+            setStore({ projects: updatedProjects });
+            return data;
+          } else {
+            console.error("Failed to update project");
+          }
+        } catch (error) {
+          console.log("Error during updating project", error);
+        }
+      },
+      deleteProject: async (projectId) => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/projects/${projectId}`,
+            {
+              method: "DELETE",
+            }
+          );
+          if (response.ok) {
+            const store = getStore();
+            const updatedProjects = store.projects.filter(
+              (project) => project.id !== projectId
+            );
+            setStore({ projects: updatedProjects });
+            return { success: true };
+          } else {
+            console.error("Failed to delete project");
+          }
+        } catch (error) {
+          console.log("Error during deleting project", error);
         }
       },
     },

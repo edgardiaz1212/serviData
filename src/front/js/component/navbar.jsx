@@ -84,8 +84,8 @@ const Navbar = () => {
                   Reportes
                 </Link>
               </li>
-              <li className="nav-item"> {/* Corregida la anidación incorrecta de <li> */}
-                <Link className="nav-link" to="/proyectos"> {/* Asumiendo que el enlace es a /proyectos */}
+              <li className="nav-item">
+                <Link className="nav-link" to="/projects">
                   Proyectos
                 </Link>
               </li>
