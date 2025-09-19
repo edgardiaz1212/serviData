@@ -24,6 +24,8 @@
 - [x] Create src/front/js/pages/ProjectsPage.jsx to list projects using ProjectCard
 - [x] Create src/front/js/pages/ProjectDetailPage.jsx to show project details, hierarchical EDT, activities, progress input, chart, indicators
 - [x] Create src/front/js/pages/EditProjectPage.jsx for editing projects
+- [x] Convert ProjectForm.jsx to Bootstrap classes
+- [x] Add automatic working days calculation (Monday-Friday) when start/end dates are set
 
 ## Routing
 - [x] Update src/front/js/layout.js to add routes for /projects, /projects/:id, /projects/:id/edit

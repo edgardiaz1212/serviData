@@ -25,17 +25,56 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
         }
     }, [project]);
 
+    const calculateWorkingDays = (startDate, endDate) => {
+        if (!startDate || !endDate) return 0;
+
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        let workingDays = 0;
+
+        const currentDate = new Date(start);
+        while (currentDate <= end) {
+            const dayOfWeek = currentDate.getDay();
+            // Monday = 1, Tuesday = 2, Wednesday = 3, Thursday = 4, Friday = 5
+            if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                workingDays++;
+            }
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        return workingDays;
+    };
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+        setFormData(prev => {
+            const updatedData = {
+                ...prev,
+                [name]: value
+            };
+
+            // Auto-calculate total duration when start or end dates change
+            if (name === 'start_date' || name === 'end_date') {
+                if (updatedData.start_date && updatedData.end_date) {
+                    updatedData.total_duration = calculateWorkingDays(updatedData.start_date, updatedData.end_date);
+                }
+            }
+
+            return updatedData;
+        });
     };
 
     const handlePhaseChange = (index, field, value) => {
         const updatedPhases = [...formData.phases];
         updatedPhases[index] = { ...updatedPhases[index], [field]: value };
+
+        // Auto-calculate phase duration when start or end dates change
+        if (field === 'start_date' || field === 'end_date') {
+            if (updatedPhases[index].start_date && updatedPhases[index].end_date) {
+                updatedPhases[index].duration = calculateWorkingDays(updatedPhases[index].start_date, updatedPhases[index].end_date);
+            }
+        }
+
         setFormData(prev => ({
             ...prev,
             phases: updatedPhases
@@ -158,11 +197,14 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
                         type="number"
                         name="total_duration"
                         value={formData.total_duration}
-                        onChange={handleInputChange}
                         className="form-control"
                         min="0"
+                        readOnly
                         required
                     />
+                    <small className="form-text text-muted">
+                        Calculado automáticamente desde las fechas de inicio y fin
+                    </small>
                 </div>
                 <div className="col-12 col-md-6">
                     <label className="form-label fw-medium">
@@ -252,8 +294,14 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
                                         onChange={(e) => handlePhaseChange(phaseIndex, 'duration', parseInt(e.target.value))}
                                         className="form-control"
                                         min="0"
-                                        required
+                                        required={!phase.start_date || !phase.end_date}
+                                        readOnly={phase.start_date && phase.end_date}
                                     />
+                                    {phase.start_date && phase.end_date && (
+                                        <small className="form-text text-muted">
+                                            Calculado automáticamente desde las fechas de inicio y fin
+                                        </small>
+                                    )}
                                 </div>
                                 <div className="col-12 col-md-6">
                                     <label className="form-label fw-medium">
