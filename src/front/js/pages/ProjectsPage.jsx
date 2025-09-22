@@ -40,8 +40,7 @@ const ProjectsPage = () => {
     };
 
     const filteredProjects = projects.filter(project =>
-        project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.edt_structure.toLowerCase().includes(searchTerm.toLowerCase())
+        project.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     if (loading) {

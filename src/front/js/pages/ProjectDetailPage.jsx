@@ -196,7 +196,6 @@ const ProjectDetailPage = () => {
                             <div className="col-12 col-md-6">
                                 <h3 className="h5 fw-semibold mb-4">Información General</h3>
                                 <div className="mb-3">
-                                    <p className="mb-2"><span className="fw-medium">EDT:</span> {project.edt_structure}</p>
                                     <p className="mb-2"><span className="fw-medium">Inicio:</span> {project.start_date ? new Date(project.start_date).toLocaleDateString() : 'No definido'}</p>
                                     <p className="mb-2"><span className="fw-medium">Fin:</span> {project.end_date ? new Date(project.end_date).toLocaleDateString() : 'No definido'}</p>
                                 </div>

@@ -203,7 +203,6 @@ class Project(db.Model):
     __tablename__ = 'projects'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
-    edt_structure = db.Column(db.String)  # Hierarchical EDT structure
     num_phases = db.Column(db.Integer, nullable=False)
     start_date = db.Column(db.DateTime)
     end_date = db.Column(db.DateTime)
@@ -218,7 +217,6 @@ class Project(db.Model):
         return {
             'id': self.id,
             'name': self.name,
-            'edt_structure': self.edt_structure,
             'num_phases': self.num_phases,
             'start_date': self.start_date.isoformat() if self.start_date else None,
             'end_date': self.end_date.isoformat() if self.end_date else None,

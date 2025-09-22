@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 const ProjectForm = ({ project, onSave, onCancel }) => {
     const [formData, setFormData] = useState({
         name: '',
-        edt_structure: '',
         num_phases: 1,
         start_date: '',
         end_date: '',
@@ -15,7 +14,6 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
         if (project) {
             setFormData({
                 name: project.name || '',
-                edt_structure: project.edt_structure || '',
                 num_phases: project.num_phases || 1,
                 start_date: project.start_date ? project.start_date.split('T')[0] : '',
                 end_date: project.end_date ? project.end_date.split('T')[0] : '',
@@ -162,19 +160,7 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
                         required
                     />
                 </div>
-                <div className="col-12 col-md-6">
-                    <label className="form-label fw-medium">
-                        Estructura EDT
-                    </label>
-                    <input
-                        type="text"
-                        name="edt_structure"
-                        value={formData.edt_structure}
-                        onChange={handleInputChange}
-                        className="form-control"
-                        required
-                    />
-                </div>
+
                 <div className="col-12 col-md-6">
                     <label className="form-label fw-medium">
                         Número de Fases

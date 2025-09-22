@@ -32,9 +32,6 @@ const ProjectCard = ({ project, onViewDetails }) => {
 
                 <div className="mb-3">
                     <p className="card-text text-muted mb-1">
-                        <strong>EDT:</strong> {project.edt_structure}
-                    </p>
-                    <p className="card-text text-muted mb-1">
                         <strong>Fases:</strong> {project.num_phases}
                     </p>
                     <p className="card-text text-muted mb-1">

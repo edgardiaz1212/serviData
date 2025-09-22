@@ -1644,7 +1644,6 @@ def create_project():
     try:
         data = request.get_json()
         name = data.get('name')
-        edt_structure = data.get('edt_structure')
         num_phases = data.get('num_phases')
         start_date = data.get('start_date')
         end_date = data.get('end_date')
@@ -1653,7 +1652,6 @@ def create_project():
 
         project = Project(
             name=name,
-            edt_structure=edt_structure,
             num_phases=num_phases,
             start_date=datetime.fromisoformat(start_date) if start_date else None,
             end_date=datetime.fromisoformat(end_date) if end_date else None,
