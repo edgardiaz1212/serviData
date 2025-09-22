@@ -20,6 +20,36 @@ const ProjectCard = ({ project, onViewDetails }) => {
         return 'text-success';
     };
 
+    const calculateProjectProgress = () => {
+        if (!project.phases || project.phases.length === 0) {
+            return 0;
+        }
+
+        let totalCompliance = 0;
+        let activityCount = 0;
+
+        project.phases.forEach(phase => {
+            if (phase.activities && phase.activities.length > 0) {
+                phase.activities.forEach(activity => {
+                    const compliance = activity.real_compliance || 0;
+                    totalCompliance += compliance;
+                    activityCount++;
+                });
+            }
+        });
+
+        return activityCount > 0 ? Math.round(totalCompliance / activityCount) : 0;
+    };
+
+    const getProgressBarColor = (progress) => {
+        if (progress >= 80) return 'bg-success';
+        if (progress >= 50) return 'bg-warning';
+        if (progress >= 20) return 'bg-info';
+        return 'bg-danger';
+    };
+
+    const progress = calculateProjectProgress();
+
     return (
         <div className="card h-100 shadow-sm">
             <div className="card-body">
@@ -47,6 +77,24 @@ const ProjectCard = ({ project, onViewDetails }) => {
                             <strong>Fin:</strong> {new Date(project.end_date).toLocaleDateString()}
                         </p>
                     )}
+                </div>
+
+                {/* Progress Bar Section */}
+                <div className="mb-3">
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                        <span className="fw-semibold text-dark">Progreso del Proyecto</span>
+                        <span className="fw-bold text-primary">{progress}%</span>
+                    </div>
+                    <div className="progress" style={{ height: '8px' }}>
+                        <div
+                            className={`progress-bar ${getProgressBarColor(progress)}`}
+                            role="progressbar"
+                            style={{ width: `${progress}%` }}
+                            aria-valuenow={progress}
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                        ></div>
+                    </div>
                 </div>
 
                 {project.phases && project.phases.length > 0 && (

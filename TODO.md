@@ -1,49 +1,34 @@
-# Project Management UI Implementation TODO
+# ProjectCard Progress Bar Implementation
 
-## Backend Models
-- [x] Add Project model to models.py with fields: name, edt_structure, num_phases, start_date, end_date, total_duration, status
-- [x] Add Phase model to models.py with fields: project_id, name, order, start_date, end_date, duration
-- [x] Add Activity model to models.py with fields: phase_id, description, duration, predecessors, planned_start, planned_end, planned_percent, real_compliance, real_percent, deviation, accumulated_deviation, status
-- [x] Add relationships between models
+## Plan Summary
+Add a progress bar to the ProjectCard component to show project progress visually based on activities' real_compliance values.
 
-## Backend API Routes
-- [x] Add GET /api/projects to list all projects
-- [x] Add POST /api/projects to create new project
-- [x] Add GET /api/projects/<id> to get project details with phases and activities
-- [x] Add PUT /api/projects/<id> to update project
-- [x] Add DELETE /api/projects/<id> to delete project
-- [x] Add PUT /api/projects/<id>/activities/<activity_id>/progress to update activity progress
-- [x] Add calculations for planned %, real %, deviations in routes
+## Steps to Complete
 
-## Frontend Components
-- [x] Create src/front/js/component/project/ProjectCard.jsx for displaying project cards with status and phase
-- [x] Create src/front/js/component/project/ProjectForm.jsx for creating/editing projects with EDT, phases, activities
-- [x] Create src/front/js/component/project/ProjectProgressChart.jsx for S-curve chart comparing planned vs real progress
+### Step 1: Add progress calculation function
+- [ ] Create function to calculate overall project progress from activities' real_compliance values
+- [ ] Handle edge cases: no activities, missing compliance data
 
-## Frontend Pages
-- [x] Create src/front/js/pages/ProjectsPage.jsx to list projects using ProjectCard
-- [x] Create src/front/js/pages/ProjectDetailPage.jsx to show project details, hierarchical EDT, activities, progress input, chart, indicators
-- [x] Create src/front/js/pages/EditProjectPage.jsx for editing projects
-- [x] Convert ProjectForm.jsx to Bootstrap classes
-- [x] Add automatic working days calculation (Monday-Friday) when start/end dates are set
+### Step 2: Add progress bar component
+- [ ] Add Bootstrap progress bar to ProjectCard JSX
+- [ ] Position between project info and phases section
+- [ ] Add progress percentage label
 
-## Routing
-- [x] Update src/front/js/layout.js to add routes for /projects, /projects/:id, /projects/:id/edit
+### Step 3: Style the progress bar
+- [ ] Apply appropriate Bootstrap classes for styling
+- [ ] Add color coding based on progress level
+- [ ] Ensure responsive design
 
-## Calculations and Indicators
-- [ ] Implement automatic calculation of planned % for activities
-- [ ] Implement real % calculation based on compliance
-- [ ] Implement deviation and accumulated deviation
-- [ ] Add traffic light indicators (green, yellow, red) based on deviation
-- [ ] Add status display (En progreso – desviación baja, etc.)
+### Step 4: Testing and verification
+- [ ] Test with different project data scenarios
+- [ ] Verify progress calculation accuracy
+- [ ] Check responsive behavior
 
-## UI Enhancements
-- [ ] Add table for points of attention (problem, impact, actions, dates, responsible)
-- [ ] Add sections for achievements, next steps, deviation reasons
-- [ ] Ensure hierarchical display of EDT -> Phases -> Activities
+## Files to Modify
+- `src/front/js/component/project/ProjectCard.jsx`
 
-## Testing and Followup
-- [ ] Run database migrations for new models
-- [ ] Test API endpoints
-- [ ] Test frontend functionality
-- [ ] Verify calculations and charts
+## Completion Status
+- [ ] Step 1: Progress calculation function
+- [ ] Step 2: Progress bar component
+- [ ] Step 3: Styling
+- [ ] Step 4: Testing
