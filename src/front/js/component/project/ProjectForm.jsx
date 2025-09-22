@@ -62,6 +62,18 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
         });
     };
 
+    const validatePhaseDates = (phaseStartDate, phaseEndDate, projectStartDate, projectEndDate) => {
+        if (!projectStartDate || !projectEndDate) return true; // No validation if project dates not set
+        if (!phaseStartDate || !phaseEndDate) return true; // No validation if phase dates not complete
+
+        const phaseStart = new Date(phaseStartDate);
+        const phaseEnd = new Date(phaseEndDate);
+        const projectStart = new Date(projectStartDate);
+        const projectEnd = new Date(projectEndDate);
+
+        return phaseStart >= projectStart && phaseEnd <= projectEnd && phaseStart <= phaseEnd;
+    };
+
     const handlePhaseChange = (index, field, value) => {
         const updatedPhases = [...formData.phases];
         updatedPhases[index] = { ...updatedPhases[index], [field]: value };
@@ -69,6 +81,26 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
         // Auto-calculate phase duration when start or end dates change
         if (field === 'start_date' || field === 'end_date') {
             if (updatedPhases[index].start_date && updatedPhases[index].end_date) {
+                // Validate phase dates are within project range
+                const isValidPhaseRange = validatePhaseDates(
+                    updatedPhases[index].start_date,
+                    updatedPhases[index].end_date,
+                    formData.start_date,
+                    formData.end_date
+                );
+
+                if (!isValidPhaseRange) {
+                    // Reset invalid dates
+                    updatedPhases[index].start_date = '';
+                    updatedPhases[index].end_date = '';
+                    alert('Las fechas de la fase deben estar dentro del rango del proyecto');
+                    setFormData(prev => ({
+                        ...prev,
+                        phases: updatedPhases
+                    }));
+                    return;
+                }
+
                 updatedPhases[index].duration = calculateWorkingDays(updatedPhases[index].start_date, updatedPhases[index].end_date);
             }
         }
@@ -127,12 +159,52 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
         }));
     };
 
+    const validateActivityDates = (activityStartDate, activityEndDate, phaseStartDate, phaseEndDate) => {
+        if (!phaseStartDate || !phaseEndDate) return true; // No validation if phase dates not set
+        if (!activityStartDate || !activityEndDate) return true; // No validation if activity dates not complete
+
+        const activityStart = new Date(activityStartDate);
+        const activityEnd = new Date(activityEndDate);
+        const phaseStart = new Date(phaseStartDate);
+        const phaseEnd = new Date(phaseEndDate);
+
+        return activityStart >= phaseStart && activityEnd <= phaseEnd && activityStart <= activityEnd;
+    };
+
     const handleActivityChange = (phaseIndex, activityIndex, field, value) => {
         const updatedPhases = [...formData.phases];
+        const currentPhase = updatedPhases[phaseIndex];
+
         updatedPhases[phaseIndex].activities[activityIndex] = {
             ...updatedPhases[phaseIndex].activities[activityIndex],
             [field]: value
         };
+
+        // Validate activity dates are within phase range
+        if (field === 'planned_start' || field === 'planned_end') {
+            const activity = updatedPhases[phaseIndex].activities[activityIndex];
+            if (activity.planned_start && activity.planned_end) {
+                const isValidActivityRange = validateActivityDates(
+                    activity.planned_start,
+                    activity.planned_end,
+                    currentPhase.start_date,
+                    currentPhase.end_date
+                );
+
+                if (!isValidActivityRange) {
+                    // Reset invalid dates
+                    updatedPhases[phaseIndex].activities[activityIndex].planned_start = '';
+                    updatedPhases[phaseIndex].activities[activityIndex].planned_end = '';
+                    alert('Las fechas de la actividad deben estar dentro del rango de la fase');
+                    setFormData(prev => ({
+                        ...prev,
+                        phases: updatedPhases
+                    }));
+                    return;
+                }
+            }
+        }
+
         setFormData(prev => ({
             ...prev,
             phases: updatedPhases
