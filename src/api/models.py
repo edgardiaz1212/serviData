@@ -214,6 +214,24 @@ class Project(db.Model):
     phases = db.relationship("Phase", back_populates="project", cascade="all, delete-orphan")
 
     def serialize(self):
+        # Calculate project-level indicators
+        total_planned_percent = 0
+        total_real_percent = 0
+        total_compliance = 0
+        activity_count = 0
+
+        for phase in self.phases:
+            for activity in phase.activities:
+                total_planned_percent += activity.planned_percent or 0
+                total_real_percent += activity.real_percent or 0
+                total_compliance += activity.real_compliance or 0
+                activity_count += 1
+
+        # Calculate averages
+        planned_progress = total_planned_percent / activity_count if activity_count > 0 else 0
+        real_progress = total_real_percent / activity_count if activity_count > 0 else 0
+        compliance = total_compliance / activity_count if activity_count > 0 else 0
+
         return {
             'id': self.id,
             'name': self.name,
@@ -224,7 +242,12 @@ class Project(db.Model):
             'status': self.status,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
-            'phases': [phase.serialize() for phase in self.phases]
+            'phases': [phase.serialize() for phase in self.phases],
+            # Project-level calculated indicators
+            'planned_progress': round(planned_progress, 2),
+            'real_progress': round(real_progress, 2),
+            'compliance': round(compliance, 2),
+            'accumulated_deviation': sum(activity.deviation or 0 for phase in self.phases for activity in phase.activities) / len([activity for phase in self.phases for activity in phase.activities]) if any(len(phase.activities) for phase in self.phases) else 0
         }
 
 class Phase(db.Model):
@@ -269,7 +292,6 @@ class Activity(db.Model):
     real_compliance = db.Column(db.Float, default=0.0)  # 0-100%
     real_percent = db.Column(db.Float, default=0.0)  # Calculated
     deviation = db.Column(db.Float, default=0.0)  # real_percent - planned_percent
-    accumulated_deviation = db.Column(db.Float, default=0.0)
     status = db.Column(db.String, default="Pendiente")
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
@@ -289,7 +311,6 @@ class Activity(db.Model):
             'real_compliance': self.real_compliance,
             'real_percent': self.real_percent,
             'deviation': self.deviation,
-            'accumulated_deviation': self.accumulated_deviation,
             'status': self.status,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,

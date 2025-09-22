@@ -1,34 +1,21 @@
-# ProjectCard Progress Bar Implementation
+# TODO - Corrección accumulated_deviation
 
-## Plan Summary
-Add a progress bar to the ProjectCard component to show project progress visually based on activities' real_compliance values.
+## Problema
+El campo `accumulated_deviation` se está calculando incorrectamente a nivel de actividad cuando debería estar solo a nivel de proyecto.
 
-## Steps to Complete
+## Plan de Corrección
 
-### Step 1: Add progress calculation function
-- [ ] Create function to calculate overall project progress from activities' real_compliance values
-- [ ] Handle edge cases: no activities, missing compliance data
+### ✅ Completado
+- [x] Análisis del problema identificado
+- [x] Plan de corrección aprobado por el usuario
 
-### Step 2: Add progress bar component
-- [ ] Add Bootstrap progress bar to ProjectCard JSX
-- [ ] Position between project info and phases section
-- [ ] Add progress percentage label
+### 🔄 En Progreso
+- [ ] Remover campo `accumulated_deviation` de la clase `Activity` en `src/api/models.py`
+- [ ] Actualizar función `update_accumulated_deviations()` en `src/api/routes.py`
+- [ ] Modificar función `update_activity_progress()` en `src/api/routes.py`
+- [ ] Verificar que el frontend funcione correctamente
 
-### Step 3: Style the progress bar
-- [ ] Apply appropriate Bootstrap classes for styling
-- [ ] Add color coding based on progress level
-- [ ] Ensure responsive design
-
-### Step 4: Testing and verification
-- [ ] Test with different project data scenarios
-- [ ] Verify progress calculation accuracy
-- [ ] Check responsive behavior
-
-## Files to Modify
-- `src/front/js/component/project/ProjectCard.jsx`
-
-## Completion Status
-- [ ] Step 1: Progress calculation function
-- [ ] Step 2: Progress bar component
-- [ ] Step 3: Styling
-- [ ] Step 4: Testing
+### 📋 Pendiente
+- [ ] Probar la actualización de progreso de actividades
+- [ ] Verificar cálculo correcto de desviación acumulada a nivel de proyecto
+- [ ] Confirmar que no se rompió funcionalidad existente

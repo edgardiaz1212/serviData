@@ -203,8 +203,8 @@ const ProjectDetailPage = () => {
                             <div className="col-12 col-md-6">
                                 <h3 className="h5 fw-semibold mb-4">Indicadores</h3>
                                 <div className="mb-3">
-                                    <p className="mb-2"><span className="fw-medium">Progreso Planificado:</span> {project.planned_progress || 0}%</p>
-                                    <p className="mb-2"><span className="fw-medium">Progreso Real:</span> {project.real_progress || 0}%</p>
+                                    <p className="mb-2"><span className="fw-medium">Avance Planificado:</span> {project.planned_progress || 0}%</p>
+                                    <p className="mb-2"><span className="fw-medium">Avance Real:</span> {project.real_progress || 0}%</p>
                                     <p className="mb-2"><span className="fw-medium">Cumplimiento:</span> {project.compliance || 0}%</p>
                                 </div>
                             </div>

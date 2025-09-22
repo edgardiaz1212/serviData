@@ -84,7 +84,8 @@ def setup_commands(app):
         from sqlalchemy import text
         log.info("Seeding database from seed_test_data.sql...")
         try:
-            with open('seed_test_data.sql', 'r') as f:
+            # Especifica la codificación UTF-8
+            with open('seed_test_data.sql', 'r', encoding='utf-8') as f:
                 sql = f.read()
             db.session.execute(text(sql))
             db.session.commit()

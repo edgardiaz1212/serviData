@@ -1757,8 +1757,13 @@ def update_activity_progress(project_id, activity_id):
         activity.real_percent = real_compliance * activity.planned_percent
         activity.deviation = activity.real_percent - activity.planned_percent
 
-        # Update accumulated deviation for the project
-        update_accumulated_deviations(project_id)
+        # Calculate and update accumulated deviation for the project
+        total_deviation = update_accumulated_deviations(project_id)
+
+        # Update project with accumulated deviation
+        project = Project.query.get(project_id)
+        if project:
+            project.accumulated_deviation = total_deviation
 
         db.session.commit()
         return jsonify({"message": "Activity progress updated successfully", "activity": activity.serialize()}), 200
@@ -1781,8 +1786,9 @@ def calculate_planned_percentages(project_id):
     db.session.commit()
 
 def update_accumulated_deviations(project_id):
+    """Calculate accumulated deviation at project level only."""
     activities = Activity.query.join(Phase).filter(Phase.project_id == project_id).all()
     total_deviation = sum(activity.deviation for activity in activities)
-    for activity in activities:
-        activity.accumulated_deviation = total_deviation
-    db.session.commit()
+    # Note: accumulated_deviation is now calculated at project level only
+    # and stored in the Project model, not in individual activities
+    return total_deviation

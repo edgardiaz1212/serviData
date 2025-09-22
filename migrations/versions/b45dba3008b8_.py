@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: e943213b8977
+Revision ID: b45dba3008b8
 Revises: 
-Create Date: 2025-09-19 14:06:12.427390
+Create Date: 2025-09-22 10:04:18.862826
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'e943213b8977'
+revision = 'b45dba3008b8'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -32,7 +32,6 @@ def upgrade():
     op.create_table('projects',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
-    sa.Column('edt_structure', sa.String(), nullable=True),
     sa.Column('num_phases', sa.Integer(), nullable=False),
     sa.Column('start_date', sa.DateTime(), nullable=True),
     sa.Column('end_date', sa.DateTime(), nullable=True),
@@ -117,7 +116,6 @@ def upgrade():
     sa.Column('real_compliance', sa.Float(), nullable=True),
     sa.Column('real_percent', sa.Float(), nullable=True),
     sa.Column('deviation', sa.Float(), nullable=True),
-    sa.Column('accumulated_deviation', sa.Float(), nullable=True),
     sa.Column('status', sa.String(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
