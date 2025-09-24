@@ -42,19 +42,37 @@ console.log(id);
             let savedProject;
             if (isNewProject) {
                 savedProject = await actions.createProject(formData);
+                console.log('Project creation response:', savedProject); // Debug logging
             } else {
                 savedProject = await actions.updateProject(id, formData);
             }
 
-            if (savedProject) {
-                navigate(`/projects/${savedProject.id}`);
+            // Handle nested response structure from backend
+            let projectId;
+            if (savedProject && savedProject.project && savedProject.project.id) {
+                projectId = savedProject.project.id;
+            } else if (savedProject && savedProject.id) {
+                projectId = savedProject.id;
+            }
+
+            if (projectId) {
+                console.log('Redirecting to project:', projectId); // Debug logging
+                navigate(`/projects/${projectId}`);
             } else {
-                console.error('Error saving project');
-                alert('Error al guardar el proyecto');
+                console.error('Error saving project - no valid response:', savedProject);
+                if (isNewProject) {
+                    alert('Error al crear el proyecto. Por favor, verifica los datos e intenta nuevamente.');
+                } else {
+                    alert('Error al actualizar el proyecto. Por favor, verifica los datos e intenta nuevamente.');
+                }
             }
         } catch (error) {
-            console.error('Error:', error);
-            alert('Error al guardar el proyecto');
+            console.error('Error saving project:', error);
+            if (isNewProject) {
+                alert('Error al crear el proyecto. Por favor, verifica tu conexión e intenta nuevamente.');
+            } else {
+                alert('Error al actualizar el proyecto. Por favor, verifica tu conexión e intenta nuevamente.');
+            }
         } finally {
             setSaving(false);
         }

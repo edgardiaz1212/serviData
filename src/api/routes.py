@@ -1643,18 +1643,30 @@ def get_projects():
 def create_project():
     try:
         data = request.get_json()
+
+        # Validate required fields
+        if not data or not data.get('name'):
+            return jsonify({"error": "Project name is required"}), 400
+
         name = data.get('name')
-        num_phases = data.get('num_phases')
+        num_phases = data.get('num_phases', 0)
         start_date = data.get('start_date')
         end_date = data.get('end_date')
         total_duration = data.get('total_duration')
         phases_data = data.get('phases', [])
 
+        # Validate date formats if provided
+        try:
+            start_date_parsed = datetime.fromisoformat(start_date) if start_date else None
+            end_date_parsed = datetime.fromisoformat(end_date) if end_date else None
+        except ValueError:
+            return jsonify({"error": "Invalid date format. Use ISO format (YYYY-MM-DD)"}), 400
+
         project = Project(
             name=name,
             num_phases=num_phases,
-            start_date=datetime.fromisoformat(start_date) if start_date else None,
-            end_date=datetime.fromisoformat(end_date) if end_date else None,
+            start_date=start_date_parsed,
+            end_date=end_date_parsed,
             total_duration=total_duration
         )
         db.session.add(project)
@@ -1662,22 +1674,28 @@ def create_project():
 
         # Create phases and activities
         for phase_data in phases_data:
+            if not phase_data.get('name'):
+                continue  # Skip phases without names
+
             phase = Phase(
                 project_id=project.id,
                 name=phase_data['name'],
-                order=phase_data['order'],
+                order=phase_data.get('order', 0),
                 start_date=datetime.fromisoformat(phase_data['start_date']) if phase_data.get('start_date') else None,
                 end_date=datetime.fromisoformat(phase_data['end_date']) if phase_data.get('end_date') else None,
-                duration=phase_data['duration']
+                duration=phase_data.get('duration', 0)
             )
             db.session.add(phase)
             db.session.commit()
 
             for activity_data in phase_data.get('activities', []):
+                if not activity_data.get('description'):
+                    continue  # Skip activities without descriptions
+
                 activity = Activity(
                     phase_id=phase.id,
                     description=activity_data['description'],
-                    duration=activity_data['duration'],
+                    duration=activity_data.get('duration', 0),
                     predecessors=activity_data.get('predecessors'),
                     planned_start=datetime.fromisoformat(activity_data['planned_start']) if activity_data.get('planned_start') else None,
                     planned_end=datetime.fromisoformat(activity_data['planned_end']) if activity_data.get('planned_end') else None,
@@ -1690,10 +1708,14 @@ def create_project():
         # Calculate planned % for activities
         calculate_planned_percentages(project.id)
 
+        # Refresh project from database to ensure we have the latest data
+        db.session.refresh(project)
+
         return jsonify({"message": "Project created successfully", "project": project.serialize()}), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": str(e)}), 500
+        logging.error(f"Error creating project: {str(e)}")
+        return jsonify({"error": "An unexpected error occurred while creating the project"}), 500
 
 @api.route('/projects/<int:project_id>', methods=['GET'])
 @jwt_required()

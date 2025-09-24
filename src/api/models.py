@@ -218,6 +218,7 @@ class Project(db.Model):
         total_planned_percent = 0
         total_real_percent = 0
         total_compliance = 0
+        total_deviation = 0
         activity_count = 0
 
         for phase in self.phases:
@@ -225,12 +226,14 @@ class Project(db.Model):
                 total_planned_percent += activity.planned_percent or 0
                 total_real_percent += activity.real_percent or 0
                 total_compliance += activity.real_compliance or 0
+                total_deviation += activity.deviation or 0
                 activity_count += 1
 
         # Calculate averages
         planned_progress = total_planned_percent / activity_count if activity_count > 0 else 0
         real_progress = total_real_percent / activity_count if activity_count > 0 else 0
         compliance = total_compliance / activity_count if activity_count > 0 else 0
+        accumulated_deviation = total_deviation / activity_count if activity_count > 0 else 0
 
         return {
             'id': self.id,
@@ -247,7 +250,7 @@ class Project(db.Model):
             'planned_progress': round(planned_progress, 2),
             'real_progress': round(real_progress, 2),
             'compliance': round(compliance, 2),
-            'accumulated_deviation': sum(activity.deviation or 0 for phase in self.phases for activity in phase.activities) / len([activity for phase in self.phases for activity in phase.activities]) if any(len(phase.activities) for phase in self.phases) else 0
+            'accumulated_deviation': round(accumulated_deviation, 2)
         }
 
 class Phase(db.Model):

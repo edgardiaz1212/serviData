@@ -132,6 +132,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       // Create new project
       createProject: async (projectData) => {
         try {
+          console.log("Creating project with data:", projectData); // Debug logging
           const response = await getActions().fetchWithToken(
             `${process.env.REACT_APP_BACKEND_URL}/projects`,
             {
@@ -142,11 +143,16 @@ const getState = ({ getStore, getActions, setStore }) => {
               body: JSON.stringify(projectData),
             }
           );
+
+          console.log("Project creation response status:", response.status); // Debug logging
+
           if (response.ok) {
             const data = await response.json();
+            console.log("Project created successfully:", data); // Debug logging
             return data;
           } else {
-            console.error("Failed to create project");
+            const errorText = await response.text();
+            console.error("Failed to create project:", response.status, errorText);
             return null;
           }
         } catch (error) {
