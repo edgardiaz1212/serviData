@@ -1079,6 +1079,45 @@ const getState = ({ getStore, getActions, setStore }) => {
           throw error;
         }
       },
+      // Update project activity compliance
+      updateProjectActivityCompliance: async (projectId, activityId, complianceValue) => {
+        try {
+          if (!projectId || !activityId) {
+            throw new Error("Project ID and Activity ID are required");
+          }
+
+          // Convert percentage (0-100) to decimal (0.0-1.0) for backend
+          const complianceDecimal = complianceValue / 100;
+
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/projects/${projectId}/activities/${activityId}/progress`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                real_compliance: complianceDecimal
+              }),
+            }
+          );
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to update activity compliance");
+          }
+
+          const data = await response.json();
+          console.log("Activity compliance updated successfully:", data);
+          return data;
+        } catch (error) {
+          console.error("Error updating activity compliance:", error);
+          return {
+            error: true,
+            message: error.message || "Failed to update activity compliance"
+          };
+        }
+      },
     },
   };
 };

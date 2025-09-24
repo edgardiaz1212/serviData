@@ -65,26 +65,15 @@ const ProjectDetailPage = () => {
 
     const handleUpdateCompliance = async (activityId, complianceValue) => {
         try {
-            const response = await fetch(`${process.env.BACKEND_URL}/api/projects/${id}/activities/${activityId}/progress`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify({
-                    real_compliance: complianceValue
-                })
-            });
+            const result = await actions.updateProjectActivityCompliance(id, activityId, complianceValue);
 
-            if (response.ok) {
-                const updatedActivity = await response.json();
+            if (result && !result.error) {
                 toast.success('Cumplimiento actualizado correctamente');
-
                 // Update the project data to reflect the changes
                 await fetchProject();
             } else {
-                const errorData = await response.json();
-                toast.error(`Error al actualizar cumplimiento: ${errorData.message || 'Error desconocido'}`);
+                const errorMessage = result?.message || 'Error desconocido';
+                toast.error(`Error al actualizar cumplimiento: ${errorMessage}`);
             }
         } catch (error) {
             toast.error('Error de conexión al actualizar cumplimiento');
