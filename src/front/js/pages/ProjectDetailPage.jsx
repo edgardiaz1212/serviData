@@ -278,6 +278,23 @@ const ProjectDetailPage = () => {
                                                         <p className="mb-1"><span className="fw-medium">Fin:</span> {phase.end_date ? new Date(phase.end_date).toLocaleDateString() : 'No definido'}</p>
                                                     </div>
                                                 </div>
+
+                                                {/* Activities List */}
+                                                {phase.activities && phase.activities.length > 0 && (
+                                                    <div className="mt-3">
+                                                        <h6 className="fw-medium text-muted mb-2">Actividades de la Fase:</h6>
+                                                        <div className="list-group list-group-flush">
+                                                            {phase.activities.map((activity, activityIndex) => (
+                                                                <div key={activityIndex} className="list-group-item border-0 px-0 py-1">
+                                                                    <div className="d-flex align-items-center">
+                                                                        <span className="badge bg-primary me-2">Actividad {activityIndex + 1}</span>
+                                                                        <span className="fw-medium">{activity.description}</span>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -293,6 +310,7 @@ const ProjectDetailPage = () => {
                                 <table className="table table-striped">
                                     <thead className="table-light">
                                         <tr>
+                                            <th className="fw-medium">N° Actividad</th>
                                             <th className="fw-medium">Actividad</th>
                                             <th className="fw-medium">Fase</th>
                                             <th className="fw-medium">Duración</th>
@@ -305,8 +323,11 @@ const ProjectDetailPage = () => {
                                     </thead>
                                     <tbody>
                                         {project.phases && project.phases.flatMap(phase =>
-                                            phase.activities ? phase.activities.map((activity, index) => (
-                                                <tr key={`${phase.id}-${index}`}>
+                                            phase.activities ? phase.activities.map((activity, activityIndex) => (
+                                                <tr key={`${phase.id}-${activityIndex}`}>
+                                                    <td className="fw-medium">
+                                                        <span className="badge bg-primary">Actividad {activityIndex + 1}</span>
+                                                    </td>
                                                     <td className="fw-medium">{activity.description}</td>
                                                     <td>{phase.name}</td>
                                                     <td>{activity.duration} días</td>
