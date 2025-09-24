@@ -251,23 +251,7 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
                         required
                     />
                 </div>
-                <div className="col-12 col-md-6">
-                    <label className="form-label fw-medium">
-                        Duración Total (días)
-                    </label>
-                    <input
-                        type="number"
-                        name="total_duration"
-                        value={formData.total_duration}
-                        className="form-control"
-                        min="0"
-                        readOnly
-                        required
-                    />
-                    <small className="form-text text-muted">
-                        Calculado automáticamente desde las fechas de inicio y fin
-                    </small>
-                </div>
+               
                 <div className="col-12 col-md-6">
                     <label className="form-label fw-medium">
                         Fecha de Inicio
@@ -292,6 +276,24 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
                         className="form-control"
                     />
                 </div>
+                <div className="col-12 col-md-6">
+                    <label className="form-label fw-medium">
+                        Duración Total (días)
+                    </label>
+                    <input
+                        type="number"
+                        name="total_duration"
+                        value={formData.total_duration}
+                        className="form-control"
+                        min="0"
+                        readOnly
+                        required
+                    />
+                    <small className="form-text text-muted">
+                        Calculado automáticamente desde las fechas de inicio y fin
+                    </small>
+                </div>
+
             </div>
 
             <div>
@@ -321,7 +323,7 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
                             </div>
 
                             <div className="row g-3 mb-4">
-                                <div className="col-12 col-md-4">
+                                <div className="col-12 col-md-6">
                                     <label className="form-label fw-medium">
                                         Nombre
                                     </label>
@@ -333,7 +335,7 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
                                         required
                                     />
                                 </div>
-                                <div className="col-12 col-md-4">
+                                <div className="col-12 col-md-6">
                                     <label className="form-label fw-medium">
                                         Orden
                                     </label>
@@ -346,25 +348,7 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
                                         required
                                     />
                                 </div>
-                                <div className="col-12 col-md-4">
-                                    <label className="form-label fw-medium">
-                                        Duración (días)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={phase.duration}
-                                        onChange={(e) => handlePhaseChange(phaseIndex, 'duration', parseInt(e.target.value))}
-                                        className="form-control"
-                                        min="0"
-                                        required={!phase.start_date || !phase.end_date}
-                                        readOnly={phase.start_date && phase.end_date}
-                                    />
-                                    {phase.start_date && phase.end_date && (
-                                        <small className="form-text text-muted">
-                                            Calculado automáticamente desde las fechas de inicio y fin
-                                        </small>
-                                    )}
-                                </div>
+                              
                                 <div className="col-12 col-md-6">
                                     <label className="form-label fw-medium">
                                         Fecha Inicio
@@ -386,6 +370,25 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
                                         onChange={(e) => handlePhaseChange(phaseIndex, 'end_date', e.target.value)}
                                         className="form-control"
                                     />
+                                </div>
+                                <div className="col-12 col-md-6">
+                                    <label className="form-label fw-medium">
+                                        Duración (días)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={phase.duration}
+                                        onChange={(e) => handlePhaseChange(phaseIndex, 'duration', parseInt(e.target.value))}
+                                        className="form-control"
+                                        min="0"
+                                        required={!phase.start_date || !phase.end_date}
+                                        readOnly={phase.start_date && phase.end_date}
+                                    />
+                                    {phase.start_date && phase.end_date && (
+                                        <small className="form-text text-muted">
+                                            Calculado automáticamente desde las fechas de inicio y fin
+                                        </small>
+                                    )}
                                 </div>
                             </div>
 
@@ -428,25 +431,7 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
                                                         required
                                                     />
                                                 </div>
-                                                <div className="col-12 col-md-6">
-                                                    <label className="form-label fw-medium small">
-                                                        Duración (días)
-                                                    </label>
-                                                    <input
-                                                        type="number"
-                                                        value={activity.duration}
-                                                        onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'duration', parseInt(e.target.value))}
-                                                        className="form-control form-control-sm"
-                                                        min="0"
-                                                        required={!activity.planned_start || !activity.planned_end}
-                                                        readOnly={activity.planned_start && activity.planned_end}
-                                                    />
-                                                    {activity.planned_start && activity.planned_end && (
-                                                        <small className="form-text text-muted">
-                                                            Calculado automáticamente desde las fechas planificadas
-                                                        </small>
-                                                    )}
-                                                </div>
+                                               
                                                 <div className="col-12 col-md-6">
                                                     <label className="form-label fw-medium small">
                                                         Predecesores
@@ -479,6 +464,25 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
                                                         onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'planned_end', e.target.value)}
                                                         className="form-control form-control-sm"
                                                     />
+                                                </div>
+                                                <div className="col-12 col-md-6">
+                                                    <label className="form-label fw-medium small">
+                                                        Duración (días)
+                                                    </label>
+                                                    <input
+                                                        type="number"
+                                                        value={activity.duration}
+                                                        onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'duration', parseInt(e.target.value))}
+                                                        className="form-control form-control-sm"
+                                                        min="0"
+                                                        required={!activity.planned_start || !activity.planned_end}
+                                                        readOnly={activity.planned_start && activity.planned_end}
+                                                    />
+                                                    {activity.planned_start && activity.planned_end && (
+                                                        <small className="form-text text-muted">
+                                                            Calculado automáticamente desde las fechas planificadas
+                                                        </small>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
