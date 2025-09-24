@@ -1,14 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { Context } from '../../store/appContext';
 
-const ProjectForm = ({ project, onSave, onCancel }) => {
+const ProjectForm = ({ project, onSave, onCancel, currentUser }) => {
+    const { store, actions } = useContext(Context);
     const [formData, setFormData] = useState({
         name: '',
         num_phases: 1,
         start_date: '',
         end_date: '',
         total_duration: 0,
+        user_id: currentUser ? currentUser.id : null,
         phases: []
     });
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (project) {
@@ -18,10 +22,33 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
                 start_date: project.start_date ? project.start_date.split('T')[0] : '',
                 end_date: project.end_date ? project.end_date.split('T')[0] : '',
                 total_duration: project.total_duration || 0,
+                user_id: project.user_id || (currentUser ? currentUser.id : null),
                 phases: project.phases || []
             });
+        } else if (currentUser) {
+            // For new projects, set the current user as default
+            setFormData(prev => ({
+                ...prev,
+                user_id: currentUser.id
+            }));
         }
-    }, [project]);
+    }, [project, currentUser]);
+
+    // Fetch users for assignment
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                setLoading(true);
+                await actions.fetchUsers();
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUsers();
+    }, []); // Empty dependency array - only run once on mount
 
     const calculateWorkingDays = (startDate, endDate) => {
         if (!startDate || !endDate) return 0;
@@ -291,6 +318,35 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
                     />
                     <small className="form-text text-muted">
                         Calculado automáticamente desde las fechas de inicio y fin
+                    </small>
+                </div>
+
+                <div className="col-12 col-md-6">
+                    <label className="form-label fw-medium">
+                        Propietario del Proyecto
+                    </label>
+                    <select
+                        name="user_id"
+                        value={formData.user_id || ''}
+                        onChange={handleInputChange}
+                        className="form-select"
+                        required
+                        disabled={loading}
+                    >
+                        <option value="">Seleccionar propietario...</option>
+                        {store.users.map(user => (
+                            <option key={user.id} value={user.id}>
+                                {user.username} ({user.role})
+                            </option>
+                        ))}
+                    </select>
+                    {loading && (
+                        <small className="form-text text-muted">
+                            Cargando usuarios...
+                        </small>
+                    )}
+                    <small className="form-text text-muted">
+                        El propietario puede editar el proyecto y ajustar porcentajes de cumplimiento
                     </small>
                 </div>
 

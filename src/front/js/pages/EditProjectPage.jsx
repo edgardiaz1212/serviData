@@ -152,6 +152,7 @@ const EditProjectPage = () => {
                         project={project}
                         onSave={handleSave}
                         onCancel={handleCancel}
+                        currentUser={actions.user}
                     />
                 </div>
             </div>

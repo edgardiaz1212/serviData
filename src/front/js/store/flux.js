@@ -281,6 +281,25 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error during fetching users data", error);
         }
       },
+      fetchUsers: async () => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/users`
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            setStore({ users: data });
+            return data;
+          } else {
+            console.error("Failed to fetch users data");
+            return [];
+          }
+        } catch (error) {
+          console.log("Error during fetching users data", error);
+          return [];
+        }
+      },
       deleteUser: async (userId) => {
         try {
           const response = await getActions().fetchWithToken(
