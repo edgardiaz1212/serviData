@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Context } from '../store/appContext.js';
 import ProjectProgressChart from '../component/project/ProjectProgressChart.jsx';
+import PhaseProgressBar from '../component/project/PhaseProgressBar.jsx';
 import { ArrowLeft, Edit, Plus, AlertTriangle, CheckCircle, Clock, TrendingUp } from 'lucide-react';
 import { toast } from 'react-toastify';
 
@@ -262,6 +263,10 @@ const ProjectDetailPage = () => {
                                                     <h4 className="h6 fw-medium mb-0">{phase.name}</h4>
                                                     <span className="badge bg-secondary">Orden: {phase.order}</span>
                                                 </div>
+
+                                                {/* Progress Bar Component */}
+                                                <PhaseProgressBar phase={phase} />
+
                                                 <div className="row g-3">
                                                     <div className="col-md-4">
                                                         <p className="mb-1"><span className="fw-medium">Duración:</span> {phase.duration} días</p>
