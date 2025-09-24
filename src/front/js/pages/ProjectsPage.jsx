@@ -36,7 +36,7 @@ const ProjectsPage = () => {
     };
 
     const handleCreateProject = () => {
-        navigate('/projects/new');
+        navigate('/new-project');
     };
 
     const filteredProjects = projects.filter(project =>

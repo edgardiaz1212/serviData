@@ -51,9 +51,9 @@ const Layout = () => {
                             <Route path="/aprovisionados" element={<Aprovisionados />} />
                             <Route path="/reportes" element={<Reportes />} />
                             <Route path="/projects" element={<ProjectsPage />} />
-                            <Route path="/projects/new" element={<EditProjectPage />} />
-                            <Route path="/projects/:id" element={<ProjectDetailPage />} />
+                            <Route path="/new-project" element={<EditProjectPage />} />
                             <Route path="/projects/:id/edit" element={<EditProjectPage />} />
+                            <Route path="/projects/:id" element={<ProjectDetailPage />} />
                             <Route path="/*" element={<NotFound />} />
                         </Routes>
                     </div>

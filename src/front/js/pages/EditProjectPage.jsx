@@ -11,9 +11,8 @@ const EditProjectPage = () => {
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-
-    const isNewProject = id === 'new';
-
+console.log(id);
+    const isNewProject = !id;
     useEffect(() => {
         if (!isNewProject) {
             fetchProject();

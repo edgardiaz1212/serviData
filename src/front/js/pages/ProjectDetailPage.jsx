@@ -16,9 +16,12 @@ const ProjectDetailPage = () => {
     useEffect(() => {
         if (id && id !== 'new') {
             fetchProject();
+        } else if (id === 'new') {
+            // Redirect to EditProjectPage for new projects
+            navigate('/new-project', { replace: true });
         }
     }, [id]);
-
+console.log(id)
     const fetchProject = async () => {
         try {
             const data = await actions.fetchProjectById(id);
