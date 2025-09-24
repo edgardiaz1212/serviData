@@ -1086,9 +1086,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             throw new Error("Project ID and Activity ID are required");
           }
 
-          // Convert percentage (0-100) to decimal (0.0-1.0) for backend
-          const complianceDecimal = complianceValue / 100;
-
+          // Send percentage value directly (0-100) - backend expects percentage, not decimal
           const response = await getActions().fetchWithToken(
             `${process.env.REACT_APP_BACKEND_URL}/projects/${projectId}/activities/${activityId}/progress`,
             {
@@ -1097,7 +1095,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                real_compliance: complianceDecimal
+                real_compliance: complianceValue
               }),
             }
           );
