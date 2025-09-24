@@ -52,14 +52,20 @@ const ProjectDetailPage = () => {
             if (!prevProject) return prevProject;
 
             const updatedProject = { ...prevProject };
-            updatedProject.phases = updatedProject.phases.map(phase => ({
-                ...phase,
-                activities: phase.activities.map(activity =>
-                    activity.id === activityId
-                        ? { ...activity, real_compliance: newValue }
-                        : activity
-                )
-            }));
+            updatedProject.phases = updatedProject.phases.map(phase => {
+                // Only update activities if this phase contains the activity
+                const activityExists = phase.activities?.some(activity => activity.id === activityId);
+                if (!activityExists) return phase;
+
+                return {
+                    ...phase,
+                    activities: phase.activities.map(activity =>
+                        activity.id === activityId
+                            ? { ...activity, real_compliance: newValue }
+                            : activity
+                    )
+                };
+            });
             return updatedProject;
         });
     };
