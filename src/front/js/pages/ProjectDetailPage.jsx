@@ -13,6 +13,7 @@ const ProjectDetailPage = () => {
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('overview');
+    const isOwner = project && actions.user && project.owner_id === actions.user.id;
 
     useEffect(() => {
         if (id && id !== 'new') {
@@ -158,13 +159,15 @@ const ProjectDetailPage = () => {
                     </button>
                     <h1 className="h2 fw-bold text-dark mb-0">{project.name}</h1>
                 </div>
-                <button
-                    onClick={handleEdit}
-                    className="btn btn-primary d-flex align-items-center gap-2"
-                >
-                    <Edit size={20} />
-                    Editar
-                </button>
+                {isOwner && (
+                    <button
+                        onClick={handleEdit}
+                        className="btn btn-primary d-flex align-items-center gap-2"
+                    >
+                        <Edit size={20} />
+                        Editar
+                    </button>
+                )}
             </div>
 
             {/* Project Overview Cards */}
@@ -354,25 +357,33 @@ const ProjectDetailPage = () => {
                                                     <td>{(activity.planned_percent || 0).toFixed(2)}%</td>
                                                     <td>{(activity.real_percent || 0).toFixed(2)}%</td>
                                                     <td>
-                                                        <input
-                                                            type="number"
-                                                            min="0"
-                                                            max="100"
-                                                            step="0.1"
-                                                            value={activity.real_compliance || 0}
-                                                            onChange={(e) => handleComplianceChange(activity.id, parseFloat(e.target.value) || 0)}
-                                                            className="form-control form-control-sm"
-                                                            style={{ width: '80px' }}
-                                                        />
+                                                        {isOwner ? (
+                                                            <input
+                                                                type="number"
+                                                                min="0"
+                                                                max="100"
+                                                                step="0.1"
+                                                                value={activity.real_compliance || 0}
+                                                                onChange={(e) => handleComplianceChange(activity.id, parseFloat(e.target.value) || 0)}
+                                                                className="form-control form-control-sm"
+                                                                style={{ width: '80px' }}
+                                                            />
+                                                        ) : (
+                                                            <span>{(activity.real_compliance || 0).toFixed(2)}%</span>
+                                                        )}
                                                     </td>
                                                     <td>{activity.deviation ? activity.deviation.toFixed(2) : 0}%</td>
                                                     <td>
-                                                        <button
-                                                            className="btn btn-outline-primary btn-sm"
-                                                            onClick={() => handleUpdateCompliance(activity.id, activity.real_compliance || 0)}
-                                                        >
-                                                            Actualizar
-                                                        </button>
+                                                        {isOwner ? (
+                                                            <button
+                                                                className="btn btn-outline-primary btn-sm"
+                                                                onClick={() => handleUpdateCompliance(activity.id, activity.real_compliance || 0)}
+                                                            >
+                                                                Actualizar
+                                                            </button>
+                                                        ) : (
+                                                            <span>-</span>
+                                                        )}
                                                     </td>
                                                 </tr>
                                             )) : []

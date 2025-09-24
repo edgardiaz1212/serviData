@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Context } from '../store/appContext.js';
 import ProjectForm from '../component/project/ProjectForm.jsx';
 import { ArrowLeft, Save } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 const EditProjectPage = () => {
     const { id } = useParams();
@@ -26,6 +27,12 @@ const EditProjectPage = () => {
             const data = await actions.fetchProjectById(id);
             if (data) {
                 setProject(data);
+                // Check if user is owner
+                if (actions.user && data.owner_id !== actions.user.id) {
+                    toast.error('No tienes permisos para editar este proyecto');
+                    navigate(`/projects/${id}`);
+                    return;
+                }
             } else {
                 console.error('Error fetching project');
             }
