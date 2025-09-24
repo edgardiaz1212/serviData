@@ -180,10 +180,11 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
             [field]: value
         };
 
-        // Validate activity dates are within phase range
+        // Auto-calculate activity duration when planned start or end dates change
         if (field === 'planned_start' || field === 'planned_end') {
             const activity = updatedPhases[phaseIndex].activities[activityIndex];
             if (activity.planned_start && activity.planned_end) {
+                // Validate activity dates are within phase range
                 const isValidActivityRange = validateActivityDates(
                     activity.planned_start,
                     activity.planned_end,
@@ -202,6 +203,9 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
                     }));
                     return;
                 }
+
+                // Auto-calculate duration based on planned dates
+                updatedPhases[phaseIndex].activities[activityIndex].duration = calculateWorkingDays(activity.planned_start, activity.planned_end);
             }
         }
 
@@ -434,8 +438,14 @@ const ProjectForm = ({ project, onSave, onCancel }) => {
                                                         onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'duration', parseInt(e.target.value))}
                                                         className="form-control form-control-sm"
                                                         min="0"
-                                                        required
+                                                        required={!activity.planned_start || !activity.planned_end}
+                                                        readOnly={activity.planned_start && activity.planned_end}
                                                     />
+                                                    {activity.planned_start && activity.planned_end && (
+                                                        <small className="form-text text-muted">
+                                                            Calculado automáticamente desde las fechas planificadas
+                                                        </small>
+                                                    )}
                                                 </div>
                                                 <div className="col-12 col-md-6">
                                                     <label className="form-label fw-medium small">
