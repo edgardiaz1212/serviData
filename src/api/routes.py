@@ -1819,7 +1819,7 @@ def update_activity_progress(project_id, activity_id):
             return jsonify({"message": "Activity not found"}), 404
 
         activity.real_compliance = real_compliance
-        activity.real_percent = (real_compliance / 100) * activity.planned_percent
+        activity.real_percent = real_compliance  # Store percentage directly, not as decimal
         activity.deviation = activity.real_percent - activity.planned_percent
 
         # Calculate and update accumulated deviation for the project

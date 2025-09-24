@@ -76,8 +76,22 @@ const ProjectDetailPage = () => {
 
             if (result && !result.error) {
                 toast.success('Cumplimiento actualizado correctamente');
-                // Update the project data to reflect the changes
-                await fetchProject();
+                // Update local state instead of refetching to maintain position
+                setProject(prevProject => {
+                    if (!prevProject) return prevProject;
+
+                    return {
+                        ...prevProject,
+                        phases: prevProject.phases.map(phase => ({
+                            ...phase,
+                            activities: phase.activities?.map(activity =>
+                                activity.id === activityId
+                                    ? { ...activity, real_compliance: complianceValue }
+                                    : activity
+                            ) || []
+                        }))
+                    };
+                });
             } else {
                 const errorMessage = result?.message || 'Error desconocido';
                 toast.error(`Error al actualizar cumplimiento: ${errorMessage}`);
