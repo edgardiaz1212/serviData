@@ -163,6 +163,9 @@ const getState = ({ getStore, getActions, setStore }) => {
       // Update existing project
       updateProject: async (projectId, projectData) => {
         try {
+          console.log("Updating project with ID:", projectId);
+          console.log("Project data being sent:", JSON.stringify(projectData, null, 2));
+
           const response = await getActions().fetchWithToken(
             `${process.env.REACT_APP_BACKEND_URL}/projects/${projectId}`,
             {
@@ -173,16 +176,31 @@ const getState = ({ getStore, getActions, setStore }) => {
               body: JSON.stringify(projectData),
             }
           );
+
+          console.log("Update response status:", response.status);
+          console.log("Update response headers:", Object.fromEntries(response.headers.entries()));
+
           if (response.ok) {
             const data = await response.json();
+            console.log("Update response data:", JSON.stringify(data, null, 2));
             return data;
           } else {
-            console.error("Failed to update project");
-            return null;
+            const errorText = await response.text();
+            console.error("Failed to update project:", response.status, errorText);
+            // Return the error response instead of null to help with debugging
+            return {
+              error: true,
+              status: response.status,
+              message: errorText || "Failed to update project"
+            };
           }
         } catch (error) {
           console.error("Error updating project:", error);
-          return null;
+          console.error("Error details:", error.message);
+          return {
+            error: true,
+            message: error.message || "Network error occurred"
+          };
         }
       },
       // Gestión de Usuarios

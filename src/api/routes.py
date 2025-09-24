@@ -1744,11 +1744,54 @@ def update_project(project_id):
             elif key in ['start_date', 'end_date'] and value:
                 setattr(project, key, datetime.fromisoformat(value))
 
+        # Handle phases and activities
+        phases_data = data.get('phases', [])
+        if phases_data:
+            # Delete existing phases (activities will be cascade deleted)
+            project.phases.clear()
+
+            # Create new phases and activities
+            for phase_data in phases_data:
+                if not phase_data.get('name'):
+                    continue  # Skip phases without names
+
+                phase = Phase(
+                    project_id=project.id,
+                    name=phase_data['name'],
+                    order=phase_data.get('order', 0),
+                    start_date=datetime.fromisoformat(phase_data['start_date']) if phase_data.get('start_date') else None,
+                    end_date=datetime.fromisoformat(phase_data['end_date']) if phase_data.get('end_date') else None,
+                    duration=phase_data.get('duration', 0)
+                )
+                db.session.add(phase)
+                db.session.commit()
+
+                for activity_data in phase_data.get('activities', []):
+                    if not activity_data.get('description'):
+                        continue  # Skip activities without descriptions
+
+                    activity = Activity(
+                        phase_id=phase.id,
+                        description=activity_data['description'],
+                        duration=activity_data.get('duration', 0),
+                        predecessors=activity_data.get('predecessors'),
+                        planned_start=datetime.fromisoformat(activity_data['planned_start']) if activity_data.get('planned_start') else None,
+                        planned_end=datetime.fromisoformat(activity_data['planned_end']) if activity_data.get('planned_end') else None,
+                        planned_percent=activity_data.get('planned_percent', 0.0),
+                        real_compliance=activity_data.get('real_compliance', 0.0)
+                    )
+                    db.session.add(activity)
+                db.session.commit()
+
+            # Calculate planned % for activities
+            calculate_planned_percentages(project.id)
+
         db.session.commit()
         return jsonify({"message": "Project updated successfully", "project": project.serialize()}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": str(e)}), 500
+        logging.error(f"Error updating project {project_id}: {str(e)}")
+        return jsonify({"error": "An unexpected error occurred while updating the project"}), 500
 
 @api.route('/projects/<int:project_id>', methods=['DELETE'])
 @jwt_required()

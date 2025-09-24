@@ -11,7 +11,7 @@ const EditProjectPage = () => {
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-console.log(id);
+
     const isNewProject = !id;
     useEffect(() => {
         if (!isNewProject) {
@@ -45,14 +45,36 @@ console.log(id);
                 console.log('Project creation response:', savedProject); // Debug logging
             } else {
                 savedProject = await actions.updateProject(id, formData);
+                console.log('Project update response:', savedProject); // Debug logging
             }
+
+            // Debug: Log the exact structure of the response
+            console.log('Full response structure:', JSON.stringify(savedProject, null, 2));
 
             // Handle nested response structure from backend
             let projectId;
             if (savedProject && savedProject.project && savedProject.project.id) {
                 projectId = savedProject.project.id;
+                console.log('Found project ID in nested structure:', projectId);
             } else if (savedProject && savedProject.id) {
                 projectId = savedProject.id;
+                console.log('Found project ID in direct structure:', projectId);
+            } else if (savedProject && typeof savedProject === 'object') {
+                // Try to find ID in any nested object
+                const findId = (obj) => {
+                    if (obj && typeof obj === 'object') {
+                        if (obj.id) return obj.id;
+                        for (const key in obj) {
+                            if (obj[key] && typeof obj[key] === 'object') {
+                                const found = findId(obj[key]);
+                                if (found) return found;
+                            }
+                        }
+                    }
+                    return null;
+                };
+                projectId = findId(savedProject);
+                console.log('Found project ID by searching:', projectId);
             }
 
             if (projectId) {
@@ -60,6 +82,8 @@ console.log(id);
                 navigate(`/projects/${projectId}`);
             } else {
                 console.error('Error saving project - no valid response:', savedProject);
+                console.error('Response type:', typeof savedProject);
+                console.error('Response keys:', savedProject ? Object.keys(savedProject) : 'null/undefined');
                 if (isNewProject) {
                     alert('Error al crear el proyecto. Por favor, verifica los datos e intenta nuevamente.');
                 } else {
@@ -68,6 +92,7 @@ console.log(id);
             }
         } catch (error) {
             console.error('Error saving project:', error);
+            console.error('Error details:', error.message);
             if (isNewProject) {
                 alert('Error al crear el proyecto. Por favor, verifica tu conexión e intenta nuevamente.');
             } else {
