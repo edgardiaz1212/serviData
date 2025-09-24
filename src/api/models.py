@@ -160,6 +160,9 @@ class User(db.Model):
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }
 
+    # Add relationship to projects
+    projects = db.relationship("Project", back_populates="user")
+
 class Documento(db.Model):
     __tablename__ = 'documentos'
     id = db.Column(db.Integer, primary_key=True)
@@ -208,10 +211,12 @@ class Project(db.Model):
     end_date = db.Column(db.DateTime)
     total_duration = db.Column(db.Integer)  # Total days
     status = db.Column(db.String, default="En progreso")  # Completed, Near completion, etc.
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True)  # Owner of the project
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     phases = db.relationship("Phase", back_populates="project", cascade="all, delete-orphan")
+    user = db.relationship("User", back_populates="projects")
 
     def serialize(self):
         # Calculate project-level indicators
@@ -235,6 +240,15 @@ class Project(db.Model):
         compliance = total_compliance / activity_count if activity_count > 0 else 0
         accumulated_deviation = total_deviation / activity_count if activity_count > 0 else 0
 
+        # Serialize user info to avoid recursion depth issues
+        user_info = None
+        if self.user:
+            user_info = {
+                'id': self.user.id,
+                'username': self.user.username,
+                'role': self.user.role
+            }
+
         return {
             'id': self.id,
             'name': self.name,
@@ -243,6 +257,8 @@ class Project(db.Model):
             'end_date': self.end_date.isoformat() if self.end_date else None,
             'total_duration': self.total_duration,
             'status': self.status,
+            'user_id': self.user_id,
+            'user': user_info,  # Owner information
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
             'phases': [phase.serialize() for phase in self.phases],

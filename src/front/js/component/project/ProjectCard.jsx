@@ -67,6 +67,11 @@ const ProjectCard = ({ project, onViewDetails }) => {
                     <p className="card-text text-muted mb-1">
                         <strong>Duración total:</strong> {project.total_duration} días
                     </p>
+                    {project.user && (
+                        <p className="card-text text-muted mb-1">
+                            <strong>Propietario:</strong> {project.user.username}
+                        </p>
+                    )}
                     {project.start_date && (
                         <p className="card-text text-muted mb-1">
                             <strong>Inicio:</strong> {new Date(project.start_date).toLocaleDateString()}
