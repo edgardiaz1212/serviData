@@ -21,7 +21,7 @@ const ProjectDetailPage = () => {
             navigate('/new-project', { replace: true });
         }
     }, [id]);
-console.log(id)
+
     const fetchProject = async () => {
         try {
             const data = await actions.fetchProjectById(id);
@@ -43,6 +43,53 @@ console.log(id)
 
     const handleBack = () => {
         navigate('/projects');
+    };
+
+    const handleComplianceChange = (activityId, newValue) => {
+        // Update the local state to reflect the change immediately
+        setProject(prevProject => {
+            if (!prevProject) return prevProject;
+
+            const updatedProject = { ...prevProject };
+            updatedProject.phases = updatedProject.phases.map(phase => ({
+                ...phase,
+                activities: phase.activities.map(activity =>
+                    activity.id === activityId
+                        ? { ...activity, real_compliance: newValue }
+                        : activity
+                )
+            }));
+            return updatedProject;
+        });
+    };
+
+    const handleUpdateCompliance = async (activityId, complianceValue) => {
+        try {
+            const response = await fetch(`${process.env.BACKEND_URL}/api/projects/${id}/activities/${activityId}/progress`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({
+                    real_compliance: complianceValue
+                })
+            });
+
+            if (response.ok) {
+                const updatedActivity = await response.json();
+                toast.success('Cumplimiento actualizado correctamente');
+
+                // Update the project data to reflect the changes
+                await fetchProject();
+            } else {
+                const errorData = await response.json();
+                toast.error(`Error al actualizar cumplimiento: ${errorData.message || 'Error desconocido'}`);
+            }
+        } catch (error) {
+            toast.error('Error de conexión al actualizar cumplimiento');
+            console.error('Error updating compliance:', error);
+        }
     };
 
     const getStatusIcon = (status) => {
@@ -257,7 +304,9 @@ console.log(id)
                                             <th className="fw-medium">Duración</th>
                                             <th className="fw-medium">Planificado %</th>
                                             <th className="fw-medium">Real %</th>
+                                            <th className="fw-medium">Cumplimiento %</th>
                                             <th className="fw-medium">Desviación</th>
+                                            <th className="fw-medium">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -269,7 +318,27 @@ console.log(id)
                                                     <td>{activity.duration} días</td>
                                                     <td>{activity.planned_percent || 0}%</td>
                                                     <td>{activity.real_percent || 0}%</td>
+                                                    <td>
+                                                        <input
+                                                            type="number"
+                                                            min="0"
+                                                            max="100"
+                                                            step="0.1"
+                                                            value={activity.real_compliance || 0}
+                                                            onChange={(e) => handleComplianceChange(activity.id, parseFloat(e.target.value) || 0)}
+                                                            className="form-control form-control-sm"
+                                                            style={{ width: '80px' }}
+                                                        />
+                                                    </td>
                                                     <td>{activity.deviation ? activity.deviation.toFixed(2) : 0}%</td>
+                                                    <td>
+                                                        <button
+                                                            className="btn btn-outline-primary btn-sm"
+                                                            onClick={() => handleUpdateCompliance(activity.id, activity.real_compliance || 0)}
+                                                        >
+                                                            Actualizar
+                                                        </button>
+                                                    </td>
                                                 </tr>
                                             )) : []
                                         )}
