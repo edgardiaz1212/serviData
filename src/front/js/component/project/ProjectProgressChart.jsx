@@ -23,13 +23,13 @@ const ProjectProgressChart = ({ project }) => {
                 labels.push(label);
 
                 // Planned progress (assuming linear distribution)
-                const plannedPercent = activity.planned_percent || 0;
-                cumulativePlanned += plannedPercent;
+                const plannedPercent = Number((activity.planned_percent || 0).toFixed(2));
+                cumulativePlanned = Number((cumulativePlanned + plannedPercent).toFixed(2));
                 plannedData.push(cumulativePlanned);
 
                 // Real progress
-                const realPercent = activity.real_percent || 0;
-                cumulativeReal += realPercent;
+                const realPercent = Number((activity.real_percent || 0).toFixed(2));
+                cumulativeReal = Number((cumulativeReal + realPercent).toFixed(2));
                 realData.push(cumulativeReal);
             });
         } else {
@@ -37,12 +37,12 @@ const ProjectProgressChart = ({ project }) => {
             const label = phase.name;
             labels.push(label);
 
-            const plannedPercent = (phase.duration / project.total_duration) * 100;
-            cumulativePlanned += plannedPercent;
+            const plannedPercent = Number(((phase.duration / project.total_duration) * 100).toFixed(2));
+            cumulativePlanned = Number((cumulativePlanned + plannedPercent).toFixed(2));
             plannedData.push(cumulativePlanned);
 
-            const realPercent = (phase.duration / project.total_duration) * 100; // Placeholder
-            cumulativeReal += realPercent;
+            const realPercent = Number(((phase.duration / project.total_duration) * 100).toFixed(2)); // Placeholder
+            cumulativeReal = Number((cumulativeReal + realPercent).toFixed(2));
             realData.push(cumulativeReal);
         }
     });

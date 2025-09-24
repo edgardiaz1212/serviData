@@ -337,8 +337,8 @@ const ProjectDetailPage = () => {
                                                     <td className="fw-medium">{activity.description}</td>
                                                     <td>{phase.name}</td>
                                                     <td>{activity.duration} días</td>
-                                                    <td>{activity.planned_percent || 0}%</td>
-                                                    <td>{activity.real_percent || 0}%</td>
+                                                    <td>{(activity.planned_percent || 0).toFixed(2)}%</td>
+                                                    <td>{(activity.real_percent || 0).toFixed(2)}%</td>
                                                     <td>
                                                         <input
                                                             type="number"
