@@ -1,54 +1,49 @@
 import React from 'react';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, TimeScale } from 'chart.js';
+import 'chartjs-adapter-luxon';
 import { Line } from 'react-chartjs-2';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, TimeScale);
 
 const ProjectProgressChart = ({ project }) => {
     if (!project || !project.phases) {
         return <div className="text-center text-gray-500">No hay datos para mostrar el gráfico</div>;
     }
 
-    // Calculate cumulative planned progress
-    const plannedData = [];
-    const realData = [];
-    const labels = [];
-    let cumulativePlanned = 0;
-    let cumulativeReal = 0;
-
-    project.phases.forEach((phase, phaseIndex) => {
-        if (phase.activities && phase.activities.length > 0) {
-            phase.activities.forEach((activity, activityIndex) => {
-                const label = `${phase.name} - ${activity.description}`;
-                labels.push(label);
-
-                // Planned progress (assuming linear distribution)
-                const plannedPercent = Number((activity.planned_percent || 0).toFixed(2));
-                cumulativePlanned = Number((cumulativePlanned + plannedPercent).toFixed(2));
-                plannedData.push(cumulativePlanned);
-
-                // Real progress
-                const realPercent = Number((activity.real_percent || 0).toFixed(2));
-                cumulativeReal = Number((cumulativeReal + realPercent).toFixed(2));
-                realData.push(cumulativeReal);
+    // Collect all activities with planned_end dates
+    const activities = [];
+    project.phases.forEach(phase => {
+        if (phase.activities) {
+            phase.activities.forEach(activity => {
+                if (activity.planned_end) {
+                    activities.push(activity);
+                }
             });
-        } else {
-            // If no activities, use phase-level data
-            const label = phase.name;
-            labels.push(label);
-
-            const plannedPercent = Number(((phase.duration / project.total_duration) * 100).toFixed(2));
-            cumulativePlanned = Number((cumulativePlanned + plannedPercent).toFixed(2));
-            plannedData.push(cumulativePlanned);
-
-            const realPercent = Number(((phase.duration / project.total_duration) * 100).toFixed(2)); // Placeholder
-            cumulativeReal = Number((cumulativeReal + realPercent).toFixed(2));
-            realData.push(cumulativeReal);
         }
     });
 
+    if (activities.length === 0) {
+        return <div className="text-center text-gray-500">No hay actividades con fechas planificadas para mostrar el gráfico</div>;
+    }
+
+    // Sort activities by planned_end date
+    activities.sort((a, b) => new Date(a.planned_end) - new Date(b.planned_end));
+
+    // Calculate cumulative progress
+    let cumulativePlanned = 0;
+    let cumulativeReal = 0;
+    const plannedData = [];
+    const realData = [];
+
+    activities.forEach(activity => {
+        cumulativePlanned += activity.planned_percent || 0;
+        cumulativeReal += activity.real_compliance || 0;
+        const date = new Date(activity.planned_end);
+        plannedData.push({ x: date, y: Number(cumulativePlanned.toFixed(2)) });
+        realData.push({ x: date, y: Number(cumulativeReal.toFixed(2)) });
+    });
+
     const data = {
-        labels,
         datasets: [
             {
                 label: 'Progreso Planificado (%)',
@@ -57,6 +52,11 @@ const ProjectProgressChart = ({ project }) => {
                 backgroundColor: 'rgba(59, 130, 246, 0.1)',
                 tension: 0.1,
                 fill: false,
+                borderWidth: 2, 
+                pointRadius: 6, 
+                pointBackgroundColor: 'rgb(59, 130, 246)',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
             },
             {
                 label: 'Progreso Real (%)',
@@ -65,6 +65,11 @@ const ProjectProgressChart = ({ project }) => {
                 backgroundColor: 'rgba(16, 185, 129, 0.1)',
                 tension: 0.1,
                 fill: false,
+                borderWidth: 4, 
+                pointRadius: 8, 
+                pointBackgroundColor: 'rgb(16, 185, 129)',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 4,
             },
         ],
     };
@@ -97,9 +102,16 @@ const ProjectProgressChart = ({ project }) => {
                 }
             },
             x: {
+                type: 'time',
+                time: {
+                    unit: 'day',
+                    displayFormats: {
+                        day: 'MMM DD'
+                    }
+                },
                 title: {
                     display: true,
-                    text: 'Actividades/Fases'
+                    text: 'Fechas Planificadas'
                 }
             }
         },

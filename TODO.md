@@ -1,29 +1,13 @@
-# Task: Add real completion dates and fulfillment modal to ProjectDetailPage
-## Steps to Complete:
+# TODO: Modificar Gráfico de Progreso del Proyecto
 
-### 1. Backend Model Update
-- Add `completion_date` field to Activity model in `src/api/models.py`.
-- Update Activity `serialize` method to include `completion_date`.
+## Tareas Pendientes
+- [x] Editar src/front/js/component/project/ProjectProgressChart.jsx para cambiar eje X a fechas planificadas
+  - [x] Importar TimeScale de chart.js y registrarlo
+  - [x] Modificar cálculo de datos: aplanar actividades, ordenar por planned_end, crear etiquetas de fecha
+  - [x] Actualizar opciones del gráfico: eje X como escala de tiempo con título "Fechas Planificadas"
+- [x] Probar el gráfico en el navegador para verificar que Y es porcentaje y X son fechas
 
-### 2. Backend Route Update
-- Modify `update_activity_progress` route in `src/api/routes.py` to set `completion_date` when `real_compliance >= planned_percent`.
-
-### 3. Database Migration
-- Generate Alembic migration for new `completion_date` column.
-- Run migration to apply changes.
-
-### 4. Frontend Update
-- Update `src/front/js/pages/ProjectDetailPage.jsx`:
-  - Add "Fecha Finalización" column to activities table.
-  - Make "Cumplimiento %" input read-only.
-  - Change "Actualizar" to "Agregar Cumplimiento" button that opens modal.
-  - Implement modal for fulfillment input, capped at `planned_percent`.
-  - Display completion date if available.
-  - [x] Completed
-
-### 5. Testing
-- Test updating fulfillment via modal.
-- Verify completion date appears when 100% reached.
-- Ensure cap at planned_percent works.
-
-Progress: None completed yet.
+## Notas
+- Mantener Y como porcentaje acumulativo (0-100%)
+- Usar fechas de fin planificadas de actividades para X
+- Si no hay fechas, mostrar mensaje de "No hay datos"
