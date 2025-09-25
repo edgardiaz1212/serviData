@@ -7,7 +7,7 @@ from api.models import db, User, Cliente, Servicio, Documento
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from sqlalchemy import func, extract
 import logging
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
@@ -1819,9 +1819,21 @@ def update_activity_progress(project_id, activity_id):
         if not activity:
             return jsonify({"message": "Activity not found"}), 404
 
+        # Cap real_compliance at 100%
+        if real_compliance > 100:
+            real_compliance = 100.0
+
         activity.real_compliance = real_compliance
         activity.real_percent = real_compliance  # Store percentage directly, not as decimal
         activity.deviation = activity.real_percent - activity.planned_percent
+
+        # Set completion_date and update status if activity is fully completed
+        if real_compliance >= 100:
+            activity.completion_date = datetime.now(timezone.utc)
+            activity.status = "Completado"
+        else:
+            activity.completion_date = None
+            activity.status = "En progreso"
 
         # Calculate and update accumulated deviation for the project
         total_deviation = update_accumulated_deviations(project_id)

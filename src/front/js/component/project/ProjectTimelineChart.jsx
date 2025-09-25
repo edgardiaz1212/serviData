@@ -34,90 +34,115 @@ const ProjectTimelineChart = ({ project, phases }) => {
 
     return (
         <div className="project-timeline">
-            <h6 className="mb-3">Timeline del Proyecto</h6>
-            <div className="timeline-container position-relative" style={{ minHeight: '80px', backgroundColor: '#f8f9fa', borderRadius: '4px', padding: '5px' }}>
-                {sortedPhases.map((phase, index) => {
-                    if (!phase.start_date || !phase.end_date) return null;
+            <h6 className="mb-3">Timeline del Proyecto (Gantt Estilo)</h6>
+            <div className="timeline-container" style={{ backgroundColor: '#f8f9fa', borderRadius: '4px', padding: '10px' }}>
+                {/* Project timeline header */}
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                    <small className="text-muted fw-bold">Proyecto: {project.name || 'Proyecto'}</small>
+                    <div className="d-flex justify-content-between w-100 mx-3">
+                        <small className="text-muted">{project.start_date}</small>
+                        <small className="text-muted">{project.end_date}</small>
+                    </div>
+                </div>
+                {/* Stacked phases */}
+                <div className="phases-stack">
+                    {sortedPhases.map((phase, index) => {
+                        if (!phase.start_date || !phase.end_date) return null;
 
-                    const phaseStart = new Date(phase.start_date);
-                    const phaseEnd = new Date(phase.end_date);
-                    const phaseDuration = phaseEnd - phaseStart;
+                        const phaseStart = new Date(phase.start_date);
+                        const phaseEnd = new Date(phase.end_date);
+                        const phaseDuration = phaseEnd - phaseStart;
 
-                    if (phaseDuration <= 0) return null;
+                        if (phaseDuration <= 0) return null;
 
-                    const leftPercent = ((phaseStart - projectStart) / totalDuration) * 100;
-                    const widthPercent = (phaseDuration / totalDuration) * 100;
+                        const phaseColor = colors[index % colors.length];
 
-                    const phaseColor = colors[index % colors.length];
-                    const darkerColor = phaseColor; // or calculate darker
-
-                    return (
-                        <div
-                            key={index}
-                            className="phase-bar position-absolute"
-                            style={{
-                                left: `${leftPercent}%`,
-                                width: `${widthPercent}%`,
-                                top: '5px',
-                                height: '30px',
-                                backgroundColor: phaseColor,
-                                borderRadius: '2px',
-                                border: '1px solid #fff',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                color: 'white',
-                                fontSize: '10px',
-                                fontWeight: 'bold',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                                padding: '2px'
-                            }}
-                            title={`${phase.name}: ${phase.start_date} - ${phase.end_date}`}
-                        >
-                            <div>{phase.name}</div>
-                            {/* Activities within phase */}
-                            {phase.activities && phase.activities.length > 0 && (
-                                <div className="activities-container position-relative w-100" style={{ height: '10px', marginTop: '2px' }}>
-                                    {phase.activities.map((activity, actIndex) => {
-                                        if (!activity.planned_start || !activity.planned_end) return null;
-
-                                        const actStart = new Date(activity.planned_start);
-                                        const actEnd = new Date(activity.planned_end);
-                                        const actDuration = actEnd - actStart;
-
-                                        if (actDuration <= 0) return null;
-
-                                        const actLeftPercent = ((actStart - phaseStart) / phaseDuration) * 100;
-                                        const actWidthPercent = (actDuration / phaseDuration) * 100;
-
-                                        return (
-                                            <div
-                                                key={actIndex}
-                                                className="activity-bar position-absolute"
-                                                style={{
-                                                    left: `${actLeftPercent}%`,
-                                                    width: `${actWidthPercent}%`,
-                                                    height: '8px',
-                                                    backgroundColor: 'rgba(255,255,255,0.8)',
-                                                    borderRadius: '1px',
-                                                    top: '1px'
-                                                }}
-                                                title={`${activity.description}: ${activity.planned_start} - ${activity.planned_end}`}
-                                            ></div>
-                                        );
-                                    })}
+                        return (
+                            <div key={index} className="phase-row mb-3" style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
+                                {/* Phase label */}
+                                <div className="phase-label me-3" style={{ minWidth: '120px', fontSize: '12px', fontWeight: 'bold', color: phaseColor }}>
+                                    Fase {phase.order || index + 1}: {phase.name}
                                 </div>
-                            )}
-                        </div>
-                    );
-                })}
-            </div>
-            <div className="d-flex justify-content-between mt-2">
-                <small className="text-muted">{project.start_date}</small>
-                <small className="text-muted">{project.end_date}</small>
+                                {/* Phase bar container */}
+                                <div className="phase-bar-container position-relative flex-grow-1" style={{ height: '40px', backgroundColor: '#e9ecef', borderRadius: '4px', overflow: 'hidden' }}>
+                                    {/* Phase background bar */}
+                                    <div
+                                        className="position-absolute"
+                                        style={{
+                                            left: `${((phaseStart - projectStart) / totalDuration) * 100}%`,
+                                            width: `${(phaseDuration / totalDuration) * 100}%`,
+                                            height: '100%',
+                                            backgroundColor: phaseColor + '20', // Semi-transparent
+                                            borderLeft: `2px solid ${phaseColor}`,
+                                            borderRight: `2px solid ${phaseColor}`
+                                        }}
+                                    />
+                                    {/* Activities within phase */}
+                                    {phase.activities && phase.activities.length > 0 ? (
+                                        phase.activities.map((activity, actIndex) => {
+                                            if (!activity.planned_start || !activity.planned_end) return null;
+
+                                            const actStart = new Date(activity.planned_start);
+                                            const actEnd = new Date(activity.planned_end);
+                                            const actDuration = actEnd - actStart;
+
+                                            if (actDuration <= 0 || actStart < phaseStart || actEnd > phaseEnd) return null;
+
+                                            const phaseLeft = ((phaseStart - projectStart) / totalDuration) * 100;
+                                            const phaseWidth = (phaseDuration / totalDuration) * 100;
+                                            const relativeActLeft = ((actStart - phaseStart) / phaseDuration) * phaseWidth;
+                                            const relativeActWidth = (actDuration / phaseDuration) * phaseWidth;
+
+                                            const actLeft = phaseLeft + relativeActLeft;
+                                            const actWidth = relativeActWidth;
+
+                                            return (
+                                                <div
+                                                    key={actIndex}
+                                                    className="activity-bar position-absolute"
+                                                    style={{
+                                                        left: `${actLeft}%`,
+                                                        width: `${actWidth}%`,
+                                                        height: '70%',
+                                                        backgroundColor: phaseColor,
+                                                        borderRadius: '2px',
+                                                        top: '15%',
+                                                        border: '1px solid #fff',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontSize: '8px',
+                                                        color: 'white',
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap',
+                                                        padding: '0 2px'
+                                                    }}
+                                                    title={`${activity.description}: ${activity.planned_start} - ${activity.planned_end} (${activity.duration} días)`}
+                                                >
+                                                    {activity.description.length > 10 ? `${activity.description.substring(0, 10)}...` : activity.description}
+                                                </div>
+                                            );
+                                        })
+                                    ) : (
+                                        <div className="position-absolute top-50 start-50 translate-middle text-muted small">
+                                            Sin actividades
+                                        </div>
+                                    )}
+                                </div>
+                                {/* Phase dates */}
+                                <div className="ms-3 text-muted small" style={{ minWidth: '100px', textAlign: 'right' }}>
+                                    {phase.start_date.split('T')[0]} - {phase.end_date.split('T')[0]}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+                {sortedPhases.length === 0 && (
+                    <div className="text-center text-muted py-4">
+                        <small>Agrega fases para ver el timeline</small>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -13,6 +13,10 @@ const ProjectDetailPage = () => {
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('overview');
+    const [showFulfillmentModal, setShowFulfillmentModal] = useState(false);
+    const [selectedActivity, setSelectedActivity] = useState(null);
+    const [fulfillmentValue, setFulfillmentValue] = useState('');
+    const [completionDate, setCompletionDate] = useState('');
     const isOwner = project && store.user && project.user_id === store.user.id;
 
     useEffect(() => {
@@ -47,33 +51,9 @@ const ProjectDetailPage = () => {
         navigate('/projects');
     };
 
-    const handleComplianceChange = (activityId, newValue) => {
-        // Update the local state to reflect the change immediately
-        setProject(prevProject => {
-            if (!prevProject) return prevProject;
-
-            const updatedProject = { ...prevProject };
-            updatedProject.phases = updatedProject.phases.map(phase => {
-                // Only update activities if this phase contains the activity
-                const activityExists = phase.activities?.some(activity => activity.id === activityId);
-                if (!activityExists) return phase;
-
-                return {
-                    ...phase,
-                    activities: phase.activities.map(activity =>
-                        activity.id === activityId
-                            ? { ...activity, real_compliance: newValue }
-                            : activity
-                    )
-                };
-            });
-            return updatedProject;
-        });
-    };
-
-    const handleUpdateCompliance = async (activityId, complianceValue) => {
+    const handleUpdateCompliance = async (activityId, complianceValue, completionDate = null) => {
         try {
-            const result = await actions.updateProjectActivityCompliance(id, activityId, complianceValue);
+            const result = await actions.updateProjectActivityCompliance(id, activityId, complianceValue, completionDate);
 
             if (result && !result.error) {
                 toast.success('Cumplimiento actualizado correctamente');
@@ -87,7 +67,7 @@ const ProjectDetailPage = () => {
                             ...phase,
                             activities: phase.activities?.map(activity =>
                                 activity.id === activityId
-                                    ? { ...activity, real_compliance: complianceValue }
+                                    ? { ...activity, real_compliance: complianceValue, completion_date: completionDate }
                                     : activity
                             ) || []
                         }))
@@ -341,6 +321,7 @@ const ProjectDetailPage = () => {
                                             <th className="fw-medium">Real %</th>
                                             <th className="fw-medium">Cumplimiento %</th>
                                             <th className="fw-medium">Desviación</th>
+                                            <th className="fw-medium">Fecha Finalización</th>
                                             <th className="fw-medium">Acciones</th>
                                         </tr>
                                     </thead>
@@ -364,8 +345,8 @@ const ProjectDetailPage = () => {
                                                                 max="100"
                                                                 step="0.1"
                                                                 value={activity.real_compliance || 0}
-                                                                onChange={(e) => handleComplianceChange(activity.id, parseFloat(e.target.value) || 0)}
-                                                                className="form-control form-control-sm"
+                                                                readOnly
+                                                                className="form-control form-control-sm bg-light"
                                                                 style={{ width: '80px' }}
                                                             />
                                                         ) : (
@@ -374,12 +355,20 @@ const ProjectDetailPage = () => {
                                                     </td>
                                                     <td>{activity.deviation ? activity.deviation.toFixed(2) : 0}%</td>
                                                     <td>
+                                                        {activity.completion_date ? new Date(activity.completion_date).toLocaleDateString('es-ES') : '-'}
+                                                    </td>
+                                                    <td>
                                                         {isOwner ? (
                                                             <button
                                                                 className="btn btn-outline-primary btn-sm"
-                                                                onClick={() => handleUpdateCompliance(activity.id, activity.real_compliance || 0)}
+                                                                onClick={() => {
+                                                                    setSelectedActivity(activity);
+                                                                    setFulfillmentValue(activity.real_compliance || 0);
+                                                                    setCompletionDate(activity.completion_date ? new Date(activity.completion_date).toISOString().split('T')[0] : '');
+                                                                    setShowFulfillmentModal(true);
+                                                                }}
                                                             >
-                                                                Actualizar
+                                                                Agregar Cumplimiento
                                                             </button>
                                                         ) : (
                                                             <span>-</span>
@@ -412,6 +401,86 @@ const ProjectDetailPage = () => {
                     )}
                 </div>
             </div>
+
+            {/* Fulfillment Modal */}
+            {showFulfillmentModal && selectedActivity && (
+                <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex="-1">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Agregar Cumplimiento</h5>
+                                <button
+                                    type="button"
+                                    className="btn-close"
+                                    onClick={() => {
+                                        setShowFulfillmentModal(false);
+                                        setSelectedActivity(null);
+                                        setFulfillmentValue('');
+                                        setCompletionDate('');
+                                    }}
+                                ></button>
+                            </div>
+                            <div className="modal-body">
+                                <p><strong>Actividad:</strong> {selectedActivity.description}</p>
+                                <p><strong>Planificado:</strong> {selectedActivity.planned_percent}%</p>
+                                <div className="mb-3">
+                                    <label className="form-label">Cumplimiento Real (%)</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max={selectedActivity.planned_percent}
+                                        step="0.01"
+                                        value={fulfillmentValue}
+                                        onChange={(e) => {
+                                            const value = parseFloat(e.target.value) || 0;
+                                            setFulfillmentValue(Math.min(value, selectedActivity.planned_percent));
+                                        }}
+                                        className="form-control"
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label className="form-label">Fecha de Finalización</label>
+                                    <input
+                                        type="date"
+                                        value={completionDate}
+                                        onChange={(e) => setCompletionDate(e.target.value)}
+                                        className="form-control"
+                                    />
+                                </div>
+                            </div>
+                            <div className="modal-footer">
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={() => {
+                                        setShowFulfillmentModal(false);
+                                        setSelectedActivity(null);
+                                        setFulfillmentValue('');
+                                        setCompletionDate('');
+                                    }}
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn btn-primary"
+                                    onClick={async () => {
+                                        await handleUpdateCompliance(selectedActivity.id, fulfillmentValue, completionDate);
+                                        setShowFulfillmentModal(false);
+                                        setSelectedActivity(null);
+                                        setFulfillmentValue('');
+                                        setCompletionDate('');
+                                        // Refetch project to get updated completion_date
+                                        await fetchProject();
+                                    }}
+                                >
+                                    Guardar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

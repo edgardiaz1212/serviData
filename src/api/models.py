@@ -311,6 +311,7 @@ class Activity(db.Model):
     real_compliance = db.Column(db.Float, default=0.0)  # 0-100%
     real_percent = db.Column(db.Float, default=0.0)  # Calculated
     deviation = db.Column(db.Float, default=0.0)  # real_percent - planned_percent
+    completion_date = db.Column(db.DateTime)  # Date when activity reaches 100% completion
     status = db.Column(db.String, default="Pendiente")
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
@@ -330,6 +331,7 @@ class Activity(db.Model):
             'real_compliance': self.real_compliance,
             'real_percent': self.real_percent,
             'deviation': self.deviation,
+            'completion_date': self.completion_date.isoformat() if self.completion_date else None,
             'status': self.status,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,

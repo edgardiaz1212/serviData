@@ -1100,10 +1100,15 @@ const getState = ({ getStore, getActions, setStore }) => {
         }
       },
       // Update project activity compliance
-      updateProjectActivityCompliance: async (projectId, activityId, complianceValue) => {
+      updateProjectActivityCompliance: async (projectId, activityId, complianceValue, completionDate = null) => {
         try {
           if (!projectId || !activityId) {
             throw new Error("Project ID and Activity ID are required");
+          }
+
+          const payload = { real_compliance: complianceValue };
+          if (completionDate) {
+            payload.completion_date = completionDate;
           }
 
           // Send percentage value directly (0-100) - backend expects percentage, not decimal
@@ -1114,9 +1119,7 @@ const getState = ({ getStore, getActions, setStore }) => {
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({
-                real_compliance: complianceValue
-              }),
+              body: JSON.stringify(payload),
             }
           );
 
