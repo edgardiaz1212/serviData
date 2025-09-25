@@ -9,12 +9,12 @@ import { toast } from 'react-toastify';
 const ProjectDetailPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { actions } = useContext(Context);
+    const { actions, store } = useContext(Context);
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('overview');
-    const isOwner = project && actions.user && project.owner_id === actions.user.id;
-
+    const isOwner = project && store.user && project.user_id === store.user.id;
+console.log (store.user.id )
     useEffect(() => {
         if (id && id !== 'new') {
             fetchProject();

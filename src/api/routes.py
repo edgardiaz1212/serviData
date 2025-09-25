@@ -11,9 +11,9 @@ from datetime import datetime, timedelta
 from sqlalchemy import func, extract
 import logging
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
-import logging
 from fuzzywuzzy import fuzz, process
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from sqlalchemy.orm import joinedload
 
 
 # Set up logging
@@ -1633,7 +1633,7 @@ from api.models import Project, Phase, Activity
 @jwt_required()
 def get_projects():
     try:
-        projects = Project.query.all()
+        projects = Project.query.options(joinedload(Project.user)).all()
         return jsonify([project.serialize() for project in projects]), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -1670,6 +1670,7 @@ def create_project():
             total_duration=total_duration
         )
         db.session.add(project)
+        project.user_id = int(get_jwt_identity())
         db.session.commit()
 
         # Create phases and activities
@@ -1721,7 +1722,7 @@ def create_project():
 @jwt_required()
 def get_project(project_id):
     try:
-        project = Project.query.get(project_id)
+        project = Project.query.options(joinedload(Project.user)).get(project_id)
         if not project:
             return jsonify({"message": "Project not found"}), 404
         return jsonify(project.serialize()), 200
@@ -1739,7 +1740,7 @@ def update_project(project_id):
 
         # Update project fields
         for key, value in data.items():
-            if key in ['name', 'edt_structure', 'num_phases', 'total_duration', 'status']:
+            if key in ['name', 'edt_structure', 'num_phases', 'total_duration', 'status', 'user_id']:
                 setattr(project, key, value)
             elif key in ['start_date', 'end_date'] and value:
                 setattr(project, key, datetime.fromisoformat(value))

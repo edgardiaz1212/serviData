@@ -47,7 +47,7 @@ const ProjectCard = ({ project, onViewDetails }) => {
         if (progress >= 20) return 'bg-info';
         return 'bg-danger';
     };
-
+console.log(project);
     const progress = calculateProjectProgress();
 
     return (
