@@ -14,7 +14,7 @@ const ProjectDetailPage = () => {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('overview');
     const isOwner = project && store.user && project.user_id === store.user.id;
-console.log (store.user.id )
+
     useEffect(() => {
         if (id && id !== 'new') {
             fetchProject();

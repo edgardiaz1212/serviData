@@ -119,6 +119,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           );
           if (response.ok) {
             const data = await response.json();
+         
             return data;
           } else {
             console.error("Failed to fetch project");

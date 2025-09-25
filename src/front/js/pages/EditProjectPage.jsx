@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 const EditProjectPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { actions } = useContext(Context);
+    const { actions, store } = useContext(Context);
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -27,8 +27,9 @@ const EditProjectPage = () => {
             const data = await actions.fetchProjectById(id);
             if (data) {
                 setProject(data);
+                
                 // Check if user is owner
-                if (actions.user && data.owner_id !== actions.user.id) {
+                if (store.user && data.user.id !== store.user.id) {
                     toast.error('No tienes permisos para editar este proyecto');
                     navigate(`/projects/${id}`);
                     return;
