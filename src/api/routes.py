@@ -1813,38 +1813,61 @@ def delete_project(project_id):
 def update_activity_progress(project_id, activity_id):
     try:
         data = request.get_json()
-        real_compliance = data.get('real_compliance', 0.0)
+        real_compliance = data.get('real_compliance', 0.0)  # % del PROYECTO ya aportado por esta actividad
+        completion_date_str = data.get('completion_date')
 
         activity = Activity.query.get(activity_id)
         if not activity:
             return jsonify({"message": "Activity not found"}), 404
 
-        # Cap real_compliance at 100%
-        if real_compliance > 100:
-            real_compliance = 100.0
+        # Asegurar que real_compliance no exceda el planned_percent (no puede aportar más de lo planeado)
+        if activity.planned_percent is not None and real_compliance > activity.planned_percent:
+            real_compliance = float(activity.planned_percent)
 
+        # Guardar el compliance real (en términos del proyecto global)
         activity.real_compliance = real_compliance
-        activity.real_percent = real_compliance  # Store percentage directly, not as decimal
-        activity.deviation = activity.real_percent - activity.planned_percent
 
-        # Set completion_date and update status if activity is fully completed
-        if real_compliance >= 100:
-            activity.completion_date = datetime.now(timezone.utc)
-            activity.status = "Completado"
+        # Calcular qué % de la ACTIVIDAD está completado
+        if activity.planned_percent and activity.planned_percent > 0:
+            activity.real_percent = (real_compliance / activity.planned_percent) * 100
         else:
-            activity.completion_date = None
+            # Si planned_percent es 0, la actividad no aporta al proyecto → considerar 100% si hay compliance
+            activity.real_percent = 100.0 if real_compliance > 0 else 0.0
+
+        # Desviación: diferencia en el aporte al proyecto (real vs planificado)
+        planned = activity.planned_percent or 0.0
+        activity.deviation = real_compliance - planned
+
+        # Manejar fecha de finalización
+        if completion_date_str:
+            try:
+                # Asegurar compatibilidad con ISO 8601 (con o sin zona horaria)
+                activity.completion_date = datetime.fromisoformat(completion_date_str.replace('Z', '+00:00'))
+            except ValueError:
+                return jsonify({"error": "Invalid completion_date format. Use ISO format (e.g., '2024-06-01' or '2024-06-01T12:00:00Z')"}), 400
+
+        # Actualizar estado
+        if activity.real_percent >= 100:
+            activity.status = "Completado"
+            if not completion_date_str:
+                activity.completion_date = datetime.now(timezone.utc)
+        else:
             activity.status = "En progreso"
+            if activity.real_percent == 0:
+                activity.completion_date = None
 
-        # Calculate and update accumulated deviation for the project
+        # Recalcular desviación acumulada del proyecto
         total_deviation = update_accumulated_deviations(project_id)
-
-        # Update project with accumulated deviation
         project = Project.query.get(project_id)
         if project:
             project.accumulated_deviation = total_deviation
 
         db.session.commit()
-        return jsonify({"message": "Activity progress updated successfully", "activity": activity.serialize()}), 200
+        return jsonify({
+            "message": "Activity progress updated successfully",
+            "activity": activity.serialize()
+        }), 200
+
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
