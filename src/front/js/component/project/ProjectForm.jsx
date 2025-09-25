@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Context } from '../../store/appContext';
+import ProjectTimelineChart from './ProjectTimelineChart';
 
 const ProjectForm = ({ project, onSave, onCancel, currentUser }) => {
     const { store, actions } = useContext(Context);
@@ -251,327 +252,327 @@ const ProjectForm = ({ project, onSave, onCancel, currentUser }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <div className="row g-3 mb-4">
-                <div className="col-12 col-md-6">
-                    <label className="form-label fw-medium">
-                        Nombre del Proyecto
-                    </label>
-                    <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        className="form-control"
-                        required
-                    />
-                </div>
+        <div className="row">
+            <div className="col-lg-8">
+                <form onSubmit={handleSubmit}>
+                    <div className="row g-3 mb-4">
+                        <div className="col-12 col-md-6">
+                            <label className="form-label fw-medium">
+                                Nombre del Proyecto
+                            </label>
+                            <input
+                                type="text"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleInputChange}
+                                className="form-control"
+                                required
+                            />
+                        </div>
 
-                <div className="col-12 col-md-6">
-                    <label className="form-label fw-medium">
-                        Número de Fases
-                    </label>
-                    <input
-                        type="number"
-                        name="num_phases"
-                        value={formData.num_phases}
-                        className="form-control"
-                        min="0"
-                        readOnly
-                        required
-                    />
-                    <small className="form-text text-muted">
-                        Calculado automáticamente desde las fases agregadas
-                    </small>
-                </div>
-               
-                <div className="col-12 col-md-6">
-                    <label className="form-label fw-medium">
-                        Fecha de Inicio
-                    </label>
-                    <input
-                        type="date"
-                        name="start_date"
-                        value={formData.start_date}
-                        onChange={handleInputChange}
-                        className="form-control"
-                    />
-                </div>
-                <div className="col-12 col-md-6">
-                    <label className="form-label fw-medium">
-                        Fecha de Fin
-                    </label>
-                    <input
-                        type="date"
-                        name="end_date"
-                        value={formData.end_date}
-                        onChange={handleInputChange}
-                        className="form-control"
-                    />
-                </div>
-                <div className="col-12 col-md-6">
-                    <label className="form-label fw-medium">
-                        Duración Total (días)
-                    </label>
-                    <input
-                        type="number"
-                        name="total_duration"
-                        value={formData.total_duration}
-                        className="form-control"
-                        min="0"
-                        readOnly
-                        required
-                    />
-                    <small className="form-text text-muted">
-                        Calculado automáticamente desde las fechas de inicio y fin
-                    </small>
-                </div>
+                        <div className="col-12 col-md-6">
+                            <label className="form-label fw-medium">
+                                Fecha de Inicio
+                            </label>
+                            <input
+                                type="date"
+                                name="start_date"
+                                value={formData.start_date}
+                                onChange={handleInputChange}
+                                className="form-control"
+                            />
+                        </div>
+                        <div className="col-12 col-md-6">
+                            <label className="form-label fw-medium">
+                                Fecha de Fin
+                            </label>
+                            <input
+                                type="date"
+                                name="end_date"
+                                value={formData.end_date}
+                                onChange={handleInputChange}
+                                className="form-control"
+                            />
+                        </div>
+                        <div className="col-12 col-md-6">
+                            <label className="form-label fw-medium">
+                                Duración Total (días)
+                            </label>
+                            <input
+                                type="number"
+                                name="total_duration"
+                                value={formData.total_duration}
+                                className="form-control"
+                                min="0"
+                                readOnly
+                                required
+                            />
+                            <small className="form-text text-muted">
+                                Calculado automáticamente desde las fechas de inicio y fin
+                            </small>
+                        </div>
 
-                <div className="col-12 col-md-6">
-                    <label className="form-label fw-medium">
-                        Propietario del Proyecto
-                    </label>
-                    <select
-                        name="user_id"
-                        value={formData.user_id || ''}
-                        onChange={handleInputChange}
-                        className="form-select"
-                        required
-                        disabled={loading}
-                    >
-                        <option value="">Seleccionar propietario...</option>
-                        {store.users.map(user => (
-                            <option key={user.id} value={user.id}>
-                                {user.username} ({user.role})
-                            </option>
-                        ))}
-                    </select>
-                    {loading && (
-                        <small className="form-text text-muted">
-                            Cargando usuarios...
-                        </small>
-                    )}
-                    <small className="form-text text-muted">
-                        El propietario puede editar el proyecto y ajustar porcentajes de cumplimiento
-                    </small>
-                </div>
+                        <div className="col-12 col-md-6">
+                            <label className="form-label fw-medium">
+                                Propietario del Proyecto
+                            </label>
+                            <select
+                                name="user_id"
+                                value={formData.user_id || ''}
+                                onChange={handleInputChange}
+                                className="form-select"
+                                required
+                                disabled={loading}
+                            >
+                                <option value="">Seleccionar propietario...</option>
+                                {store.users.map(user => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.username} ({user.role})
+                                    </option>
+                                ))}
+                            </select>
+                            {loading && (
+                                <small className="form-text text-muted">
+                                    Cargando usuarios...
+                                </small>
+                            )}
+                            <small className="form-text text-muted">
+                                El propietario puede editar el proyecto y ajustar porcentajes de cumplimiento
+                            </small>
+                        </div>
 
-            </div>
+                    </div>
 
-            <div>
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                    <h3 className="h4 fw-semibold text-dark">Fases</h3>
-                    <button
-                        type="button"
-                        onClick={addPhase}
-                        className="btn btn-success"
-                    >
-                        Agregar Fase
-                    </button>
-                </div>
+                    <div>
+                        <h3 className="h4 fw-semibold text-dark mb-4">Fases</h3>
 
-                {formData.phases.map((phase, phaseIndex) => (
-                    <div key={phaseIndex} className="card border mb-4">
-                        <div className="card-body">
-                            <div className="d-flex justify-content-between align-items-center mb-4">
-                                <h4 className="h5 fw-medium mb-0">Fase {phaseIndex + 1}</h4>
-                                <button
-                                    type="button"
-                                    onClick={() => removePhase(phaseIndex)}
-                                    className="btn btn-link text-danger p-0"
-                                >
-                                    Eliminar
-                                </button>
-                            </div>
+                        {formData.phases.map((phase, phaseIndex) => (
+                            <div key={phaseIndex} className="card border mb-4">
+                                <div className="card-body">
+                                    <div className="d-flex justify-content-between align-items-center mb-4">
+                                        <h4 className="h5 fw-medium mb-0">Fase {phaseIndex + 1}</h4>
+                                        <button
+                                            type="button"
+                                            onClick={() => removePhase(phaseIndex)}
+                                            className="btn btn-link text-danger p-0"
+                                        >
+                                            Eliminar
+                                        </button>
+                                    </div>
 
-                            <div className="row g-3 mb-4">
-                                <div className="col-12 col-md-6">
-                                    <label className="form-label fw-medium">
-                                        Nombre
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={phase.name}
-                                        onChange={(e) => handlePhaseChange(phaseIndex, 'name', e.target.value)}
-                                        className="form-control"
-                                        required
-                                    />
-                                </div>
-                                <div className="col-12 col-md-6">
-                                    <label className="form-label fw-medium">
-                                        Orden
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={phase.order}
-                                        onChange={(e) => handlePhaseChange(phaseIndex, 'order', parseInt(e.target.value))}
-                                        className="form-control"
-                                        min="1"
-                                        required
-                                    />
-                                </div>
-                              
-                                <div className="col-12 col-md-6">
-                                    <label className="form-label fw-medium">
-                                        Fecha Inicio
-                                    </label>
-                                    <input
-                                        type="date"
-                                        value={phase.start_date ? phase.start_date.split('T')[0] : ''}
-                                        onChange={(e) => handlePhaseChange(phaseIndex, 'start_date', e.target.value)}
-                                        className="form-control"
-                                    />
-                                </div>
-                                <div className="col-12 col-md-6">
-                                    <label className="form-label fw-medium">
-                                        Fecha Fin
-                                    </label>
-                                    <input
-                                        type="date"
-                                        value={phase.end_date ? phase.end_date.split('T')[0] : ''}
-                                        onChange={(e) => handlePhaseChange(phaseIndex, 'end_date', e.target.value)}
-                                        className="form-control"
-                                    />
-                                </div>
-                                <div className="col-12 col-md-6">
-                                    <label className="form-label fw-medium">
-                                        Duración (días)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={phase.duration}
-                                        onChange={(e) => handlePhaseChange(phaseIndex, 'duration', parseInt(e.target.value))}
-                                        className="form-control"
-                                        min="0"
-                                        required={!phase.start_date || !phase.end_date}
-                                        readOnly={phase.start_date && phase.end_date}
-                                    />
-                                    {phase.start_date && phase.end_date && (
-                                        <small className="form-text text-muted">
-                                            Calculado automáticamente desde las fechas de inicio y fin
-                                        </small>
-                                    )}
-                                </div>
-                            </div>
+                                    <div className="row g-3 mb-4">
+                                        <div className="col-12 col-md-6">
+                                            <label className="form-label fw-medium">
+                                                Nombre
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={phase.name}
+                                                onChange={(e) => handlePhaseChange(phaseIndex, 'name', e.target.value)}
+                                                className="form-control"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="col-12 col-md-6">
+                                            <label className="form-label fw-medium">
+                                                Orden
+                                            </label>
+                                            <input
+                                                type="number"
+                                                value={phase.order}
+                                                onChange={(e) => handlePhaseChange(phaseIndex, 'order', parseInt(e.target.value))}
+                                                className="form-control"
+                                                min="1"
+                                                required
+                                            />
+                                        </div>
 
-                            <div>
-                                <div className="d-flex justify-content-between align-items-center mb-2">
-                                    <h5 className="fw-medium text-muted mb-0">Actividades</h5>
-                                    <button
-                                        type="button"
-                                        onClick={() => addActivity(phaseIndex)}
-                                        className="btn btn-primary btn-sm"
-                                    >
-                                        Agregar Actividad
-                                    </button>
-                                </div>
-
-                                {phase.activities && phase.activities.map((activity, activityIndex) => (
-                                    <div key={activityIndex} className="card border mb-2 bg-light">
-                                        <div className="card-body p-3">
-                                            <div className="d-flex justify-content-between align-items-center mb-2">
-                                                <span className="fw-medium">Actividad {activityIndex + 1}</span>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeActivity(phaseIndex, activityIndex)}
-                                                    className="btn btn-link text-danger p-0"
-                                                >
-                                                    Eliminar
-                                                </button>
-                                            </div>
-
-                                            <div className="row g-3">
-                                                <div className="col-12 col-md-6">
-                                                    <label className="form-label fw-medium small">
-                                                        Descripción
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        value={activity.description}
-                                                        onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'description', e.target.value)}
-                                                        className="form-control form-control-sm"
-                                                        required
-                                                    />
-                                                </div>
-                                               
-                                                <div className="col-12 col-md-6">
-                                                    <label className="form-label fw-medium small">
-                                                        Predecesores
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        value={activity.predecessors || ''}
-                                                        onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'predecessors', e.target.value)}
-                                                        className="form-control form-control-sm"
-                                                    />
-                                                </div>
-                                                <div className="col-12 col-md-6">
-                                                    <label className="form-label fw-medium small">
-                                                        Inicio Planificado
-                                                    </label>
-                                                    <input
-                                                        type="date"
-                                                        value={activity.planned_start ? activity.planned_start.split('T')[0] : ''}
-                                                        onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'planned_start', e.target.value)}
-                                                        className="form-control form-control-sm"
-                                                    />
-                                                </div>
-                                                <div className="col-12 col-md-6">
-                                                    <label className="form-label fw-medium small">
-                                                        Fin Planificado
-                                                    </label>
-                                                    <input
-                                                        type="date"
-                                                        value={activity.planned_end ? activity.planned_end.split('T')[0] : ''}
-                                                        onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'planned_end', e.target.value)}
-                                                        className="form-control form-control-sm"
-                                                    />
-                                                </div>
-                                                <div className="col-12 col-md-6">
-                                                    <label className="form-label fw-medium small">
-                                                        Duración (días)
-                                                    </label>
-                                                    <input
-                                                        type="number"
-                                                        value={activity.duration}
-                                                        onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'duration', parseInt(e.target.value))}
-                                                        className="form-control form-control-sm"
-                                                        min="0"
-                                                        required={!activity.planned_start || !activity.planned_end}
-                                                        readOnly={activity.planned_start && activity.planned_end}
-                                                    />
-                                                    {activity.planned_start && activity.planned_end && (
-                                                        <small className="form-text text-muted">
-                                                            Calculado automáticamente desde las fechas planificadas
-                                                        </small>
-                                                    )}
-                                                </div>
-                                            </div>
+                                        <div className="col-12 col-md-6">
+                                            <label className="form-label fw-medium">
+                                                Fecha Inicio
+                                            </label>
+                                            <input
+                                                type="date"
+                                                value={phase.start_date ? phase.start_date.split('T')[0] : ''}
+                                                onChange={(e) => handlePhaseChange(phaseIndex, 'start_date', e.target.value)}
+                                                className="form-control"
+                                            />
+                                        </div>
+                                        <div className="col-12 col-md-6">
+                                            <label className="form-label fw-medium">
+                                                Fecha Fin
+                                            </label>
+                                            <input
+                                                type="date"
+                                                value={phase.end_date ? phase.end_date.split('T')[0] : ''}
+                                                onChange={(e) => handlePhaseChange(phaseIndex, 'end_date', e.target.value)}
+                                                className="form-control"
+                                            />
+                                        </div>
+                                        <div className="col-12 col-md-6">
+                                            <label className="form-label fw-medium">
+                                                Duración (días)
+                                            </label>
+                                            <input
+                                                type="number"
+                                                value={phase.duration}
+                                                onChange={(e) => handlePhaseChange(phaseIndex, 'duration', parseInt(e.target.value))}
+                                                className="form-control"
+                                                min="0"
+                                                required={!phase.start_date || !phase.end_date}
+                                                readOnly={phase.start_date && phase.end_date}
+                                            />
+                                            {phase.start_date && phase.end_date && (
+                                                <small className="form-text text-muted">
+                                                    Calculado automáticamente desde las fechas de inicio y fin
+                                                </small>
+                                            )}
                                         </div>
                                     </div>
-                                ))}
+
+                                    <div>
+                                        <div className="d-flex justify-content-between align-items-center mb-2">
+                                            <h5 className="fw-medium text-muted mb-0">Actividades</h5>
+                                            <button
+                                                type="button"
+                                                onClick={() => addActivity(phaseIndex)}
+                                                className="btn btn-primary btn-sm"
+                                            >
+                                                Agregar Actividad
+                                            </button>
+                                        </div>
+
+                                        {phase.activities && phase.activities.map((activity, activityIndex) => (
+                                            <div key={activityIndex} className="card border mb-2 bg-light">
+                                                <div className="card-body p-3">
+                                                    <div className="d-flex justify-content-between align-items-center mb-2">
+                                                        <span className="fw-medium">Actividad {activityIndex + 1}</span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeActivity(phaseIndex, activityIndex)}
+                                                            className="btn btn-link text-danger p-0"
+                                                        >
+                                                            Eliminar
+                                                        </button>
+                                                    </div>
+
+                                                    <div className="row g-3">
+                                                        <div className="col-12 col-md-6">
+                                                            <label className="form-label fw-medium small">
+                                                                Descripción
+                                                            </label>
+                                                            <input
+                                                                type="text"
+                                                                value={activity.description}
+                                                                onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'description', e.target.value)}
+                                                                className="form-control form-control-sm"
+                                                                required
+                                                            />
+                                                        </div>
+
+                                                        <div className="col-12 col-md-6">
+                                                            <label className="form-label fw-medium small">
+                                                                Predecesores
+                                                            </label>
+                                                            <input
+                                                                type="text"
+                                                                value={activity.predecessors || ''}
+                                                                onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'predecessors', e.target.value)}
+                                                                className="form-control form-control-sm"
+                                                            />
+                                                        </div>
+                                                        <div className="col-12 col-md-6">
+                                                            <label className="form-label fw-medium small">
+                                                                Inicio Planificado
+                                                            </label>
+                                                            <input
+                                                                type="date"
+                                                                value={activity.planned_start ? activity.planned_start.split('T')[0] : ''}
+                                                                onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'planned_start', e.target.value)}
+                                                                className="form-control form-control-sm"
+                                                            />
+                                                        </div>
+                                                        <div className="col-12 col-md-6">
+                                                            <label className="form-label fw-medium small">
+                                                                Fin Planificado
+                                                            </label>
+                                                            <input
+                                                                type="date"
+                                                                value={activity.planned_end ? activity.planned_end.split('T')[0] : ''}
+                                                                onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'planned_end', e.target.value)}
+                                                                className="form-control form-control-sm"
+                                                            />
+                                                        </div>
+                                                        <div className="col-12 col-md-6">
+                                                            <label className="form-label fw-medium small">
+                                                                Duración (días)
+                                                            </label>
+                                                            <input
+                                                                type="number"
+                                                                value={activity.duration}
+                                                                onChange={(e) => handleActivityChange(phaseIndex, activityIndex, 'duration', parseInt(e.target.value))}
+                                                                className="form-control form-control-sm"
+                                                                min="0"
+                                                                required={!activity.planned_start || !activity.planned_end}
+                                                                readOnly={activity.planned_start && activity.planned_end}
+                                                            />
+                                                            {activity.planned_start && activity.planned_end && (
+                                                                <small className="form-text text-muted">
+                                                                    Calculado automáticamente desde las fechas planificadas
+                                                                </small>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
+                        ))}
+                    </div>
+
+                    <div className="d-flex justify-content-end gap-2 mt-4">
+                        <button
+                            type="button"
+                            onClick={onCancel}
+                            className="btn btn-outline-secondary"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            type="submit"
+                            className="btn btn-primary"
+                        >
+                            {project ? 'Actualizar Proyecto' : 'Crear Proyecto'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div className="col-lg-4">
+                <div className="sticky-top" style={{ top: '20px' }}>
+                    <div className="card shadow-sm mb-4">
+                        <div className="card-body">
+                            <h5 className="card-title">Resumen del Proyecto</h5>
+                            <div className="mb-3">
+                                <strong>Número de Fases:</strong> {formData.num_phases}
+                            </div>
+                            <button
+                                type="button"
+                                onClick={addPhase}
+                                className="btn btn-success w-100 mb-3"
+                            >
+                                Agregar Fase
+                            </button>
                         </div>
                     </div>
-                ))}
+                    <ProjectTimelineChart
+                        project={{ start_date: formData.start_date, end_date: formData.end_date }}
+                        phases={formData.phases}
+                    />
+                </div>
             </div>
-
-            <div className="d-flex justify-content-end gap-2">
-                <button
-                    type="button"
-                    onClick={onCancel}
-                    className="btn btn-outline-secondary"
-                >
-                    Cancelar
-                </button>
-                <button
-                    type="submit"
-                    className="btn btn-primary"
-                >
-                    {project ? 'Actualizar Proyecto' : 'Crear Proyecto'}
-                </button>
-            </div>
-        </form>
+        </div>
     );
 };
 
