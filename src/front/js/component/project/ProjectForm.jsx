@@ -5,7 +5,7 @@ const ProjectForm = ({ project, onSave, onCancel, currentUser }) => {
     const { store, actions } = useContext(Context);
     const [formData, setFormData] = useState({
         name: '',
-        num_phases: 1,
+        num_phases: 0,
         start_date: '',
         end_date: '',
         total_duration: 0,
@@ -16,14 +16,15 @@ const ProjectForm = ({ project, onSave, onCancel, currentUser }) => {
 
     useEffect(() => {
         if (project) {
+            const phases = project.phases || [];
             setFormData({
                 name: project.name || '',
-                num_phases: project.num_phases || 1,
+                num_phases: phases.length,
                 start_date: project.start_date ? project.start_date.split('T')[0] : '',
                 end_date: project.end_date ? project.end_date.split('T')[0] : '',
                 total_duration: project.total_duration || 0,
                 user_id: project.user_id || (currentUser ? currentUser.id : null),
-                phases: project.phases || []
+                phases: phases
             });
         } else if (currentUser) {
             // For new projects, set the current user as default
@@ -149,7 +150,8 @@ const ProjectForm = ({ project, onSave, onCancel, currentUser }) => {
         };
         setFormData(prev => ({
             ...prev,
-            phases: [...prev.phases, newPhase]
+            phases: [...prev.phases, newPhase],
+            num_phases: prev.phases.length + 1
         }));
     };
 
@@ -157,7 +159,8 @@ const ProjectForm = ({ project, onSave, onCancel, currentUser }) => {
         const updatedPhases = formData.phases.filter((_, i) => i !== index);
         setFormData(prev => ({
             ...prev,
-            phases: updatedPhases
+            phases: updatedPhases,
+            num_phases: updatedPhases.length
         }));
     };
 
@@ -272,11 +275,14 @@ const ProjectForm = ({ project, onSave, onCancel, currentUser }) => {
                         type="number"
                         name="num_phases"
                         value={formData.num_phases}
-                        onChange={handleInputChange}
                         className="form-control"
-                        min="1"
+                        min="0"
+                        readOnly
                         required
                     />
+                    <small className="form-text text-muted">
+                        Calculado automáticamente desde las fases agregadas
+                    </small>
                 </div>
                
                 <div className="col-12 col-md-6">
