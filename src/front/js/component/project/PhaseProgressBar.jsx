@@ -44,7 +44,7 @@ const PhaseProgressBar = ({ phase }) => {
 
     const realProgress = calculatePhaseProgress();
     const plannedProgress = calculatePlannedProgress();
-
+console.log(phase);
     return (
         <div className="mb-3">
             <div className="d-flex justify-content-between align-items-center mb-2">
@@ -59,25 +59,25 @@ const PhaseProgressBar = ({ phase }) => {
                 </div>
             </div>
 
-            {/* Real Progress Bar */}
-            <div className="progress mb-2" style={{ height: '10px' }}>
+            {/* Planned Progress Bar */}
+            <div className="progress mb-2" style={{ height: `${plannedProgress}px` }}>
                 <div
-                    className={`progress-bar ${getProgressBarColor(realProgress)}`}
+                    className={`progress-bar ${getProgressBarColor(plannedProgress)}`}
                     role="progressbar"
-                    style={{ width: `${realProgress}%` }}
-                    aria-valuenow={realProgress}
+                    style={{ width: '100%' }}
+                    aria-valuenow={plannedProgress}
                     aria-valuemin="0"
                     aria-valuemax="100"
                 ></div>
             </div>
 
-            {/* Planned Progress Bar (lighter, as reference) */}
+            {/* Real Progress Bar (lighter, as reference) */}
             <div className="progress" style={{ height: '6px', opacity: 0.6 }}>
                 <div
                     className="progress-bar bg-secondary"
                     role="progressbar"
-                    style={{ width: `${plannedProgress}%` }}
-                    aria-valuenow={plannedProgress}
+                    style={{ width: `${realProgress}%` }}
+                    aria-valuenow={realProgress}
                     aria-valuemin="0"
                     aria-valuemax="100"
                 ></div>
