@@ -35,7 +35,7 @@ const ProjectTimelineChart = ({ project, phases }) => {
     return (
         <div className="project-timeline">
             <h6 className="mb-3">Timeline del Proyecto</h6>
-            <div className="timeline-container position-relative" style={{ height: '40px', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
+            <div className="timeline-container position-relative" style={{ minHeight: '80px', backgroundColor: '#f8f9fa', borderRadius: '4px', padding: '5px' }}>
                 {sortedPhases.map((phase, index) => {
                     if (!phase.start_date || !phase.end_date) return null;
 
@@ -48,27 +48,69 @@ const ProjectTimelineChart = ({ project, phases }) => {
                     const leftPercent = ((phaseStart - projectStart) / totalDuration) * 100;
                     const widthPercent = (phaseDuration / totalDuration) * 100;
 
+                    const phaseColor = colors[index % colors.length];
+                    const darkerColor = phaseColor; // or calculate darker
+
                     return (
                         <div
                             key={index}
-                            className="phase-bar position-absolute d-flex align-items-center justify-content-center"
+                            className="phase-bar position-absolute"
                             style={{
                                 left: `${leftPercent}%`,
                                 width: `${widthPercent}%`,
-                                height: '100%',
-                                backgroundColor: colors[index % colors.length],
+                                top: '5px',
+                                height: '30px',
+                                backgroundColor: phaseColor,
                                 borderRadius: '2px',
+                                border: '1px solid #fff',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center',
                                 color: 'white',
                                 fontSize: '10px',
                                 fontWeight: 'bold',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
                                 whiteSpace: 'nowrap',
-                                padding: '0 2px'
+                                padding: '2px'
                             }}
                             title={`${phase.name}: ${phase.start_date} - ${phase.end_date}`}
                         >
-                            {phase.name}
+                            <div>{phase.name}</div>
+                            {/* Activities within phase */}
+                            {phase.activities && phase.activities.length > 0 && (
+                                <div className="activities-container position-relative w-100" style={{ height: '10px', marginTop: '2px' }}>
+                                    {phase.activities.map((activity, actIndex) => {
+                                        if (!activity.planned_start || !activity.planned_end) return null;
+
+                                        const actStart = new Date(activity.planned_start);
+                                        const actEnd = new Date(activity.planned_end);
+                                        const actDuration = actEnd - actStart;
+
+                                        if (actDuration <= 0) return null;
+
+                                        const actLeftPercent = ((actStart - phaseStart) / phaseDuration) * 100;
+                                        const actWidthPercent = (actDuration / phaseDuration) * 100;
+
+                                        return (
+                                            <div
+                                                key={actIndex}
+                                                className="activity-bar position-absolute"
+                                                style={{
+                                                    left: `${actLeftPercent}%`,
+                                                    width: `${actWidthPercent}%`,
+                                                    height: '8px',
+                                                    backgroundColor: 'rgba(255,255,255,0.8)',
+                                                    borderRadius: '1px',
+                                                    top: '1px'
+                                                }}
+                                                title={`${activity.description}: ${activity.planned_start} - ${activity.planned_end}`}
+                                            ></div>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
                     );
                 })}
