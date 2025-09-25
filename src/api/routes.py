@@ -1825,18 +1825,18 @@ def update_activity_progress(project_id, activity_id):
             real_compliance = float(activity.planned_percent)
 
         # Guardar el compliance real (en términos del proyecto global)
-        activity.real_compliance = real_compliance
+        activity.real_compliance = round(real_compliance, 2)
 
         # Calcular qué % de la ACTIVIDAD está completado
         if activity.planned_percent and activity.planned_percent > 0:
-            activity.real_percent = (real_compliance / activity.planned_percent) * 100
+            activity.real_percent = round((real_compliance / activity.planned_percent) * 100, 2)
         else:
             # Si planned_percent es 0, la actividad no aporta al proyecto → considerar 100% si hay compliance
             activity.real_percent = 100.0 if real_compliance > 0 else 0.0
 
         # Desviación: diferencia en el aporte al proyecto (real vs planificado)
         planned = activity.planned_percent or 0.0
-        activity.deviation = real_compliance - planned
+        activity.deviation = round(real_compliance - planned, 2)
 
         # Manejar fecha de finalización
         if completion_date_str:
@@ -1883,7 +1883,7 @@ def calculate_planned_percentages(project_id):
 
     for phase in project.phases:
         for activity in phase.activities:
-            activity.planned_percent = (activity.duration / total_duration) * 100
+            activity.planned_percent = round((activity.duration / total_duration) * 100, 2)
     db.session.commit()
 
 def update_accumulated_deviations(project_id):

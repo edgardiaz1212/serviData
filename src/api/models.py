@@ -219,25 +219,18 @@ class Project(db.Model):
     user = db.relationship("User", back_populates="projects")
 
     def serialize(self):
-        # Calculate project-level indicators
-        total_planned_percent = 0
-        total_real_percent = 0
-        total_compliance = 0
+        # Calculate project-level indicators from phase indicators
+        planned_progress = sum(phase.serialize()['planned_progress'] for phase in self.phases)
+        real_progress = sum(phase.serialize()['real_progress'] for phase in self.phases) / len(self.phases) if self.phases else 0
+        compliance = sum(phase.serialize()['compliance'] for phase in self.phases) / len(self.phases) if self.phases else 0
+
+        # Calculate accumulated_deviation from activities
         total_deviation = 0
         activity_count = 0
-
         for phase in self.phases:
             for activity in phase.activities:
-                total_planned_percent += activity.planned_percent or 0
-                total_real_percent += activity.real_percent or 0
-                total_compliance += activity.real_compliance or 0
                 total_deviation += activity.deviation or 0
                 activity_count += 1
-
-        # Calculate averages
-        planned_progress = total_planned_percent / activity_count if activity_count > 0 else 0
-        real_progress = total_real_percent / activity_count if activity_count > 0 else 0
-        compliance = total_compliance / activity_count if activity_count > 0 else 0
         accumulated_deviation = total_deviation / activity_count if activity_count > 0 else 0
 
         # Serialize user info to avoid recursion depth issues
@@ -285,6 +278,11 @@ class Phase(db.Model):
     activities = db.relationship("Activity", back_populates="phase", cascade="all, delete-orphan")
 
     def serialize(self):
+        # Calculate phase-level indicators from activities
+        planned_progress = sum(activity.planned_percent or 0 for activity in self.activities)
+        real_progress = sum(activity.real_percent or 0 for activity in self.activities) / len(self.activities) if self.activities else 0
+        compliance = sum(activity.real_compliance or 0 for activity in self.activities) / len(self.activities) if self.activities else 0
+
         return {
             'id': self.id,
             'project_id': self.project_id,
@@ -295,7 +293,11 @@ class Phase(db.Model):
             'duration': self.duration,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
-            'activities': [activity.serialize() for activity in self.activities]
+            'activities': [activity.serialize() for activity in self.activities],
+            # Phase-level calculated indicators
+            'planned_progress': round(planned_progress, 2),
+            'real_progress': round(real_progress, 2),
+            'compliance': round(compliance, 2)
         }
 
 class Activity(db.Model):
