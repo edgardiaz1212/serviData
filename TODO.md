@@ -1,3 +1,3 @@
-# TODO: Adjust PhaseProgressBar to Size Based on Planning
-
-- [x] Edit `src/front/js/component/project/PhaseProgressBar.jsx` to set the main progress bar height to `plannedProgress` px and full width, with secondary bar width to `realProgress` %.
+- [x] Add statusFilter state to ProjectsPage.jsx
+- [x] Add select dropdown for status filter in the UI
+- [x] Modify filteredProjects to filter by status

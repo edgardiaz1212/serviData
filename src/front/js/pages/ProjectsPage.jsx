@@ -10,6 +10,7 @@ const ProjectsPage = () => {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -40,7 +41,8 @@ const ProjectsPage = () => {
     };
 
     const filteredProjects = projects.filter(project =>
-        project.name.toLowerCase().includes(searchTerm.toLowerCase())
+        project.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        (statusFilter === '' || statusFilter === 'Todos' || project.status === statusFilter)
     );
 
     if (loading) {
@@ -66,8 +68,8 @@ const ProjectsPage = () => {
                 </button>
             </div>
 
-            <div className="mb-4">
-                <div className="input-group">
+            <div className="mb-4 d-flex gap-3">
+                <div className="input-group flex-fill">
                     <span className="input-group-text">
                         <Search size={20} />
                     </span>
@@ -78,6 +80,19 @@ const ProjectsPage = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="form-control"
                     />
+                </div>
+                <div className="input-group" style={{ width: '200px' }}>
+                    <span className="input-group-text">Estado</span>
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="form-select"
+                    >
+                        <option value="">Todos</option>
+                        <option value="En progreso">En progreso</option>
+                        <option value="Completado">Completado</option>
+                        <option value="Retrasado">Retrasado</option>
+                    </select>
                 </div>
             </div>
 
