@@ -275,7 +275,7 @@ class Phase(db.Model):
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     project = db.relationship("Project", back_populates="phases")
-    activities = db.relationship("Activity", back_populates="phase", cascade="all, delete-orphan")
+    activities = db.relationship("Activity", back_populates="phase", cascade="all, delete-orphan", order_by="Activity.id")
 
     def serialize(self):
         # Calculate phase-level indicators from activities
