@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 
 const ProjectsPage = () => {
     const { store, actions } = useContext(Context);
+    const currentUser = store.user;
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -38,6 +39,23 @@ const ProjectsPage = () => {
 
     const handleCreateProject = () => {
         navigate('/new-project');
+    };
+
+    const handleDeleteProject = async (projectId) => {
+        if (window.confirm('¿Estás seguro de que quieres eliminar este proyecto? Esta acción no se puede deshacer.')) {
+            try {
+                const result = await actions.deleteProject(projectId);
+                if (result.success) {
+                    toast.success('Proyecto eliminado exitosamente');
+                    // Refresh the projects list
+                    fetchProjects();
+                } else {
+                    toast.error(result.message || 'Error al eliminar el proyecto');
+                }
+            } catch (error) {
+                toast.error('Error al eliminar el proyecto');
+            }
+        }
     };
 
     const filteredProjects = projects.filter(project =>
@@ -119,6 +137,8 @@ const ProjectsPage = () => {
                             <ProjectCard
                                 project={project}
                                 onViewDetails={handleViewDetails}
+                                onDelete={handleDeleteProject}
+                                currentUser={currentUser}
                             />
                         </div>
                     ))}

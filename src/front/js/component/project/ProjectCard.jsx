@@ -1,6 +1,7 @@
 import React from 'react';
+import { Trash2 } from 'lucide-react';
 
-const ProjectCard = ({ project, onViewDetails }) => {
+const ProjectCard = ({ project, onViewDetails, onDelete, currentUser }) => {
     const getStatusColor = (status) => {
         switch (status) {
             case 'En progreso':
@@ -121,12 +122,23 @@ console.log(project);
                 )}
 
                 <div className="d-flex justify-content-between align-items-center">
-                    <button
-                        onClick={() => onViewDetails(project.id)}
-                        className="btn btn-primary"
-                    >
-                        Ver Detalles
-                    </button>
+                    <div className="d-flex gap-2">
+                        <button
+                            onClick={() => onViewDetails(project.id)}
+                            className="btn btn-primary"
+                        >
+                            Ver Detalles
+                        </button>
+                        {currentUser && project.user && currentUser.id === project.user.id && (
+                            <button
+                                onClick={() => onDelete(project.id)}
+                                className="btn btn-outline-danger"
+                                title="Eliminar proyecto"
+                            >
+                                <Trash2 size={16} />
+                            </button>
+                        )}
+                    </div>
                     {project.accumulated_deviation !== undefined && (
                         <span className={`small fw-medium ${getDeviationColor(project.accumulated_deviation)}`}>
                             Desviación: {project.accumulated_deviation.toFixed(2)}%

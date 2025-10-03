@@ -204,6 +204,27 @@ const getState = ({ getStore, getActions, setStore }) => {
           };
         }
       },
+      // Delete existing project
+      deleteProject: async (projectId) => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/projects/${projectId}`,
+            {
+              method: "DELETE",
+            }
+          );
+          if (response.ok) {
+            console.log("Project deleted successfully");
+            return { success: true };
+          } else {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to delete project");
+          }
+        } catch (error) {
+          console.error("Error deleting project:", error);
+          return { success: false, message: error.message };
+        }
+      },
       // Gestión de Usuarios
       addUser: async (user) => {
         try {

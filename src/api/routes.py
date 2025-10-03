@@ -1798,9 +1798,15 @@ def update_project(project_id):
 @jwt_required()
 def delete_project(project_id):
     try:
+        current_user_id = get_jwt_identity()
         project = Project.query.get(project_id)
         if not project:
             return jsonify({"message": "Project not found"}), 404
+
+        # Check if the current user is the owner of the project
+        if project.user_id != int(current_user_id):
+            return jsonify({"message": "You do not have permission to delete this project"}), 403
+
         db.session.delete(project)
         db.session.commit()
         return jsonify({"message": "Project deleted successfully"}), 200
