@@ -11,6 +11,7 @@ import {
   CheckCircle,
   Clock,
   TrendingUp,
+  Trash2,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -25,6 +26,16 @@ const ProjectDetailPage = () => {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [fulfillmentValue, setFulfillmentValue] = useState("");
   const [completionDate, setCompletionDate] = useState("");
+  const [attentionPoints, setAttentionPoints] = useState([]);
+  const [showAttentionModal, setShowAttentionModal] = useState(false);
+  const [editingAttentionPoint, setEditingAttentionPoint] = useState(null);
+  const [attentionForm, setAttentionForm] = useState({
+    impacto: "",
+    acciones_ejecutar: "",
+    fecha_ocurrencia: "",
+    fecha_solucion: "",
+    responsable: "",
+  });
   const isOwner = project && store.user && project.user_id === store.user.id;
 
   useEffect(() => {
@@ -35,6 +46,12 @@ const ProjectDetailPage = () => {
       navigate("/new-project", { replace: true });
     }
   }, [id]);
+
+  useEffect(() => {
+    if (activeTab === "attention" && id && id !== "new") {
+      fetchAttentionPoints();
+    }
+  }, [activeTab, id]);
 
   const fetchProject = async () => {
     try {
@@ -48,6 +65,16 @@ const ProjectDetailPage = () => {
       toast.error("Error al obtener el proyecto");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAttentionPoints = async () => {
+    try {
+      const data = await actions.fetchAttentionPoints(id);
+      setAttentionPoints(data || []);
+    } catch (error) {
+      toast.error("Error al obtener puntos de atención");
+      console.error("Error fetching attention points:", error);
     }
   };
 
@@ -122,6 +149,111 @@ const ProjectDetailPage = () => {
     if (deviation < -10) return "text-red-600 bg-red-50";
     if (deviation > 10) return "text-yellow-600 bg-yellow-50";
     return "text-green-600 bg-green-50";
+  };
+
+  const handleCreateAttentionPoint = async (formData) => {
+    try {
+      const result = await actions.createAttentionPoint(id, formData);
+      if (result && !result.error) {
+        toast.success("Punto de atención creado correctamente");
+        fetchAttentionPoints();
+      } else {
+        toast.error("Error al crear punto de atención");
+      }
+    } catch (error) {
+      toast.error("Error de conexión al crear punto de atención");
+      console.error("Error creating attention point:", error);
+    }
+  };
+
+  const handleEditAttentionPoint = async (pointId, formData) => {
+    try {
+      const result = await actions.updateAttentionPoint(id, pointId, formData);
+      if (result && !result.error) {
+        toast.success("Punto de atención actualizado correctamente");
+        fetchAttentionPoints();
+      } else {
+        toast.error("Error al actualizar punto de atención");
+      }
+    } catch (error) {
+      toast.error("Error de conexión al actualizar punto de atención");
+      console.error("Error updating attention point:", error);
+    }
+  };
+
+  const handleDeleteAttentionPoint = async (pointId) => {
+    if (window.confirm("¿Estás seguro de que quieres eliminar este punto de atención?")) {
+      try {
+        const result = await actions.deleteAttentionPoint(id, pointId);
+        if (result && !result.error) {
+          toast.success("Punto de atención eliminado correctamente");
+          fetchAttentionPoints();
+        } else {
+          toast.error("Error al eliminar punto de atención");
+        }
+      } catch (error) {
+        toast.error("Error de conexión al eliminar punto de atención");
+        console.error("Error deleting attention point:", error);
+      }
+    }
+  };
+
+  const handleOpenAttentionModal = (point = null) => {
+    if (point) {
+      setEditingAttentionPoint(point);
+      setAttentionForm({
+        impacto: point.impacto || "",
+        acciones_ejecutar: point.acciones_ejecutar || "",
+        fecha_ocurrencia: point.fecha_ocurrencia ? new Date(point.fecha_ocurrencia).toISOString().split("T")[0] : "",
+        fecha_solucion: point.fecha_solucion ? new Date(point.fecha_solucion).toISOString().split("T")[0] : "",
+        responsable: point.responsable || "",
+      });
+    } else {
+      setEditingAttentionPoint(null);
+      setAttentionForm({
+        impacto: "",
+        acciones_ejecutar: "",
+        fecha_ocurrencia: "",
+        fecha_solucion: "",
+        responsable: "",
+      });
+    }
+    setShowAttentionModal(true);
+  };
+
+  const handleCloseAttentionModal = () => {
+    setShowAttentionModal(false);
+    setEditingAttentionPoint(null);
+    setAttentionForm({
+      impacto: "",
+      acciones_ejecutar: "",
+      fecha_ocurrencia: "",
+      fecha_solucion: "",
+      responsable: "",
+    });
+  };
+
+  const handleSaveAttentionPoint = async () => {
+    if (!attentionForm.impacto.trim() || !attentionForm.acciones_ejecutar.trim()) {
+      toast.error("Los campos Impacto y Acciones a Ejecutar son obligatorios");
+      return;
+    }
+
+    const formData = {
+      impacto: attentionForm.impacto,
+      acciones_ejecutar: attentionForm.acciones_ejecutar,
+      fecha_ocurrencia: attentionForm.fecha_ocurrencia || null,
+      fecha_solucion: attentionForm.fecha_solucion || null,
+      responsable: attentionForm.responsable,
+    };
+
+    if (editingAttentionPoint) {
+      await handleEditAttentionPoint(editingAttentionPoint.id, formData);
+    } else {
+      await handleCreateAttentionPoint(formData);
+    }
+
+    handleCloseAttentionModal();
   };
 
   if (loading) {
@@ -497,13 +629,88 @@ const ProjectDetailPage = () => {
 
           {activeTab === "attention" && (
             <div>
-              <h3 className="h5 fw-semibold mb-4">Puntos de Atención</h3>
-              <div className="text-center py-5">
-                <AlertTriangle size={48} className="text-muted mb-3" />
-                <p className="text-muted">
-                  No hay puntos de atención registrados
-                </p>
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <h3 className="h5 fw-semibold mb-0">Puntos de Atención</h3>
+                {isOwner && (
+                  <button
+                    className="btn btn-primary d-flex align-items-center gap-2"
+                    onClick={() => handleOpenAttentionModal()}
+                  >
+                    <Plus size={20} />
+                    Agregar Punto
+                  </button>
+                )}
               </div>
+
+              {attentionPoints.length === 0 ? (
+                <div className="text-center py-5">
+                  <AlertTriangle size={48} className="text-muted mb-3" />
+                  <p className="text-muted">
+                    No hay puntos de atención registrados
+                  </p>
+                </div>
+              ) : (
+                <div className="row g-3">
+                  {attentionPoints.map((point) => (
+                    <div key={point.id} className="col-12">
+                      <div className="card border">
+                        <div className="card-body">
+                          <div className="d-flex justify-content-between align-items-start mb-3">
+                            <div className="flex-grow-1">
+                              <h5 className="card-title h6 fw-semibold mb-2">
+                                {point.impacto}
+                              </h5>
+                              <p className="card-text small text-muted mb-2">
+                                {point.acciones_ejecutar}
+                              </p>
+                              <div className="row g-2">
+                                <div className="col-md-4">
+                                  <small className="text-muted">
+                                    <strong>Fecha Ocurrencia:</strong>{" "}
+                                    {point.fecha_ocurrencia
+                                      ? new Date(point.fecha_ocurrencia).toLocaleDateString()
+                                      : "No definida"}
+                                  </small>
+                                </div>
+                                <div className="col-md-4">
+                                  <small className="text-muted">
+                                    <strong>Fecha Solución:</strong>{" "}
+                                    {point.fecha_solucion
+                                      ? new Date(point.fecha_solucion).toLocaleDateString()
+                                      : "No definida"}
+                                  </small>
+                                </div>
+                                <div className="col-md-4">
+                                  <small className="text-muted">
+                                    <strong>Responsable:</strong>{" "}
+                                    {point.responsable || "No asignado"}
+                                  </small>
+                                </div>
+                              </div>
+                            </div>
+                            {isOwner && (
+                              <div className="d-flex gap-2">
+                                <button
+                                  className="btn btn-outline-secondary btn-sm"
+                                  onClick={() => handleOpenAttentionModal(point)}
+                                >
+                                  <Edit size={16} />
+                                </button>
+                                <button
+                                  className="btn btn-outline-danger btn-sm"
+                                  onClick={() => handleDeleteAttentionPoint(point.id)}
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -595,6 +802,98 @@ const ProjectDetailPage = () => {
                   }}
                 >
                   Guardar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Attention Modal */}
+      {showAttentionModal && (
+        <div
+          className="modal show d-block"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          tabIndex="-1"
+        >
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  {editingAttentionPoint ? "Editar Punto de Atención" : "Crear Punto de Atención"}
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={handleCloseAttentionModal}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <div className="mb-3">
+                  <label className="form-label">Impacto *</label>
+                  <textarea
+                    className="form-control"
+                    rows="3"
+                    value={attentionForm.impacto}
+                    onChange={(e) => setAttentionForm({ ...attentionForm, impacto: e.target.value })}
+                    placeholder="Describe el impacto del punto de atención"
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Acciones a Ejecutar *</label>
+                  <textarea
+                    className="form-control"
+                    rows="3"
+                    value={attentionForm.acciones_ejecutar}
+                    onChange={(e) => setAttentionForm({ ...attentionForm, acciones_ejecutar: e.target.value })}
+                    placeholder="Describe las acciones que se deben ejecutar"
+                  />
+                </div>
+                <div className="row">
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Fecha de Ocurrencia</label>
+                    <input
+                      type="date"
+                      className="form-control"
+                      value={attentionForm.fecha_ocurrencia}
+                      onChange={(e) => setAttentionForm({ ...attentionForm, fecha_ocurrencia: e.target.value })}
+                    />
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Fecha de Solución</label>
+                    <input
+                      type="date"
+                      className="form-control"
+                      value={attentionForm.fecha_solucion}
+                      onChange={(e) => setAttentionForm({ ...attentionForm, fecha_solucion: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Responsable</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={attentionForm.responsable}
+                    onChange={(e) => setAttentionForm({ ...attentionForm, responsable: e.target.value })}
+                    placeholder="Nombre del responsable"
+                  />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleCloseAttentionModal}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleSaveAttentionPoint}
+                >
+                  {editingAttentionPoint ? "Actualizar" : "Crear"}
                 </button>
               </div>
             </div>

@@ -1160,6 +1160,94 @@ const getState = ({ getStore, getActions, setStore }) => {
           };
         }
       },
+      // Fetch attention points for a project
+      fetchAttentionPoints: async (projectId) => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/projects/${projectId}/attention-points`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          } else {
+            console.error("Failed to fetch attention points");
+            return [];
+          }
+        } catch (error) {
+          console.error("Error fetching attention points:", error);
+          return [];
+        }
+      },
+      // Create attention point
+      createAttentionPoint: async (projectId, attentionPointData) => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/projects/${projectId}/attention-points`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(attentionPointData),
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          } else {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to create attention point");
+          }
+        } catch (error) {
+          console.error("Error creating attention point:", error);
+          throw error;
+        }
+      },
+      // Update attention point
+      updateAttentionPoint: async (projectId, attentionPointId, attentionPointData) => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/projects/${projectId}/attention-points/${attentionPointId}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(attentionPointData),
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          } else {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to update attention point");
+          }
+        } catch (error) {
+          console.error("Error updating attention point:", error);
+          throw error;
+        }
+      },
+      // Delete attention point
+      deleteAttentionPoint: async (projectId, attentionPointId) => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/projects/${projectId}/attention-points/${attentionPointId}`,
+            {
+              method: "DELETE",
+            }
+          );
+          if (response.ok) {
+            return { success: true };
+          } else {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to delete attention point");
+          }
+        } catch (error) {
+          console.error("Error deleting attention point:", error);
+          throw error;
+        }
+      },
     },
   };
 };
