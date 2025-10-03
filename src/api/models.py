@@ -281,7 +281,7 @@ class Phase(db.Model):
         # Calculate phase-level indicators from activities
         planned_progress = sum(activity.planned_percent or 0 for activity in self.activities)
         real_progress = sum(activity.real_percent or 0 for activity in self.activities) / len(self.activities) if self.activities else 0
-        compliance = sum(activity.real_compliance or 0 for activity in self.activities) / len(self.activities) if self.activities else 0
+        compliance = sum(activity.real_compliance or 0 for activity in self.activities)
 
         return {
             'id': self.id,

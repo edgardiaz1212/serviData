@@ -7,15 +7,13 @@ const PhaseProgressBar = ({ phase }) => {
         }
 
         let totalCompliance = 0;
-        let activityCount = 0;
 
         phase.activities.forEach(activity => {
             const compliance = activity.real_compliance || 0;
             totalCompliance += compliance;
-            activityCount++;
         });
 
-        return activityCount > 0 ? Math.round(totalCompliance / activityCount) : 0;
+        return Math.round(totalCompliance);
     };
 
     const calculatePlannedProgress = () => {
@@ -24,15 +22,13 @@ const PhaseProgressBar = ({ phase }) => {
         }
 
         let totalPlanned = 0;
-        let activityCount = 0;
 
         phase.activities.forEach(activity => {
             const planned = activity.planned_percent || 0;
             totalPlanned += planned;
-            activityCount++;
         });
 
-        return activityCount > 0 ? Math.round(totalPlanned / activityCount) : 0;
+        return Math.round(totalPlanned);
     };
 
     const getProgressBarColor = (progress) => {
@@ -44,7 +40,7 @@ const PhaseProgressBar = ({ phase }) => {
 
     const realProgress = calculatePhaseProgress();
     const plannedProgress = calculatePlannedProgress();
-console.log(phase);
+
     return (
         <div className="mb-3">
             <div className="d-flex justify-content-between align-items-center mb-2">
@@ -60,11 +56,11 @@ console.log(phase);
             </div>
 
             {/* Planned Progress Bar */}
-            <div className="progress mb-2" style={{ height: `${plannedProgress}px` }}>
+            <div className="progress mb-2" style={{ height: '6px' }}>
                 <div
                     className={`progress-bar ${getProgressBarColor(plannedProgress)}`}
                     role="progressbar"
-                    style={{ width: '100%' }}
+                    style={{ width: `${plannedProgress}%` }}
                     aria-valuenow={plannedProgress}
                     aria-valuemin="0"
                     aria-valuemax="100"
