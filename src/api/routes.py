@@ -3,7 +3,7 @@ from werkzeug.utils import secure_filename
 import io
 import os
 from io import BytesIO
-from api.models import db, User, Cliente, Servicio, Documento
+from api.models import db, User, Cliente, Servicio, Documento, Project, Phase, Activity, AttentionPoint
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 import pandas as pd
@@ -1904,3 +1904,96 @@ def update_accumulated_deviations(project_id):
     # Note: accumulated_deviation is now calculated at project level only
     # and stored in the Project model, not in individual activities
     return total_deviation
+
+# ------------------------------
+# Acciones para Attention Points
+# ------------------------------
+
+@api.route('/projects/<int:project_id>/attention-points', methods=['GET'])
+@jwt_required()
+def get_attention_points(project_id):
+    try:
+        # Check if project exists
+        project = Project.query.get(project_id)
+        if not project:
+            return jsonify({"message": "Project not found"}), 404
+
+        attention_points = AttentionPoint.query.filter_by(project_id=project_id).all()
+        return jsonify([ap.serialize() for ap in attention_points]), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api.route('/projects/<int:project_id>/attention-points', methods=['POST'])
+@jwt_required()
+def create_attention_point(project_id):
+    try:
+        # Check if project exists
+        project = Project.query.get(project_id)
+        if not project:
+            return jsonify({"message": "Project not found"}), 404
+
+        data = request.get_json()
+        if not data or not data.get('impacto') or not data.get('fecha_ocurrencia') or not data.get('responsable'):
+            return jsonify({"error": "Impacto, fecha_ocurrencia, and responsable are required"}), 400
+
+        attention_point = AttentionPoint(
+            project_id=project_id,
+            impacto=data.get('impacto'),
+            acciones_ejecutar=data.get('acciones_ejecutar'),
+            fecha_ocurrencia=datetime.fromisoformat(data['fecha_ocurrencia']),
+            fecha_solucion=datetime.fromisoformat(data['fecha_solucion']) if data.get('fecha_solucion') else None,
+            responsable=data.get('responsable')
+        )
+        db.session.add(attention_point)
+        db.session.commit()
+        return jsonify({"message": "Attention point created successfully", "attention_point": attention_point.serialize()}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+@api.route('/projects/<int:project_id>/attention-points/<int:attention_point_id>', methods=['GET'])
+@jwt_required()
+def get_attention_point(project_id, attention_point_id):
+    try:
+        attention_point = AttentionPoint.query.filter_by(id=attention_point_id, project_id=project_id).first()
+        if not attention_point:
+            return jsonify({"message": "Attention point not found"}), 404
+        return jsonify(attention_point.serialize()), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api.route('/projects/<int:project_id>/attention-points/<int:attention_point_id>', methods=['PUT'])
+@jwt_required()
+def update_attention_point(project_id, attention_point_id):
+    try:
+        attention_point = AttentionPoint.query.filter_by(id=attention_point_id, project_id=project_id).first()
+        if not attention_point:
+            return jsonify({"message": "Attention point not found"}), 404
+
+        data = request.get_json()
+        for key, value in data.items():
+            if key in ['impacto', 'acciones_ejecutar', 'responsable']:
+                setattr(attention_point, key, value)
+            elif key in ['fecha_ocurrencia', 'fecha_solucion'] and value:
+                setattr(attention_point, key, datetime.fromisoformat(value))
+
+        db.session.commit()
+        return jsonify({"message": "Attention point updated successfully", "attention_point": attention_point.serialize()}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+@api.route('/projects/<int:project_id>/attention-points/<int:attention_point_id>', methods=['DELETE'])
+@jwt_required()
+def delete_attention_point(project_id, attention_point_id):
+    try:
+        attention_point = AttentionPoint.query.filter_by(id=attention_point_id, project_id=project_id).first()
+        if not attention_point:
+            return jsonify({"message": "Attention point not found"}), 404
+
+        db.session.delete(attention_point)
+        db.session.commit()
+        return jsonify({"message": "Attention point deleted successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500

@@ -217,6 +217,7 @@ class Project(db.Model):
 
     phases = db.relationship("Phase", back_populates="project", cascade="all, delete-orphan")
     user = db.relationship("User", back_populates="projects")
+    attention_points = db.relationship("AttentionPoint", back_populates="project", cascade="all, delete-orphan")
 
     def serialize(self):
         # Calculate project-level indicators from phase indicators
@@ -320,6 +321,7 @@ class Activity(db.Model):
 
     phase = db.relationship("Phase", back_populates="activities")
 
+
     def serialize(self):
         return {
             'id': self.id,
@@ -335,6 +337,33 @@ class Activity(db.Model):
             'deviation': self.deviation,
             'completion_date': self.completion_date.isoformat() if self.completion_date else None,
             'status': self.status,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+        }
+
+class AttentionPoint(db.Model):
+    __tablename__ = 'attention_points'
+    id = db.Column(db.Integer, primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id', ondelete='CASCADE'), nullable=False)
+    impacto = db.Column(db.String, nullable=False)
+    acciones_ejecutar = db.Column(db.String, nullable=False)
+    fecha_ocurrencia = db.Column(db.DateTime, nullable=False)
+    fecha_solucion = db.Column(db.DateTime)
+    responsable = db.Column(db.String, nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+    project = db.relationship("Project", back_populates="attention_points")
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'project_id': self.project_id,
+            'impacto': self.impacto,
+            'acciones_ejecutar': self.acciones_ejecutar,
+            'fecha_ocurrencia': self.fecha_ocurrencia.isoformat() if self.fecha_ocurrencia else None,
+            'fecha_solucion': self.fecha_solucion.isoformat() if self.fecha_solucion else None,
+            'responsable': self.responsable,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }
