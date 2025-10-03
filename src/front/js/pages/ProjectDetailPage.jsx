@@ -284,20 +284,22 @@ const ProjectDetailPage = () => {
 
                                                 {/* Activities List */}
                                                 {phase.activities && phase.activities.length > 0 && (
-                                                    <div className="mt-3">
-                                                        <h6 className="fw-medium text-muted mb-2">Actividades de la Fase:</h6>
-                                                        <div className="list-group list-group-flush">
-                                                            {phase.activities.map((activity, activityIndex) => (
-                                                                <div key={activityIndex} className="list-group-item border-0 px-0 py-1">
-                                                                    <div className="d-flex align-items-center">
-                                                                        <span className="badge bg-primary me-2">Actividad {activityIndex + 1}</span>
-                                                                        <span className="fw-medium">{activity.description}</span>
-                                                                    </div>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                )}
+    <div className="mt-3">
+        <h6 className="fw-medium text-muted mb-2">Actividades de la Fase:</h6>
+        <div className="list-group list-group-flush">
+            {phase.activities.map((activity) => ( // Quita activityIndex
+                <div key={activity.id} className="list-group-item border-0 px-0 py-1">
+                    <div className="d-flex align-items-center">
+                        {/* <span className="badge bg-primary me-2">
+                            Actividad {activity.order || activity.id}
+                        </span> */}
+                        <span className="fw-medium">{activity.description}</span>
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+)}
                                             </div>
                                         </div>
                                     </div>
@@ -306,83 +308,69 @@ const ProjectDetailPage = () => {
                         </div>
                     )}
 
-                    {activeTab === 'activities' && (
-                        <div>
-                            <h3 className="h5 fw-semibold mb-4">Actividades</h3>
-                            <div className="table-responsive">
-                                <table className="table table-striped">
-                                    <thead className="table-light">
-                                        <tr>
-                                            <th className="fw-medium">N° Actividad</th>
-                                            <th className="fw-medium">Actividad</th>
-                                            <th className="fw-medium">Fase</th>
-                                            <th className="fw-medium">Duración</th>
-                                            <th className="fw-medium">Progreso</th>
-                                            <th className="fw-medium">Planificado %</th>
-                                            <th className="fw-medium">Real %</th>
-                                            <th className="fw-medium">Cumplimiento %</th>
-                                            <th className="fw-medium">Desviación</th>
-                                            <th className="fw-medium">Fecha Finalización</th>
-                                            <th className="fw-medium">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {project.phases && project.phases.flatMap(phase =>
-                                            phase.activities ? phase.activities.map((activity, activityIndex) => (
-                                                <tr key={`${phase.id}-${activityIndex}`}>
-                                                    <td className="fw-medium">
-                                                        <span className="badge bg-primary">Actividad {activityIndex + 1}</span>
-                                                    </td>
-                                                    <td className="fw-medium">{activity.description}</td>
-                                                    <td>{phase.name}</td>
-                                                    <td>{activity.duration} días</td>
-                                                    <td>{(activity.planned_percent || 0).toFixed(2)}%</td>
-                                                    <td>{(activity.real_percent || 0).toFixed(2)}%</td>
-                                                    <td>
-                                                        {isOwner ? (
-                                                            <input
-                                                                type="number"
-                                                                min="0"
-                                                                max="100"
-                                                                step="0.1"
-                                                                value={activity.real_percent || 0}
-                                                                readOnly
-                                                                className="form-control form-control-sm bg-light"
-                                                                style={{ width: '80px' }}
-                                                            />
-                                                        ) : (
-                                                            <span>{(activity.real_percent || 0).toFixed(2)}%</span>
-                                                        )}
-                                                    </td>
-                                                    <td>{activity.deviation ? activity.deviation.toFixed(2) : 0}%</td>
-                                                    <td>
-                                                        {activity.completion_date ? new Date(activity.completion_date).toLocaleDateString('es-ES') : '-'}
-                                                    </td>
-                                                    <td>
-                                                        {isOwner ? (
-                                                            <button
-                                                                className="btn btn-outline-primary btn-sm"
-                                                                onClick={() => {
-                                                                    setSelectedActivity(activity);
-                                                                    setFulfillmentValue(activity.real_percent || 0);
-                                                                    setCompletionDate(activity.completion_date ? new Date(activity.completion_date).toISOString().split('T')[0] : '');
-                                                                    setShowFulfillmentModal(true);
-                                                                }}
-                                                            >
-                                                                Agregar Cumplimiento
-                                                            </button>
-                                                        ) : (
-                                                            <span>-</span>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            )) : []
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+{activeTab === 'activities' && (
+    <div>
+        <h3 className="h5 fw-semibold mb-4">Actividades</h3>
+        <div className="table-responsive">
+            <table className="table table-striped">
+                <thead className="table-light">
+                    <tr>
+                        
+                        <th className="fw-medium">Actividad</th>
+                        <th className="fw-medium">Fase</th>
+                        <th className="fw-medium">Duración</th>
+                        <th className="fw-medium">Planificado %</th>
+                        <th className="fw-medium">Real %</th>
+                        <th className="fw-medium">Cumplimiento %</th>
+                        <th className="fw-medium">Desviación</th>
+                        <th className="fw-medium">Fecha Finalización</th>
+                        <th className="fw-medium">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {project.phases && project.phases.flatMap(phase =>
+                        phase.activities ? phase.activities.map((activity) => (
+                            <tr key={activity.id || `${phase.id}-${activity.id}`}>
+                                
+                                <td className="fw-medium">{activity.description}</td>
+                                <td>{phase.name}</td>
+                                <td>{activity.duration} días</td>
+                                <td>{(activity.planned_percent || 0).toFixed(2)}%</td>
+                                <td>{(activity.real_percent || 0).toFixed(2)}%</td>
+                                <td>
+
+                                <span>{(activity.real_percent || 0).toFixed(2)}%</span>
+                                    
+                                </td>
+                                <td>{activity.deviation ? activity.deviation.toFixed(2) : 0}%</td>
+                                <td>
+                                    {activity.completion_date ? new Date(activity.completion_date).toLocaleDateString('es-ES') : '-'}
+                                </td>
+                                <td>
+                                    {isOwner ? (
+                                        <button
+                                            className="btn btn-outline-primary btn-sm"
+                                            onClick={() => {
+                                                setSelectedActivity(activity);
+                                                setFulfillmentValue(activity.real_percent || 0);
+                                                setCompletionDate(activity.completion_date ? new Date(activity.completion_date).toISOString().split('T')[0] : '');
+                                                setShowFulfillmentModal(true);
+                                            }}
+                                        >
+                                            Agregar Cumplimiento
+                                        </button>
+                                    ) : (
+                                        <span>-</span>
+                                    )}
+                                </td>
+                            </tr>
+                        )) : []
                     )}
+                </tbody>
+            </table>
+        </div>
+    </div>
+)}
 
                     {activeTab === 'chart' && (
                         <div>
