@@ -218,6 +218,7 @@ class Project(db.Model):
     phases = db.relationship("Phase", back_populates="project", cascade="all, delete-orphan")
     user = db.relationship("User", back_populates="projects")
     attention_points = db.relationship("AttentionPoint", back_populates="project", cascade="all, delete-orphan")
+    project_status = db.relationship("ProjectStatus", back_populates="project", cascade="all, delete-orphan", uselist=False)
 
     def serialize(self):
         # Calculate project-level indicators from phase indicators
@@ -364,6 +365,29 @@ class AttentionPoint(db.Model):
             'fecha_ocurrencia': self.fecha_ocurrencia.isoformat() if self.fecha_ocurrencia else None,
             'fecha_solucion': self.fecha_solucion.isoformat() if self.fecha_solucion else None,
             'responsable': self.responsable,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+        }
+
+class ProjectStatus(db.Model):
+    __tablename__ = 'project_status'
+    id = db.Column(db.Integer, primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id', ondelete='CASCADE'), nullable=False)
+    achievements = db.Column(db.Text)  # Logros / Avances Relevantes
+    next_steps = db.Column(db.Text)  # Próximos Pasos
+    deviation_reasons = db.Column(db.Text)  # Razones de la desviación
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+    project = db.relationship("Project", back_populates="project_status")
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'project_id': self.project_id,
+            'achievements': self.achievements,
+            'next_steps': self.next_steps,
+            'deviation_reasons': self.deviation_reasons,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }

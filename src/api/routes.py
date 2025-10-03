@@ -3,7 +3,7 @@ from werkzeug.utils import secure_filename
 import io
 import os
 from io import BytesIO
-from api.models import db, User, Cliente, Servicio, Documento, Project, Phase, Activity, AttentionPoint
+from api.models import db, User, Cliente, Servicio, Documento, Project, Phase, Activity, AttentionPoint, ProjectStatus
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 import pandas as pd
@@ -1994,6 +1994,88 @@ def delete_attention_point(project_id, attention_point_id):
         db.session.delete(attention_point)
         db.session.commit()
         return jsonify({"message": "Attention point deleted successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+# ------------------------------
+# Acciones para Project Status
+# ------------------------------
+
+@api.route('/projects/<int:project_id>/status', methods=['GET'])
+@jwt_required()
+def get_project_status(project_id):
+    try:
+        # Check if project exists
+        project = Project.query.get(project_id)
+        if not project:
+            return jsonify({"message": "Project not found"}), 404
+
+        project_status = ProjectStatus.query.filter_by(project_id=project_id).first()
+        if not project_status:
+            return jsonify({"message": "Project status not found"}), 404
+        return jsonify(project_status.serialize()), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api.route('/projects/<int:project_id>/status', methods=['POST'])
+@jwt_required()
+def create_project_status(project_id):
+    try:
+        # Check if project exists
+        project = Project.query.get(project_id)
+        if not project:
+            return jsonify({"message": "Project not found"}), 404
+
+        # Check if project status already exists
+        existing_status = ProjectStatus.query.filter_by(project_id=project_id).first()
+        if existing_status:
+            return jsonify({"message": "Project status already exists"}), 409
+
+        data = request.get_json()
+        project_status = ProjectStatus(
+            project_id=project_id,
+            achievements=data.get('achievements'),
+            next_steps=data.get('next_steps'),
+            deviation_reasons=data.get('deviation_reasons')
+        )
+        db.session.add(project_status)
+        db.session.commit()
+        return jsonify({"message": "Project status created successfully", "project_status": project_status.serialize()}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+@api.route('/projects/<int:project_id>/status', methods=['PUT'])
+@jwt_required()
+def update_project_status(project_id):
+    try:
+        project_status = ProjectStatus.query.filter_by(project_id=project_id).first()
+        if not project_status:
+            return jsonify({"message": "Project status not found"}), 404
+
+        data = request.get_json()
+        for key, value in data.items():
+            if key in ['achievements', 'next_steps', 'deviation_reasons']:
+                setattr(project_status, key, value)
+
+        db.session.commit()
+        return jsonify({"message": "Project status updated successfully", "project_status": project_status.serialize()}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+@api.route('/projects/<int:project_id>/status', methods=['DELETE'])
+@jwt_required()
+def delete_project_status(project_id):
+    try:
+        project_status = ProjectStatus.query.filter_by(project_id=project_id).first()
+        if not project_status:
+            return jsonify({"message": "Project status not found"}), 404
+
+        db.session.delete(project_status)
+        db.session.commit()
+        return jsonify({"message": "Project status deleted successfully"}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
