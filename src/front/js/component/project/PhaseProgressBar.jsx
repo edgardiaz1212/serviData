@@ -87,7 +87,7 @@ console.log(phase);
             {phase.activities && phase.activities.length > 0 && (
                 <div className="mt-2">
                     <small className="text-muted">
-                        {phase.activities.length} actividade{phase.activities.length !== 1 ? 's' : ''}
+                        {phase.activities.length} actividad{phase.activities.length !== 1 ? 'es' : ''}
                     </small>
                 </div>
             )}
