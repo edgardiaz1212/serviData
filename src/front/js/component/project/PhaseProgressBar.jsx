@@ -41,6 +41,13 @@ const PhaseProgressBar = ({ phase }) => {
     const realProgress = calculatePhaseProgress();
     const plannedProgress = calculatePlannedProgress();
 
+    // Calcular el porcentaje de la barra real en relación al planificado
+    const realBarPercentage = plannedProgress > 0 ? (realProgress / plannedProgress) * 100 : 0;
+    const plannedBarPercentage = 100; // La barra planificada siempre es el 100% de sí misma
+
+    // Calcular porcentaje de la fase completada
+    const phaseCompletionPercentage = plannedProgress > 0 ? (realProgress / plannedProgress) * 100 : 0;
+
     return (
         <div className="mb-3">
             <div className="d-flex justify-content-between align-items-center mb-2">
@@ -55,38 +62,43 @@ const PhaseProgressBar = ({ phase }) => {
                 </div>
             </div>
 
-            {/* Planned Progress Bar */}
-            <div className="progress mb-2" style={{ height: '6px' }}>
+            {/* Planned Progress Bar (siempre al 100% de esta fase) */}
+            <div className="progress mb-2" style={{ height: '6px', opacity: 0.4 }}>
                 <div
-                    className={`progress-bar ${getProgressBarColor(plannedProgress)}`}
+                    className="progress-bar bg-light"
                     role="progressbar"
-                    style={{ width: `${plannedProgress}%` }}
+                    style={{ width: `${plannedBarPercentage}%` }}
                     aria-valuenow={plannedProgress}
                     aria-valuemin="0"
-                    aria-valuemax="100"
+                    aria-valuemax={plannedProgress}
                 ></div>
             </div>
 
-            {/* Real Progress Bar (lighter, as reference) */}
-            <div className="progress" style={{ height: '6px', opacity: 0.6 }}>
+            {/* Real Progress Bar (proporcional al planificado) */}
+            <div className="progress" style={{ height: '6px' }}>
                 <div
-                    className="progress-bar bg-secondary"
+                    className={`progress-bar ${getProgressBarColor(realProgress)}`}
                     role="progressbar"
-                    style={{ width: `${realProgress}%` }}
+                    style={{ width: `${Math.min(realBarPercentage, 100)}%` }}
                     aria-valuenow={realProgress}
                     aria-valuemin="0"
-                    aria-valuemax="100"
+                    aria-valuemax={plannedProgress}
                 ></div>
             </div>
 
-            {/* Activities Summary */}
-            {phase.activities && phase.activities.length > 0 && (
-                <div className="mt-2">
-                    <small className="text-muted">
-                        {phase.activities.length} actividad{phase.activities.length !== 1 ? 'es' : ''}
-                    </small>
-                </div>
-            )}
+            {/* Activities Summary + Phase Completion */}
+            <div className="mt-2">
+                <small className="text-muted">
+                    {phase.activities && phase.activities.length > 0 && (
+                        <>
+                            {phase.activities.length} actividad{phase.activities.length !== 1 ? 'es' : ''} •{' '}
+                        </>
+                    )}
+                    <span>
+                        {realProgress} de {plannedProgress} completado ({phaseCompletionPercentage.toFixed(1)}% de la fase)
+                    </span>
+                </small>
+            </div>
         </div>
     );
 };

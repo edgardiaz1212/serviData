@@ -317,6 +317,7 @@ const ProjectDetailPage = () => {
                                             <th className="fw-medium">Actividad</th>
                                             <th className="fw-medium">Fase</th>
                                             <th className="fw-medium">Duración</th>
+                                            <th className="fw-medium">Progreso</th>
                                             <th className="fw-medium">Planificado %</th>
                                             <th className="fw-medium">Real %</th>
                                             <th className="fw-medium">Cumplimiento %</th>
