@@ -58,21 +58,21 @@ const ProjectDetailPage = () => {
             if (result && !result.error) {
                 toast.success('Cumplimiento actualizado correctamente');
                 // Update local state instead of refetching to maintain position
-                setProject(prevProject => {
-                    if (!prevProject) return prevProject;
+                                setProject(prevProject => {
+                                    if (!prevProject) return prevProject;
 
-                    return {
-                        ...prevProject,
-                        phases: prevProject.phases.map(phase => ({
-                            ...phase,
-                            activities: phase.activities?.map(activity =>
-                                activity.id === activityId
-                                    ? { ...activity, real_compliance: complianceValue, completion_date: completionDate }
-                                    : activity
-                            ) || []
-                        }))
-                    };
-                });
+                                    return {
+                                        ...prevProject,
+                                        phases: prevProject.phases.map(phase => ({
+                                            ...phase,
+                                            activities: phase.activities?.map(activity =>
+                                                activity.id === activityId
+                                                    ? { ...activity, real_percent: complianceValue, completion_date: completionDate }
+                                                    : activity
+                                            ) || []
+                                        }))
+                                    };
+                                });
             } else {
                 const errorMessage = result?.message || 'Error desconocido';
                 toast.error(`Error al actualizar cumplimiento: ${errorMessage}`);
@@ -344,13 +344,13 @@ const ProjectDetailPage = () => {
                                                                 min="0"
                                                                 max="100"
                                                                 step="0.1"
-                                                                value={activity.real_compliance || 0}
+                                                                value={activity.real_percent || 0}
                                                                 readOnly
                                                                 className="form-control form-control-sm bg-light"
                                                                 style={{ width: '80px' }}
                                                             />
                                                         ) : (
-                                                            <span>{(activity.real_compliance || 0).toFixed(2)}%</span>
+                                                            <span>{(activity.real_percent || 0).toFixed(2)}%</span>
                                                         )}
                                                     </td>
                                                     <td>{activity.deviation ? activity.deviation.toFixed(2) : 0}%</td>
@@ -363,7 +363,7 @@ const ProjectDetailPage = () => {
                                                                 className="btn btn-outline-primary btn-sm"
                                                                 onClick={() => {
                                                                     setSelectedActivity(activity);
-                                                                    setFulfillmentValue(activity.real_compliance || 0);
+                                                                    setFulfillmentValue(activity.real_percent || 0);
                                                                     setCompletionDate(activity.completion_date ? new Date(activity.completion_date).toISOString().split('T')[0] : '');
                                                                     setShowFulfillmentModal(true);
                                                                 }}
@@ -423,21 +423,21 @@ const ProjectDetailPage = () => {
                             <div className="modal-body">
                                 <p><strong>Actividad:</strong> {selectedActivity.description}</p>
                                 <p><strong>Planificado:</strong> {selectedActivity.planned_percent}%</p>
-                                <div className="mb-3">
-                                    <label className="form-label">Cumplimiento Real (%)</label>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        max={selectedActivity.planned_percent}
-                                        step="0.01"
-                                        value={fulfillmentValue}
-                                        onChange={(e) => {
-                                            const value = parseFloat(e.target.value) || 0;
-                                            setFulfillmentValue(Math.min(value, selectedActivity.planned_percent));
-                                        }}
-                                        className="form-control"
-                                    />
-                                </div>
+                                    <div className="mb-3">
+                                        <label className="form-label">Cumplimiento Real (%)</label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="100"
+                                            step="0.01"
+                                            value={fulfillmentValue}
+                                            onChange={(e) => {
+                                                const value = parseFloat(e.target.value) || 0;
+                                                setFulfillmentValue(Math.min(value, 100));
+                                            }}
+                                            className="form-control"
+                                        />
+                                    </div>
                                 <div className="mb-3">
                                     <label className="form-label">Fecha de Finalización</label>
                                     <input

@@ -1127,7 +1127,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             throw new Error("Project ID and Activity ID are required");
           }
 
-          const payload = { real_compliance: complianceValue };
+          const payload = { real_percent: complianceValue };
           if (completionDate) {
             payload.completion_date = completionDate;
           }

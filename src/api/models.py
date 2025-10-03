@@ -309,9 +309,9 @@ class Activity(db.Model):
     predecessors = db.Column(db.String)  # Comma-separated IDs
     planned_start = db.Column(db.DateTime)
     planned_end = db.Column(db.DateTime)
-    planned_percent = db.Column(db.Float)  # Calculated
-    real_compliance = db.Column(db.Float, default=0.0)  # 0-100%
-    real_percent = db.Column(db.Float, default=0.0)  # Calculated
+    planned_percent = db.Column(db.Float)  # Calculated contribution percentage to project
+    real_compliance = db.Column(db.Float, default=0.0)  # Calculated contribution to project based on real_percent and planned_percent
+    real_percent = db.Column(db.Float, default=0.0)  # 0-100% completion of the activity
     deviation = db.Column(db.Float, default=0.0)  # real_percent - planned_percent
     completion_date = db.Column(db.DateTime)  # Date when activity reaches 100% completion
     status = db.Column(db.String, default="Pendiente")
