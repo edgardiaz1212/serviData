@@ -625,6 +625,8 @@ const ProjectDetailPage = () => {
                       <th className="fw-medium">Actividad</th>
                       <th className="fw-medium">Fase</th>
                       <th className="fw-medium">Duración</th>
+                      <th className="fw-medium">Fecha Inicio Planificada</th>
+                      <th className="fw-medium">Fecha Fin Planificada</th>
                       <th className="fw-medium">Planificado %</th>
                       <th className="fw-medium">Real %</th>
 
@@ -648,6 +650,16 @@ const ProjectDetailPage = () => {
                                 </td>
                                 <td>{phase.name}</td>
                                 <td>{activity.duration} días</td>
+                                <td>
+                                  {activity.planned_start
+                                    ? new Date(activity.planned_start).toLocaleDateString("es-ES")
+                                    : "-"}
+                                </td>
+                                <td>
+                                  {activity.planned_end
+                                    ? new Date(activity.planned_end).toLocaleDateString("es-ES")
+                                    : "-"}
+                                </td>
                                 <td>
                                   {(activity.planned_percent || 0).toFixed(2)}%
                                 </td>
