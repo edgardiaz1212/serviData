@@ -1248,6 +1248,94 @@ const getState = ({ getStore, getActions, setStore }) => {
           throw error;
         }
       },
+      // Fetch project status
+      fetchProjectStatus: async (projectId) => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/projects/${projectId}/status`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          } else {
+            console.error("Failed to fetch project status");
+            return [];
+          }
+        } catch (error) {
+          console.error("Error fetching project status:", error);
+          return [];
+        }
+      },
+      // Create project status
+      createProjectStatus: async (projectId, statusData) => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/projects/${projectId}/status`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(statusData),
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          } else {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to create project status");
+          }
+        } catch (error) {
+          console.error("Error creating project status:", error);
+          throw error;
+        }
+      },
+      // Update project status
+      updateProjectStatus: async (projectId, statusId, statusData) => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/projects/${projectId}/status/${statusId}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(statusData),
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          } else {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to update project status");
+          }
+        } catch (error) {
+          console.error("Error updating project status:", error);
+          throw error;
+        }
+      },
+      // Delete project status
+      deleteProjectStatus: async (projectId, statusId) => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/projects/${projectId}/status/${statusId}`,
+            {
+              method: "DELETE",
+            }
+          );
+          if (response.ok) {
+            return { success: true };
+          } else {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to delete project status");
+          }
+        } catch (error) {
+          console.error("Error deleting project status:", error);
+          throw error;
+        }
+      },
     },
   };
 };

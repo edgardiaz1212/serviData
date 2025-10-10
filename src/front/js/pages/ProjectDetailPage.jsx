@@ -36,6 +36,13 @@ const ProjectDetailPage = () => {
     fecha_solucion: "",
     responsable: "",
   });
+  const [projectStatus, setProjectStatus] = useState(null);
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [statusForm, setStatusForm] = useState({
+    achievements: "",
+    next_steps: "",
+    deviation_reasons: "",
+  });
   const isOwner = project && store.user && project.user_id === store.user.id;
 
   useEffect(() => {
@@ -50,6 +57,12 @@ const ProjectDetailPage = () => {
   useEffect(() => {
     if (activeTab === "attention" && id && id !== "new") {
       fetchAttentionPoints();
+    }
+  }, [activeTab, id]);
+
+  useEffect(() => {
+    if (activeTab === "status" && id && id !== "new") {
+      fetchProjectStatus();
     }
   }, [activeTab, id]);
 
@@ -75,6 +88,16 @@ const ProjectDetailPage = () => {
     } catch (error) {
       toast.error("Error al obtener puntos de atención");
       console.error("Error fetching attention points:", error);
+    }
+  };
+
+  const fetchProjectStatus = async () => {
+    try {
+      const data = await actions.fetchProjectStatus(id);
+      setProjectStatus(data);
+    } catch (error) {
+      toast.error("Error al obtener estado del proyecto");
+      console.error("Error fetching project status:", error);
     }
   };
 
@@ -256,6 +279,67 @@ const ProjectDetailPage = () => {
     handleCloseAttentionModal();
   };
 
+
+
+  const handleOpenStatusModal = (status = null) => {
+    if (status) {
+      setStatusForm({
+        achievements: status.achievements || "",
+        next_steps: status.next_steps || "",
+        deviation_reasons: status.deviation_reasons || "",
+      });
+    } else {
+      setStatusForm({
+        achievements: projectStatus?.achievements || "",
+        next_steps: projectStatus?.next_steps || "",
+        deviation_reasons: projectStatus?.deviation_reasons || "",
+      });
+    }
+    setShowStatusModal(true);
+  };
+
+  const handleCloseStatusModal = () => {
+    setShowStatusModal(false);
+    setStatusForm({
+      achievements: "",
+      next_steps: "",
+      deviation_reasons: "",
+    });
+  };
+
+  const handleSaveStatus = async () => {
+    const formData = {
+      achievements: statusForm.achievements,
+      next_steps: statusForm.next_steps,
+      deviation_reasons: statusForm.deviation_reasons,
+    };
+
+    try {
+      if (projectStatus && projectStatus.id) {
+        const result = await actions.updateProjectStatus(id, projectStatus.id, formData);
+        if (result && !result.error) {
+          toast.success("Estado del proyecto actualizado correctamente");
+          fetchProjectStatus();
+        } else {
+          toast.error("Error al actualizar estado del proyecto");
+        }
+      } else {
+        const result = await actions.createProjectStatus(id, formData);
+        if (result && !result.error) {
+          toast.success("Estado del proyecto creado correctamente");
+          fetchProjectStatus();
+        } else {
+          toast.error("Error al crear estado del proyecto");
+        }
+      }
+    } catch (error) {
+      toast.error("Error de conexión al guardar estado del proyecto");
+      console.error("Error saving project status:", error);
+    }
+
+    handleCloseStatusModal();
+  };
+
   if (loading) {
     return (
       <div
@@ -384,7 +468,7 @@ const ProjectDetailPage = () => {
       {/* Tabs */}
       <div className="mb-4">
         <ul className="nav nav-tabs">
-          {["overview", "phases", "activities", "chart", "attention"].map(
+          {["overview", "phases", "activities", "chart", "attention", "status"].map(
             (tab) => (
               <li key={tab} className="nav-item">
                 <button
@@ -396,6 +480,7 @@ const ProjectDetailPage = () => {
                   {tab === "activities" && "Actividades"}
                   {tab === "chart" && "Gráfico de Progreso"}
                   {tab === "attention" && "Puntos de Atención"}
+                  {tab === "status" && "Estado"}
                 </button>
               </li>
             )
@@ -542,7 +627,7 @@ const ProjectDetailPage = () => {
                       <th className="fw-medium">Duración</th>
                       <th className="fw-medium">Planificado %</th>
                       <th className="fw-medium">Real %</th>
-                      
+
                       <th className="fw-medium">Desviación</th>
                       <th className="fw-medium">Fecha Finalización</th>
                       <th className="fw-medium">Acciones</th>
@@ -569,7 +654,7 @@ const ProjectDetailPage = () => {
                                 <td>
                                   {(activity.real_percent || 0).toFixed(2)}%
                                 </td>
-                                
+
                                 <td>
                                   {activity.deviation
                                     ? activity.deviation.toFixed(2)
@@ -709,6 +794,59 @@ const ProjectDetailPage = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === "status" && (
+            <div>
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <h3 className="h5 fw-semibold mb-0">Estado del Proyecto</h3>
+                {isOwner && (
+                  <button
+                    className="btn btn-primary d-flex align-items-center gap-2"
+                    onClick={() => handleOpenStatusModal()}
+                  >
+                    <Edit size={20} />
+                    Actualizar Estado
+                  </button>
+                )}
+              </div>
+
+              {!projectStatus ? (
+                <div className="text-center py-5">
+                  <Clock size={48} className="text-muted mb-3" />
+                  <p className="text-muted">
+                    No hay estado registrado para este proyecto
+                  </p>
+                </div>
+              ) : (
+                <div className="row g-3">
+                  <div className="col-12">
+                    <div className="card border">
+                      <div className="card-body">
+                        <div className="mb-3">
+                          <h5 className="card-title h6 fw-semibold mb-3">Logros</h5>
+                          <p className="card-text">
+                            {projectStatus.achievements || "No especificado"}
+                          </p>
+                        </div>
+                        <div className="mb-3">
+                          <h5 className="card-title h6 fw-semibold mb-3">Próximos Pasos</h5>
+                          <p className="card-text">
+                            {projectStatus.next_steps || "No especificado"}
+                          </p>
+                        </div>
+                        <div className="mb-3">
+                          <h5 className="card-title h6 fw-semibold mb-3">Razones de Desviación</h5>
+                          <p className="card-text">
+                            {projectStatus.deviation_reasons || "No especificado"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -894,6 +1032,78 @@ const ProjectDetailPage = () => {
                   onClick={handleSaveAttentionPoint}
                 >
                   {editingAttentionPoint ? "Actualizar" : "Crear"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Status Modal */}
+      {showStatusModal && (
+        <div
+          className="modal show d-block"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          tabIndex="-1"
+        >
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  Actualizar Estado del Proyecto
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={handleCloseStatusModal}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <div className="mb-3">
+                  <label className="form-label">Logros</label>
+                  <textarea
+                    className="form-control"
+                    rows="3"
+                    value={statusForm.achievements}
+                    onChange={(e) => setStatusForm({ ...statusForm, achievements: e.target.value })}
+                    placeholder="Describe los logros alcanzados"
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Próximos Pasos</label>
+                  <textarea
+                    className="form-control"
+                    rows="3"
+                    value={statusForm.next_steps}
+                    onChange={(e) => setStatusForm({ ...statusForm, next_steps: e.target.value })}
+                    placeholder="Describe los próximos pasos a seguir"
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Razones de Desviación</label>
+                  <textarea
+                    className="form-control"
+                    rows="3"
+                    value={statusForm.deviation_reasons}
+                    onChange={(e) => setStatusForm({ ...statusForm, deviation_reasons: e.target.value })}
+                    placeholder="Explica las razones de cualquier desviación"
+                  />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleCloseStatusModal}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleSaveStatus}
+                >
+                  Actualizar
                 </button>
               </div>
             </div>
