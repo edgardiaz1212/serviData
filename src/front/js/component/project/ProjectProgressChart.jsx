@@ -10,36 +10,37 @@ const ProjectProgressChart = ({ project }) => {
         return <div className="text-center text-gray-500">No hay datos para mostrar el gráfico</div>;
     }
 
-    // Collect all activities with planned_end dates
+    // Collect all activities
     const activities = [];
     project.phases.forEach(phase => {
         if (phase.activities) {
-            phase.activities.forEach(activity => {
-                if (activity.planned_end) {
-                    activities.push(activity);
-                }
-            });
+            activities.push(...phase.activities);
         }
     });
 
     if (activities.length === 0) {
-        return <div className="text-center text-gray-500">No hay actividades con fechas planificadas para mostrar el gráfico</div>;
+        return <div className="text-center text-gray-500">No hay actividades para mostrar el gráfico</div>;
     }
 
-    // Sort activities by planned_end date
-    activities.sort((a, b) => new Date(a.planned_end) - new Date(b.planned_end));
-
-    // Calculate cumulative progress
+    // Calculate planned progress
+    const activitiesWithPlanned = activities.filter(a => a.planned_end);
+    activitiesWithPlanned.sort((a, b) => new Date(a.planned_end) - new Date(b.planned_end));
     let cumulativePlanned = 0;
-    let cumulativeReal = 0;
     const plannedData = [];
-    const realData = [];
-
-    activities.forEach(activity => {
+    activitiesWithPlanned.forEach(activity => {
         cumulativePlanned += activity.planned_percent || 0;
-        cumulativeReal += activity.real_compliance || 0;
         const date = new Date(activity.planned_end);
         plannedData.push({ x: date, y: Number(cumulativePlanned.toFixed(2)) });
+    });
+
+    // Calculate real progress
+    const activitiesWithCompletion = activities.filter(a => a.completion_date);
+    activitiesWithCompletion.sort((a, b) => new Date(a.completion_date) - new Date(b.completion_date));
+    let cumulativeReal = 0;
+    const realData = [];
+    activitiesWithCompletion.forEach(activity => {
+        cumulativeReal += activity.real_compliance || 0;
+        const date = new Date(activity.completion_date);
         realData.push({ x: date, y: Number(cumulativeReal.toFixed(2)) });
     });
 
@@ -111,7 +112,7 @@ const ProjectProgressChart = ({ project }) => {
                 },
                 title: {
                     display: true,
-                    text: 'Fechas Planificadas'
+                    text: 'Fechas'
                 }
             }
         },
