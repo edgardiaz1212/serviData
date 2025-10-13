@@ -43,6 +43,8 @@ const ProjectDetailPage = () => {
     next_steps: "",
     deviation_reasons: "",
   });
+  const [showCompletionSummaryModal, setShowCompletionSummaryModal] = useState(false);
+  const [showFinalizeConfirmationModal, setShowFinalizeConfirmationModal] = useState(false);
   const isOwner = project && store.user && project.user_id === store.user.id;
   const canEdit = isOwner && project?.status !== "Finalizado" && project?.status !== "Completado";
 
@@ -341,22 +343,30 @@ const ProjectDetailPage = () => {
     handleCloseStatusModal();
   };
 
-  const handleFinalizeProject = async () => {
-    if (window.confirm("¿Estás seguro de que quieres finalizar este proyecto? Esta acción no se puede deshacer.")) {
-      try {
-        const result = await actions.finalizeProject(id);
-        if (result && !result.error) {
-          toast.success("Proyecto finalizado correctamente");
-          // Refresh project data to reflect changes
-          await fetchProject();
-        } else {
-          toast.error("Error al finalizar el proyecto");
-        }
-      } catch (error) {
-        toast.error("Error de conexión al finalizar el proyecto");
-        console.error("Error finalizing project:", error);
+  const handleFinalizeProject = () => {
+    setShowFinalizeConfirmationModal(true);
+  };
+
+  const handleConfirmFinalize = async () => {
+    try {
+      const result = await actions.finalizeProject(id);
+      if (result && !result.error) {
+        toast.success("Proyecto finalizado correctamente");
+        // Refresh project data to reflect changes
+        await fetchProject();
+        setShowFinalizeConfirmationModal(false);
+        setShowCompletionSummaryModal(true);
+      } else {
+        toast.error("Error al finalizar el proyecto");
       }
+    } catch (error) {
+      toast.error("Error de conexión al finalizar el proyecto");
+      console.error("Error finalizing project:", error);
     }
+  };
+
+  const handleCancelFinalize = () => {
+    setShowFinalizeConfirmationModal(false);
   };
 
   if (loading) {
@@ -414,6 +424,15 @@ const ProjectDetailPage = () => {
               >
                 <CheckCircle size={20} />
                 Finalizar Proyecto
+              </button>
+            )}
+            {project?.status === "Completado" && (
+              <button
+                onClick={() => setShowCompletionSummaryModal(true)}
+                className="btn btn-info d-flex align-items-center gap-2"
+              >
+                <CheckCircle size={20} />
+                Ver Resumen de Completitud
               </button>
             )}
           </div>
@@ -1148,6 +1167,373 @@ const ProjectDetailPage = () => {
                   onClick={handleSaveStatus}
                 >
                   Actualizar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Completion Summary Modal */}
+      {showCompletionSummaryModal && (
+        <div
+          className="modal show d-block"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          tabIndex="-1"
+        >
+          <div className="modal-dialog modal-xl">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  <CheckCircle size={20} className="me-2" />
+                  Resumen de Completitud del Proyecto
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowCompletionSummaryModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <div className="mb-4">
+                  <h6 className="fw-semibold mb-3">Proyecto: {project.name}</h6>
+                  <div className="row g-3 mb-4">
+                    <div className="col-md-3">
+                      <div className="card bg-light">
+                        <div className="card-body text-center">
+                          <h6 className="card-title small">Avance Real</h6>
+                          <h4 className="text-success">{project.real_progress || 0}%</h4>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="card bg-light">
+                        <div className="card-body text-center">
+                          <h6 className="card-title small">Cumplimiento</h6>
+                          <h4 className="text-primary">{project.compliance || 0}%</h4>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="card bg-light">
+                        <div className="card-body text-center">
+                          <h6 className="card-title small">Desviación</h6>
+                          <h4 className={project.accumulated_deviation >= 0 ? "text-success" : "text-danger"}>
+                            {project.accumulated_deviation?.toFixed(2) || 0}%
+                          </h4>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="card bg-light">
+                        <div className="card-body text-center">
+                          <h6 className="card-title small">Estado</h6>
+                          <h4 className="text-info">{project.status}</h4>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <h6 className="fw-semibold mb-3">Fases y Actividades</h6>
+                <div className="accordion" id="completionAccordion">
+                  {project.phases && project.phases.map((phase, phaseIndex) => {
+                    const phaseCompletion = phase.activities && phase.activities.length > 0
+                      ? phase.activities.reduce((sum, activity) => sum + (activity.real_percent || 0), 0) / phase.activities.length
+                      : 0;
+
+                    return (
+                      <div key={phase.id || phaseIndex} className="accordion-item">
+                        <h2 className="accordion-header">
+                          <button
+                            className="accordion-button"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target={`#phase${phaseIndex}`}
+                            aria-expanded="true"
+                            aria-controls={`phase${phaseIndex}`}
+                          >
+                            <div className="d-flex justify-content-between align-items-center w-100 me-3">
+                              <span className="fw-medium">{phase.name}</span>
+                              <div className="d-flex align-items-center gap-2">
+                                <small className="text-muted">
+                                  {phase.activities ? phase.activities.length : 0} actividades
+                                </small>
+                                <div className="progress" style={{ width: '100px', height: '8px' }}>
+                                  <div
+                                    className={`progress-bar ${phaseCompletion >= 100 ? 'bg-success' : phaseCompletion >= 50 ? 'bg-warning' : 'bg-danger'}`}
+                                    style={{ width: `${Math.min(phaseCompletion, 100)}%` }}
+                                  ></div>
+                                </div>
+                                <span className="badge bg-secondary">{phaseCompletion.toFixed(1)}%</span>
+                              </div>
+                            </div>
+                          </button>
+                        </h2>
+                        <div
+                          id={`phase${phaseIndex}`}
+                          className="accordion-collapse collapse show"
+                          data-bs-parent="#completionAccordion"
+                        >
+                          <div className="accordion-body">
+                            {phase.activities && phase.activities.length > 0 ? (
+                              <div className="table-responsive">
+                                <table className="table table-sm">
+                                  <thead>
+                                    <tr>
+                                      <th className="small fw-medium">Actividad</th>
+                                      <th className="small fw-medium text-center">Planificado</th>
+                                      <th className="small fw-medium text-center">Real</th>
+                                      <th className="small fw-medium text-center">Desviación</th>
+                                      <th className="small fw-medium">Fecha Finalización</th>
+                                      <th className="small fw-medium text-center">Estado</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {phase.activities.map((activity) => {
+                                      const deviation = (activity.real_percent || 0) - (activity.planned_percent || 0);
+                                      const isCompleted = (activity.real_percent || 0) >= 100;
+
+                                      return (
+                                        <tr key={activity.id}>
+                                          <td className="small">{activity.description}</td>
+                                          <td className="text-center small">{(activity.planned_percent || 0).toFixed(1)}%</td>
+                                          <td className="text-center small fw-medium">
+                                            <span className={isCompleted ? 'text-success' : 'text-primary'}>
+                                              {(activity.real_percent || 0).toFixed(1)}%
+                                            </span>
+                                          </td>
+                                          <td className="text-center small">
+                                            <span className={deviation >= 0 ? 'text-success' : 'text-danger'}>
+                                              {deviation.toFixed(1)}%
+                                            </span>
+                                          </td>
+                                          <td className="small">
+                                            {activity.completion_date
+                                              ? new Date(activity.completion_date).toLocaleDateString('es-ES')
+                                              : '-'
+                                            }
+                                          </td>
+                                          <td className="text-center">
+                                            {isCompleted ? (
+                                              <CheckCircle size={16} className="text-success" />
+                                            ) : (
+                                              <Clock size={16} className="text-warning" />
+                                            )}
+                                          </td>
+                                        </tr>
+                                      );
+                                    })}
+                                  </tbody>
+                                </table>
+                              </div>
+                            ) : (
+                              <p className="text-muted small mb-0">No hay actividades en esta fase</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowCompletionSummaryModal(false)}
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Finalize Confirmation Modal */}
+      {showFinalizeConfirmationModal && (
+        <div
+          className="modal show d-block"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          tabIndex="-1"
+        >
+          <div className="modal-dialog modal-xl">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  <AlertTriangle size={20} className="me-2 text-warning" />
+                  Confirmar Finalización del Proyecto
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={handleCancelFinalize}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>¿Estás seguro de que quieres finalizar el proyecto <strong>{project?.name}</strong>?</p>
+                <p className="text-muted small">
+                  Esta acción marcará el proyecto como completado y no podrá ser editado posteriormente.
+                </p>
+
+                <div className="mt-4">
+                  <h6 className="fw-semibold mb-3">Resumen Actual del Proyecto</h6>
+                  <div className="row g-3 mb-4">
+                    <div className="col-md-3">
+                      <div className="card bg-light">
+                        <div className="card-body text-center">
+                          <h6 className="card-title small">Avance Real</h6>
+                          <h4 className="text-success">{project.real_progress || 0}%</h4>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="card bg-light">
+                        <div className="card-body text-center">
+                          <h6 className="card-title small">Cumplimiento</h6>
+                          <h4 className="text-primary">{project.compliance || 0}%</h4>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="card bg-light">
+                        <div className="card-body text-center">
+                          <h6 className="card-title small">Desviación</h6>
+                          <h4 className={project.accumulated_deviation >= 0 ? "text-success" : "text-danger"}>
+                            {project.accumulated_deviation?.toFixed(2) || 0}%
+                          </h4>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="card bg-light">
+                        <div className="card-body text-center">
+                          <h6 className="card-title small">Estado</h6>
+                          <h4 className="text-info">{project.status}</h4>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <h6 className="fw-semibold mb-3">Fases y Actividades</h6>
+                  <div className="accordion" id="finalizeAccordion">
+                    {project.phases && project.phases.map((phase, phaseIndex) => {
+                      const phaseCompletion = phase.activities && phase.activities.length > 0
+                        ? phase.activities.reduce((sum, activity) => sum + (activity.real_percent || 0), 0) / phase.activities.length
+                        : 0;
+
+                      return (
+                        <div key={phase.id || phaseIndex} className="accordion-item">
+                          <h2 className="accordion-header">
+                            <button
+                              className="accordion-button"
+                              type="button"
+                              data-bs-toggle="collapse"
+                              data-bs-target={`#finalizePhase${phaseIndex}`}
+                              aria-expanded="false"
+                              aria-controls={`finalizePhase${phaseIndex}`}
+                            >
+                              <div className="d-flex justify-content-between align-items-center w-100 me-3">
+                                <span className="fw-medium">{phase.name}</span>
+                                <div className="d-flex align-items-center gap-2">
+                                  <small className="text-muted">
+                                    {phase.activities ? phase.activities.length : 0} actividades
+                                  </small>
+                                  <div className="progress" style={{ width: '100px', height: '8px' }}>
+                                    <div
+                                      className={`progress-bar ${phaseCompletion >= 100 ? 'bg-success' : phaseCompletion >= 50 ? 'bg-warning' : 'bg-danger'}`}
+                                      style={{ width: `${Math.min(phaseCompletion, 100)}%` }}
+                                    ></div>
+                                  </div>
+                                  <span className="badge bg-secondary">{phaseCompletion.toFixed(1)}%</span>
+                                </div>
+                              </div>
+                            </button>
+                          </h2>
+                          <div
+                            id={`finalizePhase${phaseIndex}`}
+                            className="accordion-collapse collapse"
+                            data-bs-parent="#finalizeAccordion"
+                          >
+                            <div className="accordion-body">
+                              {phase.activities && phase.activities.length > 0 ? (
+                                <div className="table-responsive">
+                                  <table className="table table-sm">
+                                    <thead>
+                                      <tr>
+                                        <th className="small fw-medium">Actividad</th>
+                                        <th className="small fw-medium text-center">Planificado</th>
+                                        <th className="small fw-medium text-center">Real</th>
+                                        <th className="small fw-medium text-center">Desviación</th>
+                                        <th className="small fw-medium">Fecha Finalización</th>
+                                        <th className="small fw-medium text-center">Estado</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {phase.activities.map((activity) => {
+                                        const deviation = (activity.real_percent || 0) - (activity.planned_percent || 0);
+                                        const isCompleted = (activity.real_percent || 0) >= 100;
+
+                                        return (
+                                          <tr key={activity.id}>
+                                            <td className="small">{activity.description}</td>
+                                            <td className="text-center small">{(activity.planned_percent || 0).toFixed(1)}%</td>
+                                            <td className="text-center small fw-medium">
+                                              <span className={isCompleted ? 'text-success' : 'text-primary'}>
+                                                {(activity.real_percent || 0).toFixed(1)}%
+                                              </span>
+                                            </td>
+                                            <td className="text-center small">
+                                              <span className={deviation >= 0 ? 'text-success' : 'text-danger'}>
+                                                {deviation.toFixed(1)}%
+                                              </span>
+                                            </td>
+                                            <td className="small">
+                                              {activity.completion_date
+                                                ? new Date(activity.completion_date).toLocaleDateString('es-ES')
+                                                : '-'
+                                              }
+                                            </td>
+                                            <td className="text-center">
+                                              {isCompleted ? (
+                                                <CheckCircle size={16} className="text-success" />
+                                              ) : (
+                                                <Clock size={16} className="text-warning" />
+                                              )}
+                                            </td>
+                                          </tr>
+                                        );
+                                      })}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              ) : (
+                                <p className="text-muted small mb-0">No hay actividades en esta fase</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleCancelFinalize}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  onClick={handleConfirmFinalize}
+                >
+                  <CheckCircle size={16} className="me-1" />
+                  Finalizar Proyecto
                 </button>
               </div>
             </div>
