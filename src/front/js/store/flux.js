@@ -30,6 +30,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       newServicesQuarterlyTrend: [],
       newServicesYearlyTrend: [],
       serviceGrowthProjection: {},
+      sessionExpired: false, // Add session expired state
     },
     actions: {
       // Autenticación
@@ -66,7 +67,7 @@ const getState = ({ getStore, getActions, setStore }) => {
         }
       },
       LogOut: () => {
-        setStore({ user: null, token: null, isAuthenticated: false });
+        setStore({ user: null, token: null, isAuthenticated: false, sessionExpired: false });
         sessionStorage.removeItem("isAuthenticated");
         sessionStorage.removeItem("user");
         sessionStorage.removeItem("token");
@@ -90,7 +91,14 @@ const getState = ({ getStore, getActions, setStore }) => {
           Authorization: `Bearer ${token}`,
         };
 
-        return fetch(url, { ...options, headers });
+        const response = await fetch(url, { ...options, headers });
+
+        if (response.status === 401) {
+          setStore({ sessionExpired: true });
+          throw new Error("Session expired. Please log in again.");
+        }
+
+        return response;
       },
 
       // Fetch all projects

@@ -5,6 +5,7 @@ import "../styles/index.css";
 import injectContext from "./store/appContext.js";
 import Navbar from "./component/navbar";
 import Footer from "./component/footer";
+import SessionExpiredModal from "./component/SessionExpiredModal";
 import Login from "./pages/login.jsx";
 import Resumen from "./pages/Resumen.jsx"
 import DataEntryPage from "./pages/DataEntryPage.jsx";
@@ -58,6 +59,7 @@ const Layout = () => {
                         </Routes>
                     </div>
                     <Footer />
+                    <SessionExpiredModal />
                 </ScrollToTop>
             </BrowserRouter>
         </div>

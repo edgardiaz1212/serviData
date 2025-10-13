@@ -23,6 +23,18 @@ api = Blueprint('api', __name__)
 CORS(api)
 
 # ------------------------------
+# Welcome Endpoint
+# ------------------------------
+
+@api.route('/welcome', methods=['GET'])
+def welcome():
+    """
+    Returns a welcome message and logs the request metadata.
+    """
+    logging.info(f"Request received: {request.method} {request.path}")
+    return jsonify({"message": "Welcome to the Flask API Service!"})
+
+# ------------------------------
 # Acciones para Usuario
 # ------------------------------
 

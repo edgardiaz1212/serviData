@@ -38,7 +38,7 @@ CORS(app)
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "super-secret-dev-key") # ¡CAMBIAR EN PRODUCCIÓN!
 
 # Configura la duración del token de acceso a 2 horas
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=2) # <-- AÑADE ESTA LÍNEA
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=2) #
 
 # Opcional: Configura también la duración del token de refresco si lo usas
 # app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
