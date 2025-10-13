@@ -2,8 +2,10 @@ import React from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, TimeScale } from 'chart.js';
 import 'chartjs-adapter-luxon';
 import { Line } from 'react-chartjs-2';
-
+import 'chartjs-plugin-datalabels';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, TimeScale);
+ChartJS.register(ChartDataLabels);
 
 const ProjectProgressChart = ({ project }) => {
     if (!project || !project.phases) {
@@ -30,7 +32,7 @@ const ProjectProgressChart = ({ project }) => {
     activitiesWithPlanned.forEach(activity => {
         cumulativePlanned += activity.planned_percent || 0;
         const date = new Date(activity.planned_end);
-        plannedData.push({ x: date, y: Number(cumulativePlanned.toFixed(2)) });
+        plannedData.push({ x: date, y: Number(cumulativePlanned.toFixed(2)), activityName: activity.description });
     });
 
     // Calculate real progress
@@ -41,7 +43,7 @@ const ProjectProgressChart = ({ project }) => {
     activitiesWithCompletion.forEach(activity => {
         cumulativeReal += activity.real_compliance || 0;
         const date = new Date(activity.completion_date);
-        realData.push({ x: date, y: Number(cumulativeReal.toFixed(2)) });
+        realData.push({ x: date, y: Number(cumulativeReal.toFixed(2)), activityName: activity.description });
     });
 
     const data = {
@@ -58,6 +60,20 @@ const ProjectProgressChart = ({ project }) => {
                 pointBackgroundColor: 'rgb(59, 130, 246)',
                 pointBorderColor: '#fff',
                 pointBorderWidth: 2,
+                datalabels: {
+                    display: true,
+                    formatter: function(value, context) {
+                        return context.raw ? context.raw.activityName : '';
+                    },
+                    color: 'rgb(59, 130, 246)',
+                    font: {
+                        size: 10,
+                        weight: 'bold'
+                    },
+                    anchor: 'end',
+                    align: 'top',
+                    offset: 5
+                }
             },
             {
                 label: 'Progreso Real (%)',
@@ -71,6 +87,20 @@ const ProjectProgressChart = ({ project }) => {
                 pointBackgroundColor: 'rgb(16, 185, 129)',
                 pointBorderColor: '#fff',
                 pointBorderWidth: 4,
+                datalabels: {
+                    display: true,
+                    formatter: function(value, context) {
+                        return context.raw ? context.raw.activityName : '';
+                    },
+                    color: 'rgb(16, 185, 129)',
+                    font: {
+                        size: 10,
+                        weight: 'bold'
+                    },
+                    anchor: 'end',
+                    align: 'bottom',
+                    offset: 5
+                }
             },
         ],
     };
@@ -87,6 +117,12 @@ const ProjectProgressChart = ({ project }) => {
             },
             tooltip: {
                 callbacks: {
+                    title: function(tooltipItems) {
+                        const date = new Date(tooltipItems[0].parsed.x);
+                        const activityName = tooltipItems[0].raw.activityName;
+                        const dateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        return `${dateStr} - ${activityName}`;
+                    },
                     label: function(context) {
                         return `${context.dataset.label}: ${context.parsed.y.toFixed(2)}%`;
                     }
