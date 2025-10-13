@@ -12,10 +12,10 @@ export default function DCCELandingPage() {
   useEffect(() => {
     // Fetch data only if it's not already in the store to avoid unnecessary calls
     if (!store.totalClients) {
-      actions.getTotalClients();
+      actions.getTotalClientsPublic();
     }
     if (!store.totalServices) {
-      actions.getTotalServices();
+      actions.getTotalServicesPublic();
     }
     // The actions and store objects from flux are generally stable,
     // so they don't usually need to be in the dependency array.

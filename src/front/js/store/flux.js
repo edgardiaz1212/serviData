@@ -433,6 +433,19 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error fetching total clients", error);
         }
       },
+      getTotalClientsPublic: async () => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/clientes/total`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setStore({ totalClients: data.total });
+          }
+        } catch (error) {
+          console.log("Error fetching total clients public", error);
+        }
+      },
       getClientById: async (clientId) => {
         try {
           const response = await getActions().fetchWithToken(
@@ -664,6 +677,21 @@ const getState = ({ getStore, getActions, setStore }) => {
           }
         } catch (error) {
           console.log("Error fetching total services", error);
+        }
+      },
+      getTotalServicesPublic: async () => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/servicios/total`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setStore({ totalServices: data.total });
+          } else {
+            console.error("Failed to fetch total services public");
+          }
+        } catch (error) {
+          console.log("Error fetching total services public", error);
         }
       },
       // Obtener conteo de servicios por tipo
