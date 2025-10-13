@@ -2091,3 +2091,40 @@ def delete_project_status(project_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+
+@api.route('/projects/<int:project_id>/finalize', methods=['PUT'])
+@jwt_required()
+def finalize_project(project_id):
+    try:
+        project = Project.query.get(project_id)
+        if not project:
+            return jsonify({"message": "Project not found"}), 404
+
+        # Set project status to "Completado"
+        project.status = "Completado"
+
+        # Set end_date to current date if not already set
+        if not project.end_date:
+            project.end_date = datetime.now(timezone.utc)
+
+        # Optionally, mark all activities as completed if not already
+        for phase in project.phases:
+            for activity in phase.activities:
+                if activity.status != "Completado":
+                    activity.status = "Completado"
+                    if not activity.completion_date:
+                        activity.completion_date = datetime.now(timezone.utc)
+                    activity.real_percent = 100.0
+                    activity.real_compliance = activity.planned_percent or 0.0
+                    activity.deviation = 0.0
+
+        # Recalculate accumulated deviation
+        total_deviation = update_accumulated_deviations(project_id)
+        project.accumulated_deviation = total_deviation
+
+        db.session.commit()
+        return jsonify({"message": "Project finalized successfully", "project": project.serialize()}), 200
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error finalizing project {project_id}: {str(e)}")
+        return jsonify({"error": "An unexpected error occurred while finalizing the project"}), 500

@@ -31,6 +31,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       newServicesYearlyTrend: [],
       serviceGrowthProjection: {},
       sessionExpired: false, // Add session expired state
+      projects: [], // Add projects state
     },
     actions: {
       // Autenticación
@@ -1369,6 +1370,27 @@ const getState = ({ getStore, getActions, setStore }) => {
           }
         } catch (error) {
           console.error("Error deleting project status:", error);
+          throw error;
+        }
+      },
+      // Finalize project
+      finalizeProject: async (projectId) => {
+        try {
+          const response = await getActions().fetchWithToken(
+            `${process.env.REACT_APP_BACKEND_URL}/projects/${projectId}/finalize`,
+            {
+              method: "PUT",
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          } else {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to finalize project");
+          }
+        } catch (error) {
+          console.error("Error finalizing project:", error);
           throw error;
         }
       },

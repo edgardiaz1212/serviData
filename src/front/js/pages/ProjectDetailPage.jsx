@@ -44,6 +44,7 @@ const ProjectDetailPage = () => {
     deviation_reasons: "",
   });
   const isOwner = project && store.user && project.user_id === store.user.id;
+  const canEdit = isOwner && project?.status !== "Finalizado" && project?.status !== "Completado";
 
   useEffect(() => {
     if (id && id !== "new") {
@@ -340,6 +341,24 @@ const ProjectDetailPage = () => {
     handleCloseStatusModal();
   };
 
+  const handleFinalizeProject = async () => {
+    if (window.confirm("¿Estás seguro de que quieres finalizar este proyecto? Esta acción no se puede deshacer.")) {
+      try {
+        const result = await actions.finalizeProject(id);
+        if (result && !result.error) {
+          toast.success("Proyecto finalizado correctamente");
+          // Refresh project data to reflect changes
+          await fetchProject();
+        } else {
+          toast.error("Error al finalizar el proyecto");
+        }
+      } catch (error) {
+        toast.error("Error de conexión al finalizar el proyecto");
+        console.error("Error finalizing project:", error);
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div
@@ -378,13 +397,26 @@ const ProjectDetailPage = () => {
           <h1 className="h2 fw-bold text-dark mb-0">{project.name}</h1>
         </div>
         {isOwner && (
-          <button
-            onClick={handleEdit}
-            className="btn btn-primary d-flex align-items-center gap-2"
-          >
-            <Edit size={20} />
-            Editar
-          </button>
+          <div className="d-flex gap-2">
+            {canEdit && (
+              <button
+                onClick={handleEdit}
+                className="btn btn-primary d-flex align-items-center gap-2"
+              >
+                <Edit size={20} />
+                Editar
+              </button>
+            )}
+            {canEdit && (
+              <button
+                onClick={handleFinalizeProject}
+                className="btn btn-success d-flex align-items-center gap-2"
+              >
+                <CheckCircle size={20} />
+                Finalizar Proyecto
+              </button>
+            )}
+          </div>
         )}
       </div>
 
@@ -681,7 +713,7 @@ const ProjectDetailPage = () => {
                                     : "-"}
                                 </td>
                                 <td>
-                                  {isOwner ? (
+                                  {isOwner && canEdit ? (
                                     <button
                                       className="btn btn-outline-primary btn-sm"
                                       onClick={() => {
@@ -728,7 +760,7 @@ const ProjectDetailPage = () => {
             <div>
               <div className="d-flex justify-content-between align-items-center mb-4">
                 <h3 className="h5 fw-semibold mb-0">Puntos de Atención</h3>
-                {isOwner && (
+                {isOwner && canEdit && (
                   <button
                     className="btn btn-primary d-flex align-items-center gap-2"
                     onClick={() => handleOpenAttentionModal()}
@@ -785,7 +817,7 @@ const ProjectDetailPage = () => {
                                 </div>
                               </div>
                             </div>
-                            {isOwner && (
+                            {isOwner && canEdit && (
                               <div className="d-flex gap-2">
                                 <button
                                   className="btn btn-outline-secondary btn-sm"
@@ -815,7 +847,7 @@ const ProjectDetailPage = () => {
             <div>
               <div className="d-flex justify-content-between align-items-center mb-4">
                 <h3 className="h5 fw-semibold mb-0">Estado del Proyecto</h3>
-                {isOwner && (
+                {isOwner && canEdit && (
                   <button
                     className="btn btn-primary d-flex align-items-center gap-2"
                     onClick={() => handleOpenStatusModal()}
